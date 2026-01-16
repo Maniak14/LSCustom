@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Star, MessageSquare, Plus, X, User, AlertTriangle } from 'lucide-react';
+import { Star, MessageSquare, Plus, X, User, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Dialog,
@@ -16,6 +16,8 @@ const ReviewsSection: React.FC = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showDeleteReviewDialog, setShowDeleteReviewDialog] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
+  const [currentReviewPage, setCurrentReviewPage] = useState(1);
+  const reviewsPerPage = 6;
   const [formData, setFormData] = useState({
     comment: '',
     rating: 5,
@@ -24,6 +26,19 @@ const ReviewsSection: React.FC = () => {
 
   // Filtrer seulement les avis approuvés
   const approvedReviews = clientReviews.filter(review => review.status === 'approved');
+
+  // Pagination des avis
+  const totalReviewPages = Math.ceil(approvedReviews.length / reviewsPerPage);
+  const startIndex = (currentReviewPage - 1) * reviewsPerPage;
+  const endIndex = startIndex + reviewsPerPage;
+  const paginatedReviews = approvedReviews.slice(startIndex, endIndex);
+
+  // Réinitialiser la page si elle dépasse le nombre total de pages
+  React.useEffect(() => {
+    if (currentReviewPage > totalReviewPages && totalReviewPages > 0) {
+      setCurrentReviewPage(1);
+    }
+  }, [currentReviewPage, totalReviewPages, approvedReviews.length]);
 
   // Vérifier si l'utilisateur a déjà un avis en attente d'approbation
   const hasPendingReview = currentUser
@@ -68,8 +83,9 @@ const ReviewsSection: React.FC = () => {
         </div>
 
         {approvedReviews.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {approvedReviews.slice(0, 6).map((review) => (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedReviews.map((review) => (
             <div
               key={review.id}
               className="glass-card p-6 animate-fade-up relative group"
@@ -128,8 +144,71 @@ const ReviewsSection: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
-          </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalReviewPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-border">
+                <p className="text-sm text-muted-foreground">
+                  Page {currentReviewPage} sur {totalReviewPages} ({approvedReviews.length} avis{approvedReviews.length > 1 ? '' : ''})
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentReviewPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentReviewPage === 1}
+                    className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Page précédente"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalReviewPages }).map((_, index) => {
+                      const page = index + 1;
+                      // Afficher seulement la première page, la dernière, la page actuelle et celles adjacentes
+                      if (
+                        page === 1 ||
+                        page === totalReviewPages ||
+                        (page >= currentReviewPage - 1 && page <= currentReviewPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentReviewPage(page)}
+                            className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-medium transition-colors ${
+                              currentReviewPage === page
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-secondary'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      } else if (
+                        page === currentReviewPage - 2 ||
+                        page === currentReviewPage + 2
+                      ) {
+                        return (
+                          <span key={page} className="px-2 text-muted-foreground">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                  <button
+                    onClick={() => setCurrentReviewPage(prev => Math.min(totalReviewPages, prev + 1))}
+                    disabled={currentReviewPage === totalReviewPages}
+                    className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Page suivante"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-8 mb-8">
             <p className="text-muted-foreground">Aucun avis pour le moment.</p>

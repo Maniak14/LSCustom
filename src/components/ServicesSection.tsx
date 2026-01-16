@@ -75,7 +75,7 @@ const ServicesSection: React.FC = () => {
         {/* CTA */}
         <div className="mt-16 text-center">
           <Link to="/tarifs" className="btn-accent">
-            Voir tous les tarifs
+            Voir les tarifs
           </Link>
         </div>
       </div>

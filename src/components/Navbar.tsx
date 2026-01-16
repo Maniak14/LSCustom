@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   const navLinks = [
     { href: '/', label: 'QUI SOMMES-NOUS' },
     { href: '/tarifs', label: 'SERVICES' },
-    { href: '/candidature', label: 'REJOINDRE' },
+    { href: '/candidature', label: 'NOUS REJOINDRE' },
   ];
 
   const isActive = (path: string) => location.pathname === path;

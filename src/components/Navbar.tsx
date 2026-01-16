@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Sun, Moon, User } from 'lucide-react';
+import { Menu, X, Sun, Moon, User, Calendar } from 'lucide-react';
 import logoImage from '@/components/ui/0f4c0073c58cda701de3ecc0e6153a3f.png';
 import { useTheme } from '@/hooks/use-theme';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
@@ -16,6 +16,7 @@ const Navbar: React.FC = () => {
     { href: '/', label: 'QUI SOMMES-NOUS' },
     { href: '/tarifs', label: 'SERVICES & TARIFS' },
     { href: '/candidature', label: 'NOUS REJOINDRE' },
+    { href: '/rendez-vous', label: 'RENDEZ-VOUS' },
   ];
 
   const isActive = (path: string) => location.pathname === path;

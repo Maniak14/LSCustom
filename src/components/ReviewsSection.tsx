@@ -40,8 +40,10 @@ const ReviewsSection: React.FC = () => {
     }
   };
 
-  if (!isUserLoggedIn || approvedReviews.length === 0) {
-    return null; // N'afficher que si connecté et qu'il y a des avis
+  // Afficher la section même s'il n'y a pas d'avis, mais seulement les avis si connecté
+  // Si pas connecté et pas d'avis, ne rien afficher
+  if (!isUserLoggedIn && approvedReviews.length === 0) {
+    return null;
   }
 
   return (
@@ -56,8 +58,9 @@ const ReviewsSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {approvedReviews.slice(0, 6).map((review) => (
+        {approvedReviews.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {approvedReviews.slice(0, 6).map((review) => (
             <div
               key={review.id}
               className="glass-card p-6 animate-fade-up"
@@ -97,7 +100,12 @@ const ReviewsSection: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 mb-8">
+            <p className="text-muted-foreground">Aucun avis pour le moment.</p>
+          </div>
+        )}
 
         {isUserLoggedIn && currentUser && (
           <div className="text-center">

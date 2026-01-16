@@ -319,24 +319,6 @@ const Profil: React.FC = () => {
             </div>
           </div>
 
-          {/* Rendez-vous section */}
-          <div className="glass-card mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold mb-1">Rendez-vous</h2>
-                <p className="text-sm text-muted-foreground">
-                  Prendre rendez-vous avec un membre de la direction
-                </p>
-              </div>
-              <Link
-                to="/rendez-vous"
-                className="btn-primary flex items-center gap-2"
-              >
-                <Calendar className="w-4 h-4" />
-                Prendre RDV
-              </Link>
-            </div>
-          </div>
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4">

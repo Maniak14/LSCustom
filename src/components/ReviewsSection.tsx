@@ -154,15 +154,23 @@ const ReviewsSection: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Votre avis *
+                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                  <span>Votre avis *</span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    ({formData.comment.length}/{MAX_COMMENT_LENGTH})
+                  </span>
                 </label>
                 <textarea
                   value={formData.comment}
-                  onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
+                  onChange={(e) => {
+                    if (e.target.value.length <= MAX_COMMENT_LENGTH) {
+                      setFormData(prev => ({ ...prev, comment: e.target.value }));
+                    }
+                  }}
                   className="input-modern min-h-[120px] resize-none"
                   placeholder="Décrivez votre expérience..."
                   required
+                  maxLength={MAX_COMMENT_LENGTH}
                 />
               </div>
               <DialogFooter>

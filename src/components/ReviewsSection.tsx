@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Star, MessageSquare, Plus, X, User } from 'lucide-react';
+import { Star, MessageSquare, Plus, X, User, AlertTriangle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Dialog,
@@ -12,8 +12,10 @@ import {
 } from "@/components/ui/dialog";
 
 const ReviewsSection: React.FC = () => {
-  const { clientReviews, addClientReview, isUserLoggedIn, currentUser, users } = useRecruitment();
+  const { clientReviews, addClientReview, deleteReview, isUserLoggedIn, currentUser, users } = useRecruitment();
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showDeleteReviewDialog, setShowDeleteReviewDialog] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     comment: '',
     rating: 5,
@@ -70,8 +72,22 @@ const ReviewsSection: React.FC = () => {
             {approvedReviews.slice(0, 6).map((review) => (
             <div
               key={review.id}
-              className="glass-card p-6 animate-fade-up"
+              className="glass-card p-6 animate-fade-up relative group"
             >
+              {/* Bouton de suppression pour les utilisateurs direction */}
+              {currentUser?.grade === 'direction' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setReviewToDelete(review.id);
+                    setShowDeleteReviewDialog(true);
+                  }}
+                  className="absolute top-2 right-2 w-5 h-5 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity text-[10px] z-10"
+                  title="Supprimer l'avis"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
               <div className="flex items-center gap-1 mb-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
@@ -208,6 +224,60 @@ const ReviewsSection: React.FC = () => {
                 </button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de confirmation de suppression d'avis */}
+        <Dialog open={showDeleteReviewDialog} onOpenChange={setShowDeleteReviewDialog}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="text-center sm:text-left">
+              <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
+                </div>
+                <div className="flex-1 text-center sm:text-left min-w-0">
+                  <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
+                    Supprimer l'avis
+                  </DialogTitle>
+                  <DialogDescription className="text-sm sm:text-base break-words">
+                    Êtes-vous sûr de vouloir supprimer cet avis ?
+                  </DialogDescription>
+                </div>
+              </div>
+              <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span className="break-words">Cette action est irréversible et supprimera définitivement l'avis de la page d'accueil.</span>
+                </p>
+              </div>
+            </DialogHeader>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+              <button
+                onClick={() => {
+                  setShowDeleteReviewDialog(false);
+                  setReviewToDelete(null);
+                }}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={async () => {
+                  if (reviewToDelete) {
+                    try {
+                      await deleteReview(reviewToDelete);
+                      setShowDeleteReviewDialog(false);
+                      setReviewToDelete(null);
+                    } catch (error) {
+                      console.error('Erreur lors de la suppression de l\'avis:', error);
+                    }
+                  }
+                }}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
+              >
+                Supprimer définitivement
+              </button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

@@ -1012,7 +1012,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const updateUserPhoto = async (userId: string, photoUrl: string): Promise<boolean> => {
-    return await updateUserByAdmin(userId, { photoUrl });
+    const result = await updateUserByAdmin(userId, { photoUrl });
+    return typeof result === 'boolean' ? result : false;
   };
 
   const deleteUser = async (userId: string): Promise<boolean> => {

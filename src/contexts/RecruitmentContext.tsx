@@ -64,9 +64,8 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client') => Promise<User | null>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client') => Promise<boolean>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
-  loginUserDirect: (user: User) => void;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
@@ -485,11 +484,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client'): Promise<User | null> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client'): Promise<boolean> => {
     // Vérifier si l'ID personnel existe déjà
     const existingUser = users.find(u => u.idPersonnel === idPersonnel);
     if (existingUser) {
-      return null; // Utilisateur déjà existant
+      return false; // Utilisateur déjà existant
     }
 
     const newUser: User = {
@@ -523,47 +522,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       saveToLocalStorage();
     }
 
-    return newUser;
+    return true;
   };
 
   const loginUser = async (idPersonnel: string, password: string): Promise<boolean> => {
-    // Chercher d'abord dans la liste locale
-    let user = users.find(u => u.idPersonnel === idPersonnel && u.password === password);
-    
-    // Si pas trouvé localement et Supabase configuré, chercher dans Supabase
-    if (!user && isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id_personnel', idPersonnel)
-          .eq('password', password)
-          .single();
-        
-        if (!error && data) {
-          user = {
-            id: data.id,
-            idPersonnel: data.id_personnel,
-            password: data.password,
-            telephone: data.telephone,
-            prenom: data.prenom || undefined,
-            nom: data.nom || undefined,
-            grade: data.grade || 'client',
-            createdAt: new Date(data.created_at),
-          };
-          // Ajouter à la liste locale
-          setUsers(prev => {
-            if (!prev.find(u => u.id === user!.id)) {
-              return [...prev, user!];
-            }
-            return prev;
-          });
-        }
-      } catch (error) {
-        console.error('Error logging in from Supabase:', error);
-      }
-    }
-    
+    const user = users.find(u => u.idPersonnel === idPersonnel && u.password === password);
     if (user) {
       setCurrentUser(user);
       setIsUserLoggedIn(true);
@@ -571,12 +534,6 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       return true;
     }
     return false;
-  };
-
-  const loginUserDirect = (user: User) => {
-    setCurrentUser(user);
-    setIsUserLoggedIn(true);
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
   };
 
   const logoutUser = () => {
@@ -817,7 +774,6 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         currentUser,
         registerUser,
         loginUser,
-        loginUserDirect,
         logoutUser,
         updateUser,
         users,

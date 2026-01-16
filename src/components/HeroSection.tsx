@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Circle } from 'lucide-react';
+import { useRecruitment } from '@/contexts/RecruitmentContext';
 
 const HeroSection: React.FC = () => {
+  const { isRecruitmentOpen } = useRecruitment();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">
       {/* Content */}
@@ -29,13 +32,21 @@ const HeroSection: React.FC = () => {
 
         {/* CTA Buttons */}
         <div className="mt-12 flex flex-col sm:flex-row items-center gap-6">
-          {/* Bouton DONATE vert clair */}
-          <Link
-            to="/tarifs"
-            className="px-8 py-4 rounded-lg text-base font-medium bg-[#90EE90] hover:bg-[#7ED87E] text-foreground transition-colors shadow-sm"
-          >
-            DÉCOUVRIR
-          </Link>
+          {/* Badge Recrutement ouvert/fermé */}
+          {isRecruitmentOpen ? (
+            <Link
+              to="/candidature"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium bg-[#90EE90] hover:bg-[#7ED87E] text-foreground transition-colors shadow-sm"
+            >
+              <Circle className="w-2 h-2 fill-current" />
+              Recrutement ouvert
+            </Link>
+          ) : (
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium bg-red-500 hover:bg-red-600 text-white transition-colors shadow-sm">
+              <Circle className="w-2 h-2 fill-current" />
+              Recrutement fermé
+            </div>
+          )}
           
           {/* Bouton TARIFS avec flèche */}
           <Link

@@ -56,12 +56,12 @@ const Navbar: React.FC = () => {
               <Phone className="w-5 h-5 text-foreground" />
             </button>
 
-            {/* Bouton DONATE */}
+            {/* Bouton EMPLOYÉ */}
             <Link
-              to="/tarifs"
+              to="/panel"
               className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
             >
-              CONTACT
+              EMPLOYÉ
             </Link>
           </div>
 
@@ -101,11 +101,11 @@ const Navbar: React.FC = () => {
                   <Phone className="w-5 h-5 text-foreground" />
                 </button>
                 <Link
-                  to="/tarifs"
+                  to="/panel"
                   onClick={() => setIsOpen(false)}
                   className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
                 >
-                  CONTACT
+                  EMPLOYÉ
                 </Link>
               </div>
             </div>

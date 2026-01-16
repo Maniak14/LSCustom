@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment, TeamMember } from '@/contexts/RecruitmentContext';
@@ -6,6 +7,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User } from 'lucide-react';
 
 const Panel: React.FC = () => {
+  const navigate = useNavigate();
   const { theme } = useTheme();
   const {
     isEmployeeLoggedIn,
@@ -24,6 +26,9 @@ const Panel: React.FC = () => {
     addTeamMember,
     removeTeamMember,
     updateTeamMember,
+    isUserLoggedIn,
+    currentUser,
+    logoutUser,
   } = useRecruitment();
 
   const [password, setPassword] = useState('');
@@ -61,7 +66,11 @@ const Panel: React.FC = () => {
     setPassword('');
   };
 
-  if (!isEmployeeLoggedIn) {
+  // Vérifier si l'utilisateur connecté a le grade "direction"
+  const hasDirectionAccess = isUserLoggedIn && currentUser?.grade === 'direction';
+  const canAccessPanel = isEmployeeLoggedIn || hasDirectionAccess;
+
+  if (!canAccessPanel) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
@@ -73,28 +82,26 @@ const Panel: React.FC = () => {
               </div>
               <h1 className="text-2xl font-bold">Dashboard</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Accès réservé
+                Accès réservé aux membres de la direction
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="glass-card">
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Mot de passe</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`input-modern ${loginError ? 'ring-2 ring-destructive/50' : ''}`}
-                  placeholder="••••••••"
-                />
-                {loginError && (
-                  <p className="text-sm text-destructive mt-2">Mot de passe incorrect</p>
-                )}
+            {!isUserLoggedIn ? (
+              <div className="glass-card text-center">
+                <p className="text-muted-foreground mb-4">
+                  Vous devez être connecté avec un compte de direction pour accéder au dashboard.
+                </p>
+                <Link to="/inscription" className="btn-primary w-full">
+                  Se connecter
+                </Link>
               </div>
-              <button type="submit" className="btn-primary w-full">
-                Connexion
-              </button>
-            </form>
+            ) : (
+              <div className="glass-card text-center">
+                <p className="text-muted-foreground">
+                  Accès refusé. Seuls les membres de la direction peuvent accéder au dashboard.
+                </p>
+              </div>
+            )}
           </div>
         </main>
         <Footer />
@@ -114,7 +121,14 @@ const Panel: React.FC = () => {
               <h1 className="text-2xl font-bold">Dashboard</h1>
             </div>
             <button
-              onClick={logoutEmployee}
+              onClick={() => {
+                if (hasDirectionAccess) {
+                  logoutUser();
+                  navigate('/');
+                } else {
+                  logoutEmployee();
+                }
+              }}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-muted text-muted-foreground hover:bg-secondary transition-colors"
             >
               <LogOut className="w-4 h-4" />

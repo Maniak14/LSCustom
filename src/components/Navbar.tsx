@@ -67,6 +67,16 @@ const Navbar: React.FC = () => {
               )}
             </button>
 
+            {/* Bouton Dashboard pour les membres de la direction */}
+            {isUserLoggedIn && currentUser?.grade === 'direction' && (
+              <Link
+                to="/panel"
+                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
+              >
+                DASHBOARD
+              </Link>
+            )}
+
             {/* Bouton S'INSCRIRE ou Profil */}
             {isUserLoggedIn ? (
               <Link
@@ -126,6 +136,15 @@ const Navbar: React.FC = () => {
                     <Moon className="w-5 h-5 text-foreground" />
                   )}
                 </button>
+                {isUserLoggedIn && currentUser?.grade === 'direction' && (
+                  <Link
+                    to="/panel"
+                    onClick={() => setIsOpen(false)}
+                    className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
+                  >
+                    DASHBOARD
+                  </Link>
+                )}
                 {isUserLoggedIn ? (
                   <Link
                     to="/profil"

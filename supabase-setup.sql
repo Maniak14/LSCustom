@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS users (
   id_personnel TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
   telephone TEXT NOT NULL,
+  grade TEXT NOT NULL CHECK (grade IN ('direction', 'client')) DEFAULT 'client',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -112,3 +113,10 @@ CREATE POLICY "Allow public read access on users" ON users
 
 CREATE POLICY "Allow public insert access on users" ON users
   FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow public update access on users" ON users
+  FOR UPDATE USING (true);
+
+-- Pour créer le premier utilisateur "direction", exécutez cette commande :
+-- INSERT INTO users (id_personnel, password, telephone, grade) 
+-- VALUES ('votre-id-direction', 'votre-mot-de-passe', 'votre-telephone', 'direction');

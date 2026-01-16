@@ -34,6 +34,9 @@ export interface User {
   idPersonnel: string;
   password: string; // Hashé en production
   telephone: string;
+  prenom?: string;
+  nom?: string;
+  grade: 'direction' | 'client';
   createdAt: Date;
 }
 
@@ -61,10 +64,14 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string) => Promise<boolean>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client') => Promise<boolean>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
+  // User management for admins
+  users: User[];
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }) => Promise<boolean>;
+  deleteUser: (userId: string) => Promise<boolean>;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
@@ -238,6 +245,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         idPersonnel: row.id_personnel,
         password: row.password,
         telephone: row.telephone,
+        grade: row.grade || 'client', // Par défaut 'client' si non défini
         createdAt: new Date(row.created_at),
       })));
     }
@@ -278,6 +286,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       const parsed = JSON.parse(storedUsers);
       setUsers(parsed.map((user: any) => ({
         ...user,
+        grade: user.grade || 'client', // Par défaut 'client' si non défini
         createdAt: new Date(user.createdAt),
       })));
     }
@@ -471,7 +480,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string): Promise<boolean> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client'): Promise<boolean> => {
     // Vérifier si l'ID personnel existe déjà
     const existingUser = users.find(u => u.idPersonnel === idPersonnel);
     if (existingUser) {
@@ -483,6 +492,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       idPersonnel,
       password, // En production, hash le mot de passe
       telephone,
+      grade,
       createdAt: new Date(),
     };
 
@@ -495,6 +505,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
           id_personnel: newUser.idPersonnel,
           password: newUser.password,
           telephone: newUser.telephone,
+          grade: newUser.grade,
           created_at: newUser.createdAt.toISOString(),
         });
       } catch (error) {
@@ -581,6 +592,10 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        // S'assurer que le grade est présent (par défaut 'client' pour les anciens utilisateurs)
+        if (!user.grade) {
+          user.grade = 'client';
+        }
         setCurrentUser(user);
         setIsUserLoggedIn(true);
       } catch (error) {

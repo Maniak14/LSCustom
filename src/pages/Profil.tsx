@@ -404,14 +404,14 @@ const Profil: React.FC = () => {
 
       {/* Modal pour modifier la photo de profil */}
       <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Modifier la photo de profil</DialogTitle>
             <DialogDescription>
               Entrez l'URL de votre photo de profil
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             {photoError && (
               <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
@@ -429,7 +429,7 @@ const Profil: React.FC = () => {
                   setPhotoUrl(e.target.value);
                   setPhotoError('');
                 }}
-                className="input-modern"
+                className="input-modern w-full"
                 placeholder="https://exemple.com/image.jpg"
               />
               <p className="text-xs text-muted-foreground mt-2">
@@ -438,7 +438,7 @@ const Profil: React.FC = () => {
             </div>
             {photoUrl && (
               <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border">
-                <Avatar className="w-16 h-16">
+                <Avatar className="w-16 h-16 flex-shrink-0">
                   <AvatarImage src={photoUrl} alt="Aperçu" />
                   <AvatarFallback>
                     <ImageIcon className="w-8 h-8 text-muted-foreground" />
@@ -451,7 +451,7 @@ const Profil: React.FC = () => {
               </div>
             )}
           </div>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 sm:gap-2">
             <button
               type="button"
               onClick={() => {
@@ -459,14 +459,14 @@ const Profil: React.FC = () => {
                 setPhotoUrl('');
                 setPhotoError('');
               }}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+              className="flex-1 sm:flex-initial px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={handlePhotoSave}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="flex-1 sm:flex-initial px-6 py-2.5 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
             >
               Enregistrer
             </button>

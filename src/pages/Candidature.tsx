@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { AlertCircle, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, ArrowLeft, Clock, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Candidature: React.FC = () => {
   const navigate = useNavigate();
-  const { isRecruitmentOpen, addApplication, hasActiveApplication, applications, isUserLoggedIn, currentUser } = useRecruitment();
+  const { isRecruitmentOpen, addApplication, hasActiveApplication, applications, isUserLoggedIn, currentUser, sessions } = useRecruitment();
   
   const [formData, setFormData] = useState({
     nomRP: '',
@@ -209,6 +209,92 @@ const Candidature: React.FC = () => {
               Deviens mécanicien chez LS Custom's
             </p>
           </div>
+
+          {/* Historique des candidatures */}
+          {isUserLoggedIn && currentUser && (
+            <div className="glass-card mb-6 animate-fade-up">
+              <div className="flex items-center gap-2 mb-4">
+                <History className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold">Historique de mes candidatures</h2>
+              </div>
+              {(() => {
+                const userApplications = applications.filter(app => app.idJoueur === currentUser.idPersonnel);
+                if (userApplications.length === 0) {
+                  return (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Aucune candidature enregistrée
+                    </p>
+                  );
+                }
+                return (
+                  <div className="space-y-3">
+                    {userApplications
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .map((app) => {
+                        const session = sessions.find(s => s.id === app.sessionId);
+                        return (
+                          <div
+                            key={app.id}
+                            className="p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    app.status === 'pending'
+                                      ? 'bg-accent/20 text-accent'
+                                      : app.status === 'accepted'
+                                      ? 'bg-success/20 text-success'
+                                      : 'bg-destructive/20 text-destructive'
+                                  }`}>
+                                    {app.status === 'pending' && 'En attente'}
+                                    {app.status === 'accepted' && 'Acceptée'}
+                                    {app.status === 'rejected' && 'Refusée'}
+                                  </span>
+                                  {session && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {session.name}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                                  <Clock className="w-3 h-3" />
+                                  <span>
+                                    {new Date(app.createdAt).toLocaleDateString('fr-FR', {
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
+                                  </span>
+                                </div>
+                                {app.motivation && (
+                                  <p className="text-sm text-muted-foreground line-clamp-2">
+                                    {app.motivation}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="shrink-0">
+                                {app.status === 'pending' && (
+                                  <AlertCircle className="w-5 h-5 text-accent" />
+                                )}
+                                {app.status === 'accepted' && (
+                                  <CheckCircle className="w-5 h-5 text-success" />
+                                )}
+                                {app.status === 'rejected' && (
+                                  <XCircle className="w-5 h-5 text-destructive" />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Message candidature existante - Affiche seulement le message, pas le formulaire */}
           {status === 'existing' ? (

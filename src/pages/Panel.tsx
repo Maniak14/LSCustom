@@ -349,7 +349,7 @@ const Panel: React.FC = () => {
                   const session = sessions.find(s => s.id === app.sessionId);
                   return (
                     <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex flex-col lg:flex-row justify-between gap-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="font-medium">
@@ -377,17 +377,17 @@ const Panel: React.FC = () => {
                       </div>
 
                       {app.status === 'pending' && (
-                        <div className="flex gap-2 shrink-0">
+                        <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
                           <button
                             onClick={async () => await updateApplicationStatus(app.id, 'accepted')}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-success/10 text-success hover:bg-success/20 transition-colors"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
                           >
                             <Check className="w-4 h-4" />
                             Accepter
                           </button>
                           <button
                             onClick={async () => await updateApplicationStatus(app.id, 'rejected')}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
                           >
                             <X className="w-4 h-4" />
                             Refuser

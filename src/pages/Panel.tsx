@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRecruitment, TeamMember } from '@/contexts/RecruitmentContext';
+import { useRecruitment, TeamMember, User } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon } from 'lucide-react';
 
 const Panel: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +29,9 @@ const Panel: React.FC = () => {
     isUserLoggedIn,
     currentUser,
     logoutUser,
+    users,
+    updateUserByAdmin,
+    deleteUser,
   } = useRecruitment();
 
   const [password, setPassword] = useState('');
@@ -487,7 +490,7 @@ const Panel: React.FC = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <User className="w-8 h-8 text-muted-foreground" />
+                          <UserIcon className="w-8 h-8 text-muted-foreground" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -523,6 +526,166 @@ const Panel: React.FC = () => {
                           </button>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* User Management */}
+          <div className="glass-card !p-0 overflow-hidden">
+            <div className="p-4 border-b border-border flex justify-between items-center">
+              <h2 className="font-semibold">Gestion des utilisateurs</h2>
+            </div>
+
+            {showUserForm && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (editingUser) {
+                    await updateUserByAdmin(editingUser.id, {
+                      prenom: userFormData.prenom || undefined,
+                      nom: userFormData.nom || undefined,
+                      telephone: userFormData.telephone,
+                      grade: userFormData.grade,
+                    });
+                  }
+                  setShowUserForm(false);
+                  setEditingUser(null);
+                  setUserFormData({ prenom: '', nom: '', telephone: '', grade: 'client' });
+                }}
+                className="p-4 border-b border-border animate-fade-up"
+              >
+                <h3 className="text-lg font-semibold mb-4">
+                  {editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Prénom</label>
+                    <input
+                      type="text"
+                      value={userFormData.prenom}
+                      onChange={(e) => setUserFormData(prev => ({ ...prev, prenom: e.target.value }))}
+                      className="input-modern"
+                      placeholder="Prénom"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Nom</label>
+                    <input
+                      type="text"
+                      value={userFormData.nom}
+                      onChange={(e) => setUserFormData(prev => ({ ...prev, nom: e.target.value }))}
+                      className="input-modern"
+                      placeholder="Nom"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Téléphone *</label>
+                    <input
+                      type="tel"
+                      value={userFormData.telephone}
+                      onChange={(e) => setUserFormData(prev => ({ ...prev, telephone: e.target.value }))}
+                      className="input-modern"
+                      placeholder="Numéro de téléphone"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Grade *</label>
+                    <select
+                      value={userFormData.grade}
+                      onChange={(e) => setUserFormData(prev => ({ ...prev, grade: e.target.value as 'direction' | 'client' }))}
+                      className="input-modern"
+                      required
+                    >
+                      <option value="client">Client</option>
+                      <option value="direction">Direction</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button type="submit" className="btn-primary flex-1">
+                    {editingUser ? 'Modifier' : 'Ajouter'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserForm(false);
+                      setUserFormData({ prenom: '', nom: '', telephone: '', grade: 'client' });
+                      setEditingUser(null);
+                    }}
+                    className="btn-ghost flex-1"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {users.length === 0 ? (
+              <div className="p-12 text-center">
+                <p className="text-muted-foreground">Aucun utilisateur enregistré</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {users.map((user) => (
+                  <div key={user.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                        <UserIcon className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-1">
+                          <p className="font-medium">
+                            {user.prenom && user.nom
+                              ? `${user.prenom} ${user.nom}`
+                              : user.prenom || user.nom || user.idPersonnel}
+                          </p>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            user.grade === 'direction'
+                              ? 'bg-primary/20 text-primary'
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {user.grade === 'direction' ? 'Direction' : 'Client'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-1">ID: {user.idPersonnel}</p>
+                        <p className="text-xs text-muted-foreground">Tél: {user.telephone}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          setEditingUser(user);
+                          setUserFormData({
+                            prenom: user.prenom || '',
+                            nom: user.nom || '',
+                            telephone: user.telephone,
+                            grade: user.grade,
+                          });
+                          setShowUserForm(true);
+                        }}
+                        className="p-2 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        title="Modifier"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.prenom && user.nom ? `${user.prenom} ${user.nom}` : user.idPersonnel} ?`)) {
+                            await deleteUser(user.id);
+                          }
+                        }}
+                        className="p-2 rounded-full text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        title="Supprimer"
+                        disabled={currentUser?.id === user.id}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 ))}

@@ -245,6 +245,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         idPersonnel: row.id_personnel,
         password: row.password,
         telephone: row.telephone,
+        prenom: row.prenom || undefined,
+        nom: row.nom || undefined,
         grade: row.grade || 'client', // Par défaut 'client' si non défini
         createdAt: new Date(row.created_at),
       })));
@@ -286,6 +288,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       const parsed = JSON.parse(storedUsers);
       setUsers(parsed.map((user: any) => ({
         ...user,
+        prenom: user.prenom || undefined,
+        nom: user.nom || undefined,
         grade: user.grade || 'client', // Par défaut 'client' si non défini
         createdAt: new Date(user.createdAt),
       })));
@@ -505,6 +509,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
           id_personnel: newUser.idPersonnel,
           password: newUser.password,
           telephone: newUser.telephone,
+          prenom: newUser.prenom || null,
+          nom: newUser.nom || null,
           grade: newUser.grade,
           created_at: newUser.createdAt.toISOString(),
         });
@@ -577,6 +583,83 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
           .eq('id', currentUser.id);
       } catch (error) {
         console.error('Error updating user in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    return true;
+  };
+
+  // User management for admins
+  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }): Promise<boolean> => {
+    const userToUpdate = users.find(u => u.id === userId);
+    if (!userToUpdate) {
+      return false;
+    }
+
+    const updatedUser: User = {
+      ...userToUpdate,
+      prenom: data.prenom !== undefined ? data.prenom : userToUpdate.prenom,
+      nom: data.nom !== undefined ? data.nom : userToUpdate.nom,
+      telephone: data.telephone !== undefined ? data.telephone : userToUpdate.telephone,
+      grade: data.grade !== undefined ? data.grade : userToUpdate.grade,
+    };
+
+    // Mettre à jour dans la liste des utilisateurs
+    setUsers(prev =>
+      prev.map(u => (u.id === userId ? updatedUser : u))
+    );
+
+    // Mettre à jour l'utilisateur actuel si c'est lui
+    if (currentUser && currentUser.id === userId) {
+      setCurrentUser(updatedUser);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(updatedUser));
+    }
+
+    // Sauvegarder dans Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        const updateData: any = {};
+        if (data.prenom !== undefined) updateData.prenom = data.prenom || null;
+        if (data.nom !== undefined) updateData.nom = data.nom || null;
+        if (data.telephone !== undefined) updateData.telephone = data.telephone;
+        if (data.grade !== undefined) updateData.grade = data.grade;
+
+        await supabase
+          .from('users')
+          .update(updateData)
+          .eq('id', userId);
+      } catch (error) {
+        console.error('Error updating user in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    return true;
+  };
+
+  const deleteUser = async (userId: string): Promise<boolean> => {
+    // Ne pas permettre de supprimer l'utilisateur actuellement connecté
+    if (currentUser && currentUser.id === userId) {
+      return false;
+    }
+
+    // Retirer de la liste
+    setUsers(prev => prev.filter(u => u.id !== userId));
+
+    // Supprimer de Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('users')
+          .delete()
+          .eq('id', userId);
+      } catch (error) {
+        console.error('Error deleting user from Supabase:', error);
         saveToLocalStorage();
       }
     } else {
@@ -693,6 +776,9 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         loginUser,
         logoutUser,
         updateUser,
+        users,
+        updateUserByAdmin,
+        deleteUser,
       }}
     >
       {children}

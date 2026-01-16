@@ -50,9 +50,9 @@ const HeroSection: React.FC = () => {
 
         {/* Description de l'entreprise */}
         <div className="mt-10 max-w-2xl mx-auto text-center">
-          <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-            Le garage de référence à Los Santos. Réparations, customisation et performances depuis 1987.
-          </p>
+            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
+              Le garage de référence à Los Santos. Réparations, customisation et performances depuis 2023.
+            </p>
         </div>
       </div>
     </section>

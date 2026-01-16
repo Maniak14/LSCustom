@@ -28,23 +28,12 @@ const LocalisationSection: React.FC = () => {
             
             {/* Overlay avec bouton Réserver */}
             <div className="absolute bottom-4 right-4 z-10">
-              <button className="px-6 py-3 rounded-lg text-sm font-medium bg-background/90 hover:bg-background text-foreground transition-colors shadow-lg flex items-center gap-2">
-                <span>Réserver</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-arrow-up"
-                >
-                  <path d="m18 15-6-6-6 6" />
-                </svg>
-              </button>
+              <Link
+                to="/rendez-vous"
+                className="px-6 py-3 rounded-lg text-sm font-medium bg-background/90 hover:bg-background text-foreground transition-colors shadow-lg inline-flex items-center"
+              >
+                Réserver
+              </Link>
             </div>
           </div>
         </div>

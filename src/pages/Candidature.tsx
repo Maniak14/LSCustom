@@ -477,7 +477,7 @@ const Candidature: React.FC = () => {
             </p>
           </form>
             </>
-          )}
+          ) : null}
         </div>
       </main>
 

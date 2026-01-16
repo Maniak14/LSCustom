@@ -312,7 +312,18 @@ const STORAGE_KEYS = {
 };
 
 export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
+  // Charger l'état du recrutement depuis localStorage de manière synchrone pour éviter le flash
+  const getInitialRecruitmentState = () => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEYS.RECRUITMENT_OPEN);
+      if (stored !== null) {
+        return stored === 'true';
+      }
+    }
+    return false;
+  };
+
+  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(getInitialRecruitmentState());
   const [applications, setApplications] = useState<Application[]>([]);
   const [sessions, setSessions] = useState<RecruitmentSession[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);

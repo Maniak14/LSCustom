@@ -983,7 +983,7 @@ const Panel: React.FC = () => {
 
           {/* Modal de confirmation de suppression */}
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto scrollbar-hide p-4 sm:p-6">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
               <DialogHeader className="text-center sm:text-left">
                 <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
@@ -1039,7 +1039,7 @@ const Panel: React.FC = () => {
 
           {/* Modal de confirmation de suppression de candidature */}
           <Dialog open={showDeleteAppDialog} onOpenChange={setShowDeleteAppDialog}>
-            <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto scrollbar-hide p-4 sm:p-6">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
               <DialogHeader className="text-center sm:text-left">
                 <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
@@ -1093,7 +1093,7 @@ const Panel: React.FC = () => {
 
           {/* Modal de confirmation de suppression de membre d'équipe */}
           <Dialog open={showDeleteTeamDialog} onOpenChange={setShowDeleteTeamDialog}>
-            <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto scrollbar-hide p-4 sm:p-6">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
               <DialogHeader className="text-center sm:text-left">
                 <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">

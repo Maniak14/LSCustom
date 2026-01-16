@@ -52,10 +52,28 @@ const Panel: React.FC = () => {
   const [showTeamForm, setShowTeamForm] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [teamFormData, setTeamFormData] = useState({
+    userId: '',
     prenom: '',
     nom: '',
     role: '',
     photo: '',
+  });
+
+  // Filtrer les utilisateurs direction qui ne sont pas déjà dans l'équipe
+  const availableDirectionUsers = users.filter(user => {
+    if (user.grade !== 'direction') return false;
+    // Si on est en mode édition, on peut garder l'utilisateur actuel
+    if (editingMember) {
+      // Vérifier si cet utilisateur correspond au membre en cours d'édition
+      const memberUser = users.find(u => 
+        u.prenom === editingMember.prenom && u.nom === editingMember.nom
+      );
+      if (memberUser && memberUser.id === user.id) return true;
+    }
+    // Vérifier si l'utilisateur n'est pas déjà dans l'équipe
+    return !teamMembers.some(member => 
+      member.prenom === user.prenom && member.nom === user.nom
+    );
   });
 
   // User management
@@ -397,7 +415,7 @@ const Panel: React.FC = () => {
                 onClick={() => {
                   setShowTeamForm(true);
                   setEditingMember(null);
-                  setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
+                  setTeamFormData({ userId: '', prenom: '', nom: '', role: '', photo: '' });
                 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
               >
@@ -413,28 +431,85 @@ const Panel: React.FC = () => {
                   {editingMember ? 'Modifier le membre' : 'Nouveau membre'}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Prénom *</label>
-                    <input
-                      type="text"
-                      value={teamFormData.prenom}
-                      onChange={(e) => setTeamFormData({ ...teamFormData, prenom: e.target.value })}
-                      className="input-modern"
-                      placeholder="Jean"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nom *</label>
-                    <input
-                      type="text"
-                      value={teamFormData.nom}
-                      onChange={(e) => setTeamFormData({ ...teamFormData, nom: e.target.value })}
-                      className="input-modern"
-                      placeholder="Dupont"
-                      required
-                    />
-                  </div>
+                  {!editingMember && (
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium mb-2">Sélectionner un membre de la direction *</label>
+                      <select
+                        value={teamFormData.userId}
+                        onChange={(e) => {
+                          const selectedUser = users.find(u => u.id === e.target.value);
+                          if (selectedUser) {
+                            setTeamFormData({
+                              ...teamFormData,
+                              userId: selectedUser.id,
+                              prenom: selectedUser.prenom || '',
+                              nom: selectedUser.nom || '',
+                            });
+                          }
+                        }}
+                        className="input-modern"
+                        required={!editingMember}
+                      >
+                        <option value="">-- Sélectionner un utilisateur --</option>
+                        {availableDirectionUsers.map(user => (
+                          <option key={user.id} value={user.id}>
+                            {user.prenom && user.nom
+                              ? `${user.prenom} ${user.nom} (${user.idPersonnel})`
+                              : user.prenom || user.nom || user.idPersonnel}
+                          </option>
+                        ))}
+                      </select>
+                      {availableDirectionUsers.length === 0 && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Aucun utilisateur avec le grade "direction" disponible. Tous les membres de la direction sont déjà dans l'équipe.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {editingMember && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Prénom</label>
+                        <input
+                          type="text"
+                          value={teamFormData.prenom}
+                          className="input-modern"
+                          disabled
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Nom</label>
+                        <input
+                          type="text"
+                          value={teamFormData.nom}
+                          className="input-modern"
+                          disabled
+                        />
+                      </div>
+                    </>
+                  )}
+                  {!editingMember && teamFormData.userId && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Prénom</label>
+                        <input
+                          type="text"
+                          value={teamFormData.prenom}
+                          className="input-modern"
+                          disabled
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Nom</label>
+                        <input
+                          type="text"
+                          value={teamFormData.nom}
+                          className="input-modern"
+                          disabled
+                        />
+                      </div>
+                    </>
+                  )}
                   <div>
                     <label className="block text-sm font-medium mb-2">Rôle *</label>
                     <input
@@ -447,38 +522,55 @@ const Panel: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Photo (URL)</label>
+                    <label className="block text-sm font-medium mb-2">Photo (URL) *</label>
                     <input
                       type="text"
                       value={teamFormData.photo}
                       onChange={(e) => setTeamFormData({ ...teamFormData, photo: e.target.value })}
                       className="input-modern"
                       placeholder="https://..."
+                      required
                     />
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={async () => {
-                      if (teamFormData.prenom && teamFormData.nom && teamFormData.role) {
-                        if (editingMember) {
-                          await updateTeamMember(editingMember.id, teamFormData);
-                        } else {
-                          await addTeamMember(teamFormData);
+                      if (editingMember) {
+                        // En mode édition, on peut modifier le rôle et la photo
+                        if (teamFormData.role) {
+                          await updateTeamMember(editingMember.id, {
+                            role: teamFormData.role,
+                            photo: teamFormData.photo || undefined,
+                          });
+                          setShowTeamForm(false);
+                          setTeamFormData({ userId: '', prenom: '', nom: '', role: '', photo: '' });
+                          setEditingMember(null);
                         }
-                        setShowTeamForm(false);
-                        setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
-                        setEditingMember(null);
+                      } else {
+                        // En mode ajout, on doit avoir sélectionné un utilisateur
+                        if (teamFormData.userId && teamFormData.prenom && teamFormData.nom && teamFormData.role && teamFormData.photo) {
+                          await addTeamMember({
+                            prenom: teamFormData.prenom,
+                            nom: teamFormData.nom,
+                            role: teamFormData.role,
+                            photo: teamFormData.photo,
+                          });
+                          setShowTeamForm(false);
+                          setTeamFormData({ userId: '', prenom: '', nom: '', role: '', photo: '' });
+                          setEditingMember(null);
+                        }
                       }
                     }}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={editingMember ? !teamFormData.role : !teamFormData.userId || !teamFormData.role || !teamFormData.photo}
                   >
                     {editingMember ? 'Modifier' : 'Ajouter'}
                   </button>
                   <button
                     onClick={() => {
                       setShowTeamForm(false);
-                      setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
+                      setTeamFormData({ userId: '', prenom: '', nom: '', role: '', photo: '' });
                       setEditingMember(null);
                     }}
                     className="px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
@@ -525,6 +617,7 @@ const Panel: React.FC = () => {
                             onClick={() => {
                               setEditingMember(member);
                               setTeamFormData({
+                                userId: '',
                                 prenom: member.prenom,
                                 nom: member.nom,
                                 role: member.role,

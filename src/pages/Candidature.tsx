@@ -156,7 +156,8 @@ const Candidature: React.FC = () => {
     );
   }
 
-  if (!isRecruitmentOpen) {
+  // Si le recrutement est fermé et l'utilisateur n'est pas connecté, afficher le message d'erreur
+  if (!isRecruitmentOpen && (!isUserLoggedIn || !currentUser)) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
@@ -355,8 +356,23 @@ const Candidature: React.FC = () => {
             </div>
           )}
 
+          {/* Message informatif si recrutement fermé */}
+          {!isRecruitmentOpen && isUserLoggedIn && currentUser && (
+            <div className="glass-card mb-6 animate-fade-up">
+              <div className="flex items-start gap-3">
+                <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="text-lg font-semibold mb-1">Recrutement fermé</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Le recrutement est actuellement fermé. Vous pouvez consulter l'historique de vos candidatures ci-dessus.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Message candidature existante - Affiche seulement le message, pas le formulaire */}
-          {status === 'existing' ? (
+          {isRecruitmentOpen && status === 'existing' ? (
             <div className="glass-card animate-fade-up">
               <div className="text-center">
                 <AlertCircle className="w-12 h-12 text-accent mx-auto mb-4" />
@@ -370,7 +386,7 @@ const Candidature: React.FC = () => {
                 </Link>
               </div>
             </div>
-          ) : (
+          ) : isRecruitmentOpen ? (
             <>
               {/* Error */}
               {status === 'error' && (

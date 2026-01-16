@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRecruitment, TeamMember, User } from '@/contexts/RecruitmentContext';
+import { useRecruitment, TeamMember, User, Application } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
 import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle } from 'lucide-react';
 import {
@@ -28,6 +28,7 @@ const Panel: React.FC = () => {
     currentSession,
     teamMembers,
     updateApplicationStatus,
+    deleteApplication,
     createSession,
     closeSession,
     getApplicationsBySession,
@@ -87,6 +88,8 @@ const Panel: React.FC = () => {
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [showDeleteAppDialog, setShowDeleteAppDialog] = useState(false);
+  const [appToDelete, setAppToDelete] = useState<Application | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -348,7 +351,7 @@ const Panel: React.FC = () => {
                 {filteredApplications.map((app) => {
                   const session = sessions.find(s => s.id === app.sessionId);
                   return (
-                    <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
+                  <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
@@ -376,24 +379,36 @@ const Panel: React.FC = () => {
                         <p className="text-sm text-muted-foreground line-clamp-2">{app.motivation}</p>
                       </div>
 
+                      <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
                       {app.status === 'pending' && (
-                        <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
-                          <button
-                            onClick={async () => await updateApplicationStatus(app.id, 'accepted')}
-                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
-                          >
-                            <Check className="w-4 h-4" />
-                            Accepter
-                          </button>
-                          <button
-                            onClick={async () => await updateApplicationStatus(app.id, 'rejected')}
-                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
-                          >
-                            <X className="w-4 h-4" />
-                            Refuser
-                          </button>
-                        </div>
-                      )}
+                          <>
+                            <button
+                              onClick={async () => await updateApplicationStatus(app.id, 'accepted')}
+                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
+                            >
+                              <Check className="w-4 h-4" />
+                              Accepter
+                            </button>
+                            <button
+                              onClick={async () => await updateApplicationStatus(app.id, 'rejected')}
+                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
+                            >
+                              <X className="w-4 h-4" />
+                              Refuser
+                            </button>
+                          </>
+                        )}
+                        <button
+                          onClick={() => {
+                            setAppToDelete(app);
+                            setShowDeleteAppDialog(true);
+                          }}
+                          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                   );
@@ -849,6 +864,60 @@ const Panel: React.FC = () => {
                       await deleteUser(userToDelete.id);
                       setShowDeleteDialog(false);
                       setUserToDelete(null);
+                    }
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm"
+                >
+                  Supprimer définitivement
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal de confirmation de suppression de candidature */}
+          <Dialog open={showDeleteAppDialog} onOpenChange={setShowDeleteAppDialog}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader className="text-center sm:text-left">
+                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-8 h-8 text-destructive" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left">
+                    <DialogTitle className="text-xl font-bold mb-2">
+                      Supprimer la candidature
+                    </DialogTitle>
+                    <DialogDescription className="text-base">
+                      Êtes-vous sûr de vouloir supprimer la candidature de{' '}
+                      <span className="font-semibold text-foreground">
+                        {appToDelete?.prenomRP} {appToDelete?.nomRP}
+                      </span>
+                      ?
+                    </DialogDescription>
+                  </div>
+                </div>
+                <div className="mt-4 p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <p className="text-sm text-destructive font-medium flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    Cette action est irréversible et supprimera définitivement la candidature.
+                  </p>
+                </div>
+              </DialogHeader>
+              <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-6">
+                <button
+                  onClick={() => {
+                    setShowDeleteAppDialog(false);
+                    setAppToDelete(null);
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={async () => {
+                    if (appToDelete) {
+                      await deleteApplication(appToDelete.id);
+                      setShowDeleteAppDialog(false);
+                      setAppToDelete(null);
                     }
                   }}
                   className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm"

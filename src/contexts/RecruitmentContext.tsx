@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, ApplicationRow, SessionRow, TeamMemberRow } from '@/lib/supabase';
 
-interface Application {
+export interface Application {
   id: string;
   nomRP: string;
   prenomRP: string;
@@ -50,6 +50,7 @@ interface RecruitmentContextType {
   teamMembers: TeamMember[];
   addApplication: (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>) => Promise<boolean>;
   updateApplicationStatus: (id: string, status: 'accepted' | 'rejected') => Promise<void>;
+  deleteApplication: (id: string) => Promise<void>;
   hasActiveApplication: (idJoueur: string) => boolean;
   createSession: (name: string) => Promise<void>;
   closeSession: (sessionId: string) => Promise<void>;
@@ -490,6 +491,24 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
+  const deleteApplication = async (id: string) => {
+    setApplications(prev => prev.filter(app => app.id !== id));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('applications')
+          .delete()
+          .eq('id', id);
+      } catch (error) {
+        console.error('Error deleting application from Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+  };
+
   const hasActiveApplication = (idJoueur: string) => {
     return applications.some(
       app => app.idJoueur === idJoueur && app.status === 'pending'
@@ -788,6 +807,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         teamMembers,
         addApplication,
         updateApplicationStatus,
+        deleteApplication,
         hasActiveApplication,
         createSession,
         closeSession,

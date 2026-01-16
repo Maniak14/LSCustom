@@ -323,6 +323,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [clientReviews, setClientReviews] = useState<ClientReview[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [partenaires, setPartenaires] = useState<Partenaire[]>([]);
 
   // Récupérer la session active
   const currentSession = sessions.find(s => s.isActive) || null;

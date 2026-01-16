@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter } from 'lucide-react';
+import { useRecruitment, TeamMember } from '@/contexts/RecruitmentContext';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User } from 'lucide-react';
 
 const Panel: React.FC = () => {
   const {
@@ -14,10 +14,14 @@ const Panel: React.FC = () => {
     applications,
     sessions,
     currentSession,
+    teamMembers,
     updateApplicationStatus,
     createSession,
     closeSession,
     getApplicationsBySession,
+    addTeamMember,
+    removeTeamMember,
+    updateTeamMember,
   } = useRecruitment();
 
   const [password, setPassword] = useState('');
@@ -25,6 +29,16 @@ const Panel: React.FC = () => {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [newSessionName, setNewSessionName] = useState('');
   const [showNewSessionForm, setShowNewSessionForm] = useState(false);
+  
+  // Team management
+  const [showTeamForm, setShowTeamForm] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [teamFormData, setTeamFormData] = useState({
+    prenom: '',
+    nom: '',
+    role: '',
+    photo: '',
+  });
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 

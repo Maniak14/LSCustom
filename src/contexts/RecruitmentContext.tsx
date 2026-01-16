@@ -20,18 +20,30 @@ interface RecruitmentSession {
   isActive: boolean;
 }
 
+export interface TeamMember {
+  id: string;
+  prenom: string;
+  nom: string;
+  role: string;
+  photo?: string; // URL de la photo
+}
+
 interface RecruitmentContextType {
   isRecruitmentOpen: boolean;
   setIsRecruitmentOpen: (open: boolean) => void;
   applications: Application[];
   sessions: RecruitmentSession[];
   currentSession: RecruitmentSession | null;
+  teamMembers: TeamMember[];
   addApplication: (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>) => boolean;
   updateApplicationStatus: (id: string, status: 'accepted' | 'rejected') => void;
   hasActiveApplication: (idJoueur: string) => boolean;
   createSession: (name: string) => void;
   closeSession: (sessionId: string) => void;
   getApplicationsBySession: (sessionId: string | null) => Application[];
+  addTeamMember: (member: Omit<TeamMember, 'id'>) => void;
+  removeTeamMember: (id: string) => void;
+  updateTeamMember: (id: string, member: Partial<Omit<TeamMember, 'id'>>) => void;
   isEmployeeLoggedIn: boolean;
   loginEmployee: (password: string) => boolean;
   logoutEmployee: () => void;
@@ -43,6 +55,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(true);
   const [applications, setApplications] = useState<Application[]>([]);
   const [sessions, setSessions] = useState<RecruitmentSession[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isEmployeeLoggedIn, setIsEmployeeLoggedIn] = useState(false);
 
   // Récupérer la session active
@@ -130,6 +143,24 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     setIsEmployeeLoggedIn(false);
   };
 
+  const addTeamMember = (member: Omit<TeamMember, 'id'>) => {
+    const newMember: TeamMember = {
+      ...member,
+      id: crypto.randomUUID(),
+    };
+    setTeamMembers(prev => [...prev, newMember]);
+  };
+
+  const removeTeamMember = (id: string) => {
+    setTeamMembers(prev => prev.filter(m => m.id !== id));
+  };
+
+  const updateTeamMember = (id: string, member: Partial<Omit<TeamMember, 'id'>>) => {
+    setTeamMembers(prev =>
+      prev.map(m => (m.id === id ? { ...m, ...member } : m))
+    );
+  };
+
   return (
     <RecruitmentContext.Provider
       value={{
@@ -138,12 +169,16 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         applications,
         sessions,
         currentSession,
+        teamMembers,
         addApplication,
         updateApplicationStatus,
         hasActiveApplication,
         createSession,
         closeSession,
         getApplicationsBySession,
+        addTeamMember,
+        removeTeamMember,
+        updateTeamMember,
         isEmployeeLoggedIn,
         loginEmployee,
         logoutEmployee,

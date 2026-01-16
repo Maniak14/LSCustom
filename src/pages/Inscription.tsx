@@ -55,13 +55,23 @@ const Inscription: React.FC = () => {
         return;
       }
 
-      const success = await registerUser(formData.idPersonnel, formData.password, formData.telephone, 'client', formData.prenom, formData.nom);
-      if (success) {
+      const newUser = await registerUser(formData.idPersonnel, formData.password, formData.telephone, 'client', formData.prenom, formData.nom);
+      if (newUser) {
         // Connecter automatiquement après inscription
-        await loginUser(formData.idPersonnel, formData.password);
-        navigate('/profil');
+        // Utiliser loginUser qui va chercher l'utilisateur dans le tableau users
+        // Attendre un peu pour que le state soit mis à jour
+        setTimeout(async () => {
+          const loginSuccess = await loginUser(formData.idPersonnel, formData.password);
+          if (loginSuccess) {
+            navigate('/profil');
+          } else {
+            setError('Inscription réussie mais connexion échouée. Veuillez vous connecter.');
+            setLoading(false);
+          }
+        }, 100);
       } else {
         setError('Cet identifiant est déjà utilisé.');
+        setLoading(false);
       }
     }
 

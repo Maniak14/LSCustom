@@ -64,7 +64,7 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client', prenom?: string, nom?: string) => Promise<boolean>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client', prenom?: string, nom?: string) => Promise<User | null>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
@@ -190,66 +190,92 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const loadFromSupabase = async () => {
     // Charger les candidatures
-    const { data: appsData, error: appsError } = await supabase
-      .from('applications')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data: appsData, error: appsError } = await supabase
+        .from('applications')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (appsError) throw appsError;
-    if (appsData) {
-      setApplications(appsData.map(rowToApplication));
+      if (appsError) {
+        console.warn('Error loading applications from Supabase:', appsError);
+      } else if (appsData) {
+        setApplications(appsData.map(rowToApplication));
+      }
+    } catch (error) {
+      console.warn('Error loading applications:', error);
     }
 
     // Charger les sessions
-    const { data: sessionsData, error: sessionsError } = await supabase
-      .from('sessions')
-      .select('*')
-      .order('start_date', { ascending: false });
+    try {
+      const { data: sessionsData, error: sessionsError } = await supabase
+        .from('sessions')
+        .select('*')
+        .order('start_date', { ascending: false });
 
-    if (sessionsError) throw sessionsError;
-    if (sessionsData) {
-      setSessions(sessionsData.map(rowToSession));
+      if (sessionsError) {
+        console.warn('Error loading sessions from Supabase:', sessionsError);
+      } else if (sessionsData) {
+        setSessions(sessionsData.map(rowToSession));
+      }
+    } catch (error) {
+      console.warn('Error loading sessions:', error);
     }
 
     // Charger les membres de l'équipe
-    const { data: teamData, error: teamError } = await supabase
-      .from('team_members')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data: teamData, error: teamError } = await supabase
+        .from('team_members')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (teamError) throw teamError;
-    if (teamData) {
-      setTeamMembers(teamData.map(rowToTeamMember));
+      if (teamError) {
+        console.warn('Error loading team members from Supabase:', teamError);
+      } else if (teamData) {
+        setTeamMembers(teamData.map(rowToTeamMember));
+      }
+    } catch (error) {
+      console.warn('Error loading team members:', error);
     }
 
     // Charger l'état du recrutement
-    const { data: settingsData, error: settingsError } = await supabase
-      .from('settings')
-      .select('*')
-      .eq('key', 'recruitment_open')
-      .single();
+    try {
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('settings')
+        .select('*')
+        .eq('key', 'recruitment_open')
+        .maybeSingle(); // Utiliser maybeSingle() au lieu de single() pour éviter l'erreur 406 si aucun résultat
 
-    if (!settingsError && settingsData) {
-      setIsRecruitmentOpen(settingsData.value === 'true');
+      if (!settingsError && settingsData) {
+        setIsRecruitmentOpen(settingsData.value === 'true');
+      }
+    } catch (error) {
+      console.warn('Error loading settings from Supabase:', error);
+      // Continuer même si les settings ne peuvent pas être chargés
     }
 
     // Charger les utilisateurs
-    const { data: usersData, error: usersError } = await supabase
-      .from('users')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (!usersError && usersData) {
-      setUsers(usersData.map((row: any) => ({
-        id: row.id,
-        idPersonnel: row.id_personnel,
-        password: row.password,
-        telephone: row.telephone,
-        prenom: row.prenom || undefined,
-        nom: row.nom || undefined,
-        grade: row.grade || 'client', // Par défaut 'client' si non défini
-        createdAt: new Date(row.created_at),
-      })));
+      if (usersError) {
+        console.warn('Error loading users from Supabase:', usersError);
+      } else if (usersData) {
+        setUsers(usersData.map((row: any) => ({
+          id: row.id,
+          idPersonnel: row.id_personnel,
+          password: row.password,
+          telephone: row.telephone,
+          prenom: row.prenom || undefined,
+          nom: row.nom || undefined,
+          grade: row.grade || 'client', // Par défaut 'client' si non défini
+          createdAt: new Date(row.created_at),
+        })));
+      }
+    } catch (error) {
+      console.warn('Error loading users:', error);
     }
   };
 
@@ -484,11 +510,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client', prenom?: string, nom?: string): Promise<boolean> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client', prenom?: string, nom?: string): Promise<User | null> => {
     // Vérifier si l'ID personnel existe déjà
     const existingUser = users.find(u => u.idPersonnel === idPersonnel);
     if (existingUser) {
-      return false; // Utilisateur déjà existant
+      return null; // Utilisateur déjà existant
     }
 
     const newUser: User = {
@@ -519,12 +545,13 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       } catch (error) {
         console.error('Error registering user in Supabase:', error);
         saveToLocalStorage();
+        return null;
       }
     } else {
       saveToLocalStorage();
     }
 
-    return true;
+    return newUser;
   };
 
   const loginUser = async (idPersonnel: string, password: string): Promise<boolean> => {

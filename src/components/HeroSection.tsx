@@ -10,20 +10,9 @@ const HeroSection: React.FC = () => {
     <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto w-full">
-        {/* Main Title with image behind */}
+        {/* Main Title */}
         <div className="relative">
-          {/* Image derrière le texte */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-48 md:w-80 md:h-60 lg:w-96 lg:h-72 rounded-full overflow-hidden z-0 opacity-30">
-            <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-              {/* Placeholder pour l'image - à remplacer par une vraie image */}
-              <div className="w-full h-full bg-muted/40 flex items-center justify-center">
-                <span className="text-4xl md:text-5xl lg:text-6xl">🚗</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Texte au premier plan */}
-          <h1 className="relative z-10 text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-foreground leading-none">
+          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-foreground leading-none">
             LS Custom's
           </h1>
         </div>

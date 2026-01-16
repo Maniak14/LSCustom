@@ -1,53 +1,39 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, Clock } from 'lucide-react';
+import { Grid3x3, ChevronDown } from 'lucide-react';
 
 const Footer: React.FC = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className="border-t border-border">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Brand */}
+    <footer className="relative border-t border-foreground/10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* QUICK DONATE avec icône grille */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold">LS</span>
-            </div>
-            <div>
-              <p className="font-semibold">LS Custom's</p>
-              <p className="text-sm text-muted-foreground">Est. 1987</p>
-            </div>
+            <Grid3x3 className="w-5 h-5 text-foreground" />
+            <span className="text-sm font-medium text-foreground">DONATION RAPIDE</span>
           </div>
 
-          {/* Info */}
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              <span>Los Santos, SA</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>Lun-Sam · 8h-22h</span>
-            </div>
+          {/* Logos de partenaires */}
+          <div className="flex items-center gap-8 flex-wrap justify-center">
+            {/* Placeholder pour logos partenaires */}
+            <div className="text-sm font-semibold text-foreground/60">PARTENAIRE 1</div>
+            <div className="text-sm font-semibold text-foreground/60">PARTENAIRE 2</div>
+            <div className="text-sm font-semibold text-foreground/60">PARTENAIRE 3</div>
           </div>
 
-          {/* Links */}
-          <div className="flex items-center gap-6 text-sm">
-            <Link to="/tarifs" className="text-muted-foreground hover:text-foreground transition-colors">
-              Services
-            </Link>
-            <Link to="/candidature" className="text-muted-foreground hover:text-foreground transition-colors">
-              Carrières
-            </Link>
-            <Link to="/panel" className="text-muted-foreground hover:text-foreground transition-colors">
-              Panel
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-8 pt-8 border-t border-border text-center">
-          <p className="text-xs text-muted-foreground">
-            © 2024 LS Custom's · Site RP GTA V
-          </p>
+          {/* SCROLL DOWN */}
+          <button
+            onClick={scrollToTop}
+            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground/80 transition-colors group"
+          >
+            <span>SCROLL UP</span>
+            <div className="w-8 h-8 rounded-full bg-foreground/5 group-hover:bg-foreground/10 flex items-center justify-center transition-colors">
+              <ChevronDown className="w-4 h-4 rotate-180" />
+            </div>
+          </button>
         </div>
       </div>
     </footer>

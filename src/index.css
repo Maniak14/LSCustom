@@ -16,24 +16,24 @@
     --accent: 42 100% 50%;
     --accent-foreground: 0 0% 5%;
     
-    /* Pure backgrounds */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    /* Warm beige background - Hope Rise style */
+    --background: 35 20% 95%;
+    --foreground: 0 0% 15%;
     
     /* Subtle cards */
-    --card: 0 0% 98%;
+    --card: 35 15% 98%;
     --card-foreground: 0 0% 8%;
     
     /* Muted tones */
-    --muted: 220 10% 96%;
-    --muted-foreground: 220 10% 40%;
+    --muted: 35 10% 90%;
+    --muted-foreground: 0 0% 40%;
     
     /* Secondary */
-    --secondary: 220 10% 94%;
+    --secondary: 35 10% 88%;
     --secondary-foreground: 0 0% 15%;
     
     /* Popover */
-    --popover: 0 0% 100%;
+    --popover: 35 20% 98%;
     --popover-foreground: 0 0% 8%;
     
     /* States */
@@ -43,20 +43,20 @@
     --success-foreground: 0 0% 100%;
     
     /* Borders - barely there */
-    --border: 220 10% 92%;
-    --input: 220 10% 92%;
+    --border: 35 10% 85%;
+    --input: 35 10% 85%;
     --ring: 215 100% 50%;
     
     --radius: 1rem;
     
     /* Sidebar */
-    --sidebar-background: 0 0% 99%;
+    --sidebar-background: 35 20% 97%;
     --sidebar-foreground: 0 0% 20%;
     --sidebar-primary: 215 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 10% 96%;
+    --sidebar-accent: 35 10% 90%;
     --sidebar-accent-foreground: 0 0% 15%;
-    --sidebar-border: 220 10% 94%;
+    --sidebar-border: 35 10% 88%;
     --sidebar-ring: 215 100% 50%;
   }
 

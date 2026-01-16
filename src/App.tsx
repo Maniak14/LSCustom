@@ -12,13 +12,16 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Obtenir le base path depuis import.meta.env.BASE_URL (défini par Vite)
+const basename = import.meta.env.BASE_URL || '/';
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <RecruitmentProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={basename}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/tarifs" element={<Tarifs />} />

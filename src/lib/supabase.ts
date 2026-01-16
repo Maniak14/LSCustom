@@ -77,3 +77,15 @@ export interface AppointmentRow {
   created_at: string;
   responded_at?: string | null;
 }
+
+export interface UserRow {
+  id: string;
+  id_personnel: string;
+  password: string;
+  telephone: string;
+  prenom?: string | null;
+  nom?: string | null;
+  grade: 'direction' | 'client';
+  photo_url?: string | null;
+  created_at: string;
+}

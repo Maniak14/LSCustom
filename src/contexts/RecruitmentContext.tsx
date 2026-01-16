@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, ApplicationRow, SessionRow, TeamMemberRow, ClientReviewRow, AppointmentRow } from '@/lib/supabase';
+import { supabase, ApplicationRow, SessionRow, TeamMemberRow, ClientReviewRow, AppointmentRow, UserRow } from '@/lib/supabase';
 
 export interface Application {
   id: string;
@@ -39,6 +39,7 @@ export interface User {
   prenom?: string;
   nom?: string;
   grade: 'direction' | 'client';
+  photoUrl?: string;
   createdAt: Date;
 }
 
@@ -104,7 +105,8 @@ interface RecruitmentContextType {
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
   users: User[];
-  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }) => Promise<boolean | { error: 'telephone' }>;
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' }>;
+  updateUserPhoto: (userId: string, photoUrl: string) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   // Client reviews
   clientReviews: ClientReview[];
@@ -190,6 +192,19 @@ const teamMemberToRow = (member: Omit<TeamMember, 'id'> & { id?: string }): Omit
   role: member.role,
   photo: member.photo || null,
   order: member.order ?? 0,
+});
+
+// Helper pour convertir UserRow en User
+const rowToUser = (row: UserRow): User => ({
+  id: row.id,
+  idPersonnel: row.id_personnel,
+  password: row.password,
+  telephone: row.telephone,
+  prenom: row.prenom || undefined,
+  nom: row.nom || undefined,
+  grade: row.grade || 'client',
+  photoUrl: row.photo_url || undefined,
+  createdAt: new Date(row.created_at),
 });
 
 // Helper pour convertir ClientReviewRow en ClientReview
@@ -380,16 +395,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       if (usersError) {
         console.warn('Error loading users from Supabase:', usersError);
       } else if (usersData) {
-        setUsers(usersData.map((row: any) => ({
-          id: row.id,
-          idPersonnel: row.id_personnel,
-          password: row.password,
-          telephone: row.telephone,
-          prenom: row.prenom || undefined,
-          nom: row.nom || undefined,
-          grade: row.grade || 'client', // Par défaut 'client' si non défini
-          createdAt: new Date(row.created_at),
-        })));
+        setUsers(usersData.map((row: UserRow) => rowToUser(row)));
       }
     } catch (error) {
       console.warn('Error loading users:', error);
@@ -470,6 +476,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         prenom: user.prenom || undefined,
         nom: user.nom || undefined,
         grade: user.grade || 'client', // Par défaut 'client' si non défini
+        photoUrl: user.photoUrl || undefined,
         createdAt: new Date(user.createdAt),
       })));
     }
@@ -870,7 +877,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management for admins
-  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }): Promise<boolean | { error: 'telephone' }> => {
+  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client'; photoUrl?: string }): Promise<boolean | { error: 'telephone' }> => {
     const userToUpdate = users.find(u => u.id === userId);
     if (!userToUpdate) {
       return false;
@@ -910,6 +917,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       nom: data.nom !== undefined ? data.nom : userToUpdate.nom,
       telephone: data.telephone !== undefined ? data.telephone : userToUpdate.telephone,
       grade: data.grade !== undefined ? data.grade : userToUpdate.grade,
+      photoUrl: data.photoUrl !== undefined ? data.photoUrl : userToUpdate.photoUrl,
     };
 
     // Mettre à jour dans la liste des utilisateurs
@@ -931,6 +939,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (data.nom !== undefined) updateData.nom = data.nom || null;
         if (data.telephone !== undefined) updateData.telephone = data.telephone;
         if (data.grade !== undefined) updateData.grade = data.grade;
+        if (data.photoUrl !== undefined) updateData.photo_url = data.photoUrl || null;
 
         await supabase
           .from('users')
@@ -945,6 +954,10 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     return true;
+  };
+
+  const updateUserPhoto = async (userId: string, photoUrl: string): Promise<boolean> => {
+    return await updateUserByAdmin(userId, { photoUrl });
   };
 
   const deleteUser = async (userId: string): Promise<boolean> => {
@@ -1300,6 +1313,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         updateUser,
         users,
         updateUserByAdmin,
+        updateUserPhoto,
         deleteUser,
         clientReviews,
         addClientReview,

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Star, MessageSquare, Plus, X } from 'lucide-react';
+import { Star, MessageSquare, Plus, X, User } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 const ReviewsSection: React.FC = () => {
-  const { clientReviews, addClientReview, isUserLoggedIn, currentUser } = useRecruitment();
+  const { clientReviews, addClientReview, isUserLoggedIn, currentUser, users } = useRecruitment();
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [formData, setFormData] = useState({
     comment: '',
@@ -87,11 +88,17 @@ const ReviewsSection: React.FC = () => {
                 "{review.comment}"
               </p>
               <div className="flex items-center gap-2 pt-4 border-t border-border">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xs font-medium text-primary">
-                    {review.prenom.charAt(0).toUpperCase()}{review.nom.charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                {(() => {
+                  const reviewUser = review.userId ? users.find(u => u.id === review.userId) : null;
+                  return (
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={reviewUser?.photoUrl} alt={`${review.prenom} ${review.nom}`} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                        {review.prenom.charAt(0).toUpperCase()}{review.nom.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  );
+                })()}
                 <div>
                   <p className="text-sm font-medium">
                     {review.prenom} {review.nom}

@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Panel: React.FC = () => {
   const navigate = useNavigate();
@@ -952,9 +953,18 @@ const Panel: React.FC = () => {
                   {paginatedUsers.map((user) => (
                   <div key={user.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                        <UserIcon className="w-5 h-5 text-muted-foreground" />
-                      </div>
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={user.photoUrl} alt={`${user.prenom || ''} ${user.nom || ''}`.trim() || user.idPersonnel} />
+                        <AvatarFallback className="bg-muted">
+                          {user.prenom || user.nom ? (
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {user.prenom?.charAt(0).toUpperCase() || ''}{user.nom?.charAt(0).toUpperCase() || ''}
+                            </span>
+                          ) : (
+                            <UserIcon className="w-5 h-5 text-muted-foreground" />
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-1">
                           <p className="font-medium">

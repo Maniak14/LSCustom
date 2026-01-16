@@ -57,7 +57,7 @@ const ReviewsSection: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-            Avis Clients
+            Avis clients
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Découvrez ce que nos clients disent de nos services

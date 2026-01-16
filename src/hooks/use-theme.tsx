@@ -6,29 +6,57 @@ export const useTheme = () => {
   const [theme, setTheme] = useState<Theme>(() => {
     // Vérifier si un thème est stocké dans localStorage
     const stored = localStorage.getItem('theme') as Theme;
-    if (stored) return stored;
+    if (stored === 'dark' || stored === 'light') {
+      // Appliquer immédiatement au chargement
+      const root = window.document.documentElement;
+      if (stored === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      }
+      return stored;
+    }
     
     // Sinon, utiliser la préférence système
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = prefersDark ? 'dark' : 'light';
+    
+    // Appliquer immédiatement au chargement
+    const root = window.document.documentElement;
+    if (initialTheme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
     }
-    return 'light';
+    
+    return initialTheme;
   });
 
   useEffect(() => {
     const root = window.document.documentElement;
     
+    // Appliquer le thème à chaque changement
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.classList.remove('light');
     } else {
       root.classList.remove('dark');
+      root.classList.add('light');
     }
     
+    // Sauvegarder dans localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    setTheme((prev) => {
+      const newTheme = prev === 'light' ? 'dark' : 'light';
+      return newTheme;
+    });
   };
 
   return { theme, toggleTheme };

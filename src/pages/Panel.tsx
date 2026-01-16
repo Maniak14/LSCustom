@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment, TeamMember } from '@/contexts/RecruitmentContext';
+import { useTheme } from '@/hooks/use-theme';
 import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User } from 'lucide-react';
 
 const Panel: React.FC = () => {
+  const { theme } = useTheme();
   const {
     isEmployeeLoggedIn,
     loginEmployee,
@@ -162,8 +164,12 @@ const Panel: React.FC = () => {
                 onClick={async () => await handleSetRecruitmentOpen(!isRecruitmentOpen)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                   isRecruitmentOpen
-                    ? 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
-                    : 'bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
+                    ? theme === 'dark'
+                      ? 'bg-[#4CAF50] hover:bg-[#45a049] text-white'
+                      : 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
+                    : theme === 'dark'
+                      ? 'bg-[#D32F2F] hover:bg-[#C62828] text-white'
+                      : 'bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
                 }`}
               >
                 <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : 'fill-current'}`} />

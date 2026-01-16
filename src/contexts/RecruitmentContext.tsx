@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, ApplicationRow, SessionRow, TeamMemberRow, ClientReviewRow, AppointmentRow, UserRow } from '@/lib/supabase';
+import { supabase, ApplicationRow, SessionRow, TeamMemberRow, ClientReviewRow, AppointmentRow, UserRow, PartenaireRow } from '@/lib/supabase';
 
 export interface Application {
   id: string;
@@ -73,6 +73,13 @@ export interface Appointment {
   respondedAt?: Date;
 }
 
+export interface Partenaire {
+  id: string;
+  nom: string;
+  logoUrl: string;
+  createdAt: Date;
+}
+
 interface RecruitmentContextType {
   isRecruitmentOpen: boolean;
   setIsRecruitmentOpen: (open: boolean) => void;
@@ -119,6 +126,10 @@ interface RecruitmentContextType {
   updateAppointmentStatus: (id: string, status: 'accepted' | 'rejected' | 'completed' | 'cancelled', respondedBy: string) => Promise<void>;
   deleteAppointment: (id: string) => Promise<void>;
   hasPendingAppointment: (userId: string) => boolean;
+  // Partners
+  partenaires: Partenaire[];
+  addPartenaire: (partenaire: Omit<Partenaire, 'id' | 'createdAt'>) => Promise<void>;
+  deletePartenaire: (id: string) => Promise<void>;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
@@ -271,6 +282,22 @@ const appointmentToRow = (appointment: Omit<Appointment, 'id' | 'createdAt' | 'r
   responded_at: appointment.respondedAt?.toISOString() || null,
 });
 
+// Helper pour convertir PartenaireRow en Partenaire
+const rowToPartenaire = (row: PartenaireRow): Partenaire => ({
+  id: row.id,
+  nom: row.nom,
+  logoUrl: row.logo_url,
+  createdAt: new Date(row.created_at),
+});
+
+// Helper pour convertir Partenaire en PartenaireRow
+const partenaireToRow = (partenaire: Omit<Partenaire, 'id' | 'createdAt'> & { id?: string; createdAt?: Date }): Omit<PartenaireRow, 'id' | 'created_at'> & { id?: string; created_at?: string } => ({
+  id: partenaire.id,
+  nom: partenaire.nom,
+  logo_url: partenaire.logoUrl,
+  created_at: partenaire.createdAt?.toISOString(),
+});
+
 // LocalStorage helpers (fallback)
 const STORAGE_KEYS = {
   APPLICATIONS: 'ls_customs_applications',
@@ -281,6 +308,7 @@ const STORAGE_KEYS = {
   CURRENT_USER: 'ls_customs_current_user',
   CLIENT_REVIEWS: 'ls_customs_client_reviews',
   APPOINTMENTS: 'ls_customs_appointments',
+  PARTENAIRES: 'ls_customs_partenaires',
 };
 
 export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -432,6 +460,22 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     } catch (error) {
       console.warn('Error loading appointments:', error);
     }
+
+    // Charger les partenaires
+    try {
+      const { data: partenairesData, error: partenairesError } = await supabase
+        .from('partenaires')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (partenairesError) {
+        console.warn('Error loading partenaires from Supabase:', partenairesError);
+      } else if (partenairesData) {
+        setPartenaires(partenairesData.map(rowToPartenaire));
+      }
+    } catch (error) {
+      console.warn('Error loading partenaires:', error);
+    }
   };
 
   const loadFromLocalStorage = () => {
@@ -501,6 +545,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         respondedAt: appointment.respondedAt ? new Date(appointment.respondedAt) : undefined,
       })));
     }
+
+    const storedPartenaires = localStorage.getItem(STORAGE_KEYS.PARTENAIRES);
+    if (storedPartenaires) {
+      const parsed = JSON.parse(storedPartenaires);
+      setPartenaires(parsed.map((partenaire: any) => ({
+        ...partenaire,
+        createdAt: new Date(partenaire.createdAt),
+      })));
+    }
   };
 
   const saveToLocalStorage = () => {
@@ -511,6 +564,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
     localStorage.setItem(STORAGE_KEYS.CLIENT_REVIEWS, JSON.stringify(clientReviews));
     localStorage.setItem(STORAGE_KEYS.APPOINTMENTS, JSON.stringify(appointments));
+    localStorage.setItem(STORAGE_KEYS.PARTENAIRES, JSON.stringify(partenaires));
   };
 
   const createSession = async (name: string) => {
@@ -1280,6 +1334,43 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     );
   };
 
+  const addPartenaire = async (partenaire: Omit<Partenaire, 'id' | 'createdAt'>) => {
+    const newPartenaire: Partenaire = {
+      ...partenaire,
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+    };
+
+    setPartenaires(prev => [...prev, newPartenaire]);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('partenaires').insert(partenaireToRow(newPartenaire));
+      } catch (error) {
+        console.error('Error adding partenaire to Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+  };
+
+  const deletePartenaire = async (id: string) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('partenaires').delete().eq('id', id);
+        if (error) throw error;
+        setPartenaires(prev => prev.filter(partenaire => partenaire.id !== id));
+      } catch (error) {
+        console.error('Error deleting partenaire from Supabase:', error);
+        throw error;
+      }
+    } else {
+      setPartenaires(prev => prev.filter(partenaire => partenaire.id !== id));
+      saveToLocalStorage();
+    }
+  };
+
   return (
     <RecruitmentContext.Provider
       value={{
@@ -1324,6 +1415,9 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         updateAppointmentStatus,
         deleteAppointment,
         hasPendingAppointment,
+        partenaires,
+        addPartenaire,
+        deletePartenaire,
       }}
     >
       {children}

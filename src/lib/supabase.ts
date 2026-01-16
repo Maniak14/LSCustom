@@ -89,3 +89,10 @@ export interface UserRow {
   photo_url?: string | null;
   created_at: string;
 }
+
+export interface PartenaireRow {
+  id: string;
+  nom: string;
+  logo_url: string;
+  created_at: string;
+}

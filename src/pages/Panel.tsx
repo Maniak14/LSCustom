@@ -584,6 +584,7 @@ const Panel: React.FC = () => {
                               userId: selectedUser.id,
                               prenom: selectedUser.prenom || '',
                               nom: selectedUser.nom || '',
+                              photo: selectedUser.photoUrl || '', // Utiliser la photo de profil par défaut
                             });
                           }
                         }}
@@ -661,17 +662,34 @@ const Panel: React.FC = () => {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Photo (URL) *</label>
-                    <input
-                      type="text"
-                      value={teamFormData.photo}
-                      onChange={(e) => setTeamFormData({ ...teamFormData, photo: e.target.value })}
-                      className="input-modern"
-                      placeholder="https://..."
-                      required
-                    />
-                  </div>
+                  {(() => {
+                    const selectedUser = teamFormData.userId ? users.find(u => u.id === teamFormData.userId) : null;
+                    const hasPhotoUrl = selectedUser?.photoUrl;
+                    // Afficher le champ photo seulement si l'utilisateur n'a pas de photo de profil ou en mode édition
+                    if (!hasPhotoUrl || editingMember) {
+                      return (
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Photo (URL) {!editingMember && !hasPhotoUrl && '*'}
+                          </label>
+                          <input
+                            type="text"
+                            value={teamFormData.photo}
+                            onChange={(e) => setTeamFormData({ ...teamFormData, photo: e.target.value })}
+                            className="input-modern"
+                            placeholder="https://..."
+                            required={!editingMember && !hasPhotoUrl}
+                          />
+                          {hasPhotoUrl && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                              L'utilisateur a déjà une photo de profil. Laissez vide pour l'utiliser, ou entrez une URL personnalisée.
+                            </p>
+                          )}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -689,13 +707,17 @@ const Panel: React.FC = () => {
                         }
                       } else {
                         // En mode ajout, on doit avoir sélectionné un utilisateur
-                        if (teamFormData.userId && teamFormData.prenom && teamFormData.nom && teamFormData.role && teamFormData.photo) {
+                        if (teamFormData.userId && teamFormData.prenom && teamFormData.nom && teamFormData.role) {
+                          // Utiliser la photo du formulaire si elle existe, sinon utiliser la photoUrl de l'utilisateur
+                          const selectedUser = users.find(u => u.id === teamFormData.userId);
+                          const photoToUse = teamFormData.photo || selectedUser?.photoUrl;
+                          
                           await addTeamMember({
                             userId: teamFormData.userId,
                             prenom: teamFormData.prenom,
                             nom: teamFormData.nom,
                             role: teamFormData.role,
-                            photo: teamFormData.photo,
+                            photo: photoToUse || undefined,
                           });
                           setShowTeamForm(false);
                           setTeamFormData({ userId: '', prenom: '', nom: '', role: '', photo: '' });
@@ -704,7 +726,7 @@ const Panel: React.FC = () => {
                       }
                     }}
                     className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={editingMember ? !teamFormData.role : !teamFormData.userId || !teamFormData.role || !teamFormData.photo}
+                    disabled={editingMember ? !teamFormData.role : !teamFormData.userId || !teamFormData.role || (!teamFormData.photo && !users.find(u => u.id === teamFormData.userId)?.photoUrl)}
                   >
                     {editingMember ? 'Modifier' : 'Ajouter'}
                   </button>
@@ -740,15 +762,25 @@ const Panel: React.FC = () => {
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {member.photo ? (
-                          <img
-                            src={member.photo}
-                            alt={`${member.prenom} ${member.nom}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <UserIcon className="w-8 h-8 text-muted-foreground" />
-                        )}
+                        {(() => {
+                          // Chercher l'utilisateur correspondant au membre
+                          const memberUser = member.userId 
+                            ? users.find(u => u.id === member.userId)
+                            : users.find(u => u.prenom === member.prenom && u.nom === member.nom);
+                          
+                          // Utiliser la photo du membre si elle existe, sinon utiliser la photoUrl de l'utilisateur
+                          const photoToDisplay = member.photo || memberUser?.photoUrl;
+                          
+                          return photoToDisplay ? (
+                            <img
+                              src={photoToDisplay}
+                              alt={`${member.prenom} ${member.nom}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <UserIcon className="w-8 h-8 text-muted-foreground" />
+                          );
+                        })()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold mb-1">
@@ -780,13 +812,19 @@ const Panel: React.FC = () => {
                           </div>
                           <button
                             onClick={() => {
+                              // Chercher l'utilisateur correspondant au membre
+                              const memberUser = member.userId 
+                                ? users.find(u => u.id === member.userId)
+                                : users.find(u => u.prenom === member.prenom && u.nom === member.nom);
+                              
                               setEditingMember(member);
                               setTeamFormData({
                                 userId: '',
                                 prenom: member.prenom,
                                 nom: member.nom,
                                 role: member.role,
-                                photo: member.photo || '',
+                                // Utiliser la photo du membre si elle existe, sinon utiliser la photoUrl de l'utilisateur
+                                photo: member.photo || memberUser?.photoUrl || '',
                               });
                               setShowTeamForm(true);
                             }}

@@ -3,7 +3,7 @@ import { useRecruitment } from '@/contexts/RecruitmentContext';
 import { User } from 'lucide-react';
 
 const TeamSection: React.FC = () => {
-  const { teamMembers } = useRecruitment();
+  const { teamMembers, users } = useRecruitment();
 
   if (teamMembers.length === 0) {
     return null;
@@ -33,17 +33,29 @@ const TeamSection: React.FC = () => {
               className="service-card text-center group"
             >
               {/* Photo */}
-              <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden bg-muted flex items-center justify-center">
-                {member.photo ? (
-                  <img
-                    src={member.photo}
-                    alt={`${member.prenom} ${member.nom}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-12 h-12 text-muted-foreground" />
-                )}
-              </div>
+              {(() => {
+                // Chercher l'utilisateur correspondant au membre
+                const memberUser = member.userId 
+                  ? users.find(u => u.id === member.userId)
+                  : users.find(u => u.prenom === member.prenom && u.nom === member.nom);
+                
+                // Utiliser la photo du membre si elle existe, sinon utiliser la photoUrl de l'utilisateur
+                const photoToDisplay = member.photo || memberUser?.photoUrl;
+                
+                return (
+                  <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden bg-muted flex items-center justify-center">
+                    {photoToDisplay ? (
+                      <img
+                        src={photoToDisplay}
+                        alt={`${member.prenom} ${member.nom}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-12 h-12 text-muted-foreground" />
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Nom et prénom */}
               <h3 className="text-lg font-semibold mb-1">

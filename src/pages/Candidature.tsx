@@ -56,7 +56,7 @@ const Candidature: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('checking');
 
@@ -72,16 +72,22 @@ const Candidature: React.FC = () => {
       return;
     }
 
-    const success = addApplication(formData);
-    
-    if (success) {
-      // Sauvegarder l'identifiant dans localStorage
-      localStorage.setItem('ls_customs_candidate_id', formData.idJoueur);
-      setStatus('success');
-      setTimeout(() => navigate('/'), 3000);
-    } else {
+    try {
+      const success = await addApplication(formData);
+      
+      if (success) {
+        // Sauvegarder l'identifiant dans localStorage
+        localStorage.setItem('ls_customs_candidate_id', formData.idJoueur);
+        setStatus('success');
+        setTimeout(() => navigate('/'), 3000);
+      } else {
+        setStatus('error');
+        setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
+      }
+    } catch (error) {
       setStatus('error');
       setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
+      console.error('Error submitting application:', error);
     }
   };
 

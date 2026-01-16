@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase, ApplicationRow, SessionRow, TeamMemberRow } from '@/lib/supabase';
 
 interface Application {
   id: string;
@@ -25,7 +26,7 @@ export interface TeamMember {
   prenom: string;
   nom: string;
   role: string;
-  photo?: string; // URL de la photo
+  photo?: string;
 }
 
 interface RecruitmentContextType {
@@ -36,21 +37,97 @@ interface RecruitmentContextType {
   sessions: RecruitmentSession[];
   currentSession: RecruitmentSession | null;
   teamMembers: TeamMember[];
-  addApplication: (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>) => boolean;
-  updateApplicationStatus: (id: string, status: 'accepted' | 'rejected') => void;
+  addApplication: (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>) => Promise<boolean>;
+  updateApplicationStatus: (id: string, status: 'accepted' | 'rejected') => Promise<void>;
   hasActiveApplication: (idJoueur: string) => boolean;
-  createSession: (name: string) => void;
-  closeSession: (sessionId: string) => void;
+  createSession: (name: string) => Promise<void>;
+  closeSession: (sessionId: string) => Promise<void>;
   getApplicationsBySession: (sessionId: string | null) => Application[];
-  addTeamMember: (member: Omit<TeamMember, 'id'>) => void;
-  removeTeamMember: (id: string) => void;
-  updateTeamMember: (id: string, member: Partial<Omit<TeamMember, 'id'>>) => void;
+  addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
+  removeTeamMember: (id: string) => Promise<void>;
+  updateTeamMember: (id: string, member: Partial<Omit<TeamMember, 'id'>>) => Promise<void>;
   isEmployeeLoggedIn: boolean;
   loginEmployee: (password: string) => boolean;
   logoutEmployee: () => void;
+  isLoading: boolean;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
+
+// Helper pour vérifier si Supabase est configuré
+const isSupabaseConfigured = () => {
+  return !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+};
+
+// Helper pour convertir ApplicationRow en Application
+const rowToApplication = (row: ApplicationRow): Application => ({
+  id: row.id,
+  nomRP: row.nom_rp,
+  prenomRP: row.prenom_rp,
+  idJoueur: row.id_joueur,
+  motivation: row.motivation,
+  experience: row.experience,
+  status: row.status,
+  createdAt: new Date(row.created_at),
+  sessionId: row.session_id,
+});
+
+// Helper pour convertir Application en ApplicationRow
+const applicationToRow = (app: Omit<Application, 'id' | 'createdAt'> & { id?: string; createdAt?: Date }): Omit<ApplicationRow, 'id' | 'created_at'> & { id?: string; created_at?: string } => ({
+  id: app.id,
+  nom_rp: app.nomRP,
+  prenom_rp: app.prenomRP,
+  id_joueur: app.idJoueur,
+  motivation: app.motivation,
+  experience: app.experience,
+  status: app.status,
+  session_id: app.sessionId,
+  created_at: app.createdAt?.toISOString(),
+});
+
+// Helper pour convertir SessionRow en RecruitmentSession
+const rowToSession = (row: SessionRow): RecruitmentSession => ({
+  id: row.id,
+  name: row.name,
+  startDate: new Date(row.start_date),
+  endDate: row.end_date ? new Date(row.end_date) : undefined,
+  isActive: row.is_active,
+});
+
+// Helper pour convertir RecruitmentSession en SessionRow
+const sessionToRow = (session: Omit<RecruitmentSession, 'id' | 'startDate' | 'endDate'> & { id?: string; startDate?: Date; endDate?: Date }): Omit<SessionRow, 'id' | 'start_date' | 'end_date'> & { id?: string; start_date?: string; end_date?: string | null } => ({
+  id: session.id,
+  name: session.name,
+  start_date: session.startDate?.toISOString(),
+  end_date: session.endDate?.toISOString() || null,
+  is_active: session.isActive,
+});
+
+// Helper pour convertir TeamMemberRow en TeamMember
+const rowToTeamMember = (row: TeamMemberRow): TeamMember => ({
+  id: row.id,
+  prenom: row.prenom,
+  nom: row.nom,
+  role: row.role,
+  photo: row.photo || undefined,
+});
+
+// Helper pour convertir TeamMember en TeamMemberRow
+const teamMemberToRow = (member: Omit<TeamMember, 'id'> & { id?: string }): Omit<TeamMemberRow, 'id'> & { id?: string } => ({
+  id: member.id,
+  prenom: member.prenom,
+  nom: member.nom,
+  role: member.role,
+  photo: member.photo || null,
+});
+
+// LocalStorage helpers (fallback)
+const STORAGE_KEYS = {
+  APPLICATIONS: 'ls_customs_applications',
+  SESSIONS: 'ls_customs_sessions',
+  TEAM_MEMBERS: 'ls_customs_team_members',
+  RECRUITMENT_OPEN: 'ls_customs_recruitment_open',
+};
 
 export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
@@ -58,13 +135,119 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [sessions, setSessions] = useState<RecruitmentSession[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isEmployeeLoggedIn, setIsEmployeeLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Récupérer la session active
   const currentSession = sessions.find(s => s.isActive) || null;
 
-  const createSession = (name: string) => {
+  // Charger les données au démarrage
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      if (isSupabaseConfigured()) {
+        await loadFromSupabase();
+      } else {
+        loadFromLocalStorage();
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+      loadFromLocalStorage(); // Fallback vers localStorage en cas d'erreur
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFromSupabase = async () => {
+    // Charger les candidatures
+    const { data: appsData, error: appsError } = await supabase
+      .from('applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (appsError) throw appsError;
+    if (appsData) {
+      setApplications(appsData.map(rowToApplication));
+    }
+
+    // Charger les sessions
+    const { data: sessionsData, error: sessionsError } = await supabase
+      .from('sessions')
+      .select('*')
+      .order('start_date', { ascending: false });
+
+    if (sessionsError) throw sessionsError;
+    if (sessionsData) {
+      setSessions(sessionsData.map(rowToSession));
+    }
+
+    // Charger les membres de l'équipe
+    const { data: teamData, error: teamError } = await supabase
+      .from('team_members')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (teamError) throw teamError;
+    if (teamData) {
+      setTeamMembers(teamData.map(rowToTeamMember));
+    }
+
+    // Charger l'état du recrutement
+    const { data: settingsData, error: settingsError } = await supabase
+      .from('settings')
+      .select('*')
+      .eq('key', 'recruitment_open')
+      .single();
+
+    if (!settingsError && settingsData) {
+      setIsRecruitmentOpen(settingsData.value === 'true');
+    }
+  };
+
+  const loadFromLocalStorage = () => {
+    const storedApps = localStorage.getItem(STORAGE_KEYS.APPLICATIONS);
+    if (storedApps) {
+      const parsed = JSON.parse(storedApps);
+      setApplications(parsed.map((app: any) => ({
+        ...app,
+        createdAt: new Date(app.createdAt),
+      })));
+    }
+
+    const storedSessions = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+    if (storedSessions) {
+      const parsed = JSON.parse(storedSessions);
+      setSessions(parsed.map((session: any) => ({
+        ...session,
+        startDate: new Date(session.startDate),
+        endDate: session.endDate ? new Date(session.endDate) : undefined,
+      })));
+    }
+
+    const storedTeam = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
+    if (storedTeam) {
+      setTeamMembers(JSON.parse(storedTeam));
+    }
+
+    const storedRecruitment = localStorage.getItem(STORAGE_KEYS.RECRUITMENT_OPEN);
+    if (storedRecruitment) {
+      setIsRecruitmentOpen(storedRecruitment === 'true');
+    }
+  };
+
+  const saveToLocalStorage = () => {
+    localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(applications));
+    localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+    localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
+    localStorage.setItem(STORAGE_KEYS.RECRUITMENT_OPEN, String(isRecruitmentOpen));
+  };
+
+  const createSession = async (name: string) => {
     // Fermer toutes les sessions actives
-    setSessions(prev => prev.map(s => ({ ...s, isActive: false, endDate: s.isActive ? new Date() : s.endDate })));
+    const updatedSessions = sessions.map(s => ({ ...s, isActive: false, endDate: s.isActive ? new Date() : s.endDate }));
     
     const newSession: RecruitmentSession = {
       id: crypto.randomUUID(),
@@ -72,25 +255,75 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       startDate: new Date(),
       isActive: true,
     };
-    setSessions(prev => [...prev, newSession]);
-    // Ouvrir automatiquement le recrutement lors de la création d'une session
-    setIsRecruitmentOpen(true);
+
+    const allSessions = [...updatedSessions, newSession];
+    setSessions(allSessions);
+
+    if (isSupabaseConfigured()) {
+      try {
+        // Fermer les sessions actives dans Supabase
+        const activeSessions = updatedSessions.filter(s => s.isActive);
+        for (const session of activeSessions) {
+          await supabase
+            .from('sessions')
+            .update({ is_active: false, end_date: new Date().toISOString() })
+            .eq('id', session.id);
+        }
+
+        // Créer la nouvelle session
+        await supabase.from('sessions').insert(sessionToRow(newSession));
+      } catch (error) {
+        console.error('Error creating session in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    // Ouvrir automatiquement le recrutement
+    await handleSetRecruitmentOpen(true);
   };
 
-  const closeSession = (sessionId: string) => {
-    setSessions(prev =>
-      prev.map(s =>
-        s.id === sessionId ? { ...s, isActive: false, endDate: new Date() } : s
-      )
+  const closeSession = async (sessionId: string) => {
+    const updatedSessions = sessions.map(s =>
+      s.id === sessionId ? { ...s, isActive: false, endDate: new Date() } : s
     );
+    setSessions(updatedSessions);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('sessions')
+          .update({ is_active: false, end_date: new Date().toISOString() })
+          .eq('id', sessionId);
+      } catch (error) {
+        console.error('Error closing session in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
   };
 
-  // Fonction wrapper pour setIsRecruitmentOpen qui ferme aussi la session active
-  const handleSetRecruitmentOpen = (open: boolean) => {
+  const handleSetRecruitmentOpen = async (open: boolean) => {
     setIsRecruitmentOpen(open);
+    
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('settings')
+          .upsert({ key: 'recruitment_open', value: String(open) }, { onConflict: 'key' });
+      } catch (error) {
+        console.error('Error updating recruitment status in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
     // Si on ferme le recrutement, fermer aussi la session active
     if (!open && currentSession) {
-      closeSession(currentSession.id);
+      await closeSession(currentSession.id);
     }
   };
 
@@ -101,7 +334,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     return applications.filter(app => app.sessionId === sessionId);
   };
 
-  const addApplication = (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>) => {
+  const addApplication = async (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>): Promise<boolean> => {
     if (hasActiveApplication(app.idJoueur)) {
       return false;
     }
@@ -117,6 +350,14 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       };
       setSessions(prev => [...prev, defaultSession]);
       activeSession = defaultSession;
+
+      if (isSupabaseConfigured()) {
+        try {
+          await supabase.from('sessions').insert(sessionToRow(defaultSession));
+        } catch (error) {
+          console.error('Error creating default session:', error);
+        }
+      }
     }
 
     const newApp: Application = {
@@ -126,14 +367,42 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       createdAt: new Date(),
       sessionId: activeSession.id,
     };
+
     setApplications(prev => [...prev, newApp]);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('applications').insert(applicationToRow(newApp));
+      } catch (error) {
+        console.error('Error adding application to Supabase:', error);
+        saveToLocalStorage();
+        return true;
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
     return true;
   };
 
-  const updateApplicationStatus = (id: string, status: 'accepted' | 'rejected') => {
+  const updateApplicationStatus = async (id: string, status: 'accepted' | 'rejected') => {
     setApplications(prev =>
       prev.map(app => (app.id === id ? { ...app, status } : app))
     );
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('applications')
+          .update({ status })
+          .eq('id', id);
+      } catch (error) {
+        console.error('Error updating application status in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
   };
 
   const hasActiveApplication = (idJoueur: string) => {
@@ -155,29 +424,71 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     setIsEmployeeLoggedIn(false);
   };
 
-  const addTeamMember = (member: Omit<TeamMember, 'id'>) => {
+  const addTeamMember = async (member: Omit<TeamMember, 'id'>) => {
     const newMember: TeamMember = {
       ...member,
       id: crypto.randomUUID(),
     };
     setTeamMembers(prev => [...prev, newMember]);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('team_members').insert(teamMemberToRow(newMember));
+      } catch (error) {
+        console.error('Error adding team member to Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
   };
 
-  const removeTeamMember = (id: string) => {
+  const removeTeamMember = async (id: string) => {
     setTeamMembers(prev => prev.filter(m => m.id !== id));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('team_members').delete().eq('id', id);
+      } catch (error) {
+        console.error('Error removing team member from Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
   };
 
-  const updateTeamMember = (id: string, member: Partial<Omit<TeamMember, 'id'>>) => {
+  const updateTeamMember = async (id: string, member: Partial<Omit<TeamMember, 'id'>>) => {
     setTeamMembers(prev =>
       prev.map(m => (m.id === id ? { ...m, ...member } : m))
     );
+
+    if (isSupabaseConfigured()) {
+      try {
+        const updateData: Partial<TeamMemberRow> = {};
+        if (member.prenom !== undefined) updateData.prenom = member.prenom;
+        if (member.nom !== undefined) updateData.nom = member.nom;
+        if (member.role !== undefined) updateData.role = member.role;
+        if (member.photo !== undefined) updateData.photo = member.photo || null;
+
+        await supabase
+          .from('team_members')
+          .update(updateData)
+          .eq('id', id);
+      } catch (error) {
+        console.error('Error updating team member in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
   };
 
   return (
     <RecruitmentContext.Provider
       value={{
         isRecruitmentOpen,
-        setIsRecruitmentOpen,
+        setIsRecruitmentOpen: handleSetRecruitmentOpen,
         handleSetRecruitmentOpen,
         applications,
         sessions,
@@ -195,6 +506,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         isEmployeeLoggedIn,
         loginEmployee,
         logoutEmployee,
+        isLoading,
       }}
     >
       {children}

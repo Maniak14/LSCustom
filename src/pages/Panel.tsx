@@ -159,7 +159,7 @@ const Panel: React.FC = () => {
                 )}
               </div>
               <button
-                onClick={() => handleSetRecruitmentOpen(!isRecruitmentOpen)}
+                onClick={async () => await handleSetRecruitmentOpen(!isRecruitmentOpen)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                   isRecruitmentOpen
                     ? 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
@@ -202,9 +202,9 @@ const Panel: React.FC = () => {
                     className="input-modern flex-1"
                   />
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (newSessionName.trim()) {
-                        createSession(newSessionName.trim());
+                        await createSession(newSessionName.trim());
                         setNewSessionName('');
                         setShowNewSessionForm(false);
                       }
@@ -322,14 +322,14 @@ const Panel: React.FC = () => {
                       {app.status === 'pending' && (
                         <div className="flex gap-2 shrink-0">
                           <button
-                            onClick={() => updateApplicationStatus(app.id, 'accepted')}
+                            onClick={async () => await updateApplicationStatus(app.id, 'accepted')}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-success/10 text-success hover:bg-success/20 transition-colors"
                           >
                             <Check className="w-4 h-4" />
                             Accepter
                           </button>
                           <button
-                            onClick={() => updateApplicationStatus(app.id, 'rejected')}
+                            onClick={async () => await updateApplicationStatus(app.id, 'rejected')}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                           >
                             <X className="w-4 h-4" />
@@ -420,12 +420,12 @@ const Panel: React.FC = () => {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (teamFormData.prenom && teamFormData.nom && teamFormData.role) {
                         if (editingMember) {
-                          updateTeamMember(editingMember.id, teamFormData);
+                          await updateTeamMember(editingMember.id, teamFormData);
                         } else {
-                          addTeamMember(teamFormData);
+                          await addTeamMember(teamFormData);
                         }
                         setShowTeamForm(false);
                         setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
@@ -499,7 +499,7 @@ const Panel: React.FC = () => {
                             Modifier
                           </button>
                           <button
-                            onClick={() => removeTeamMember(member.id)}
+                            onClick={async () => await removeTeamMember(member.id)}
                             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                           >
                             <Trash2 className="w-3 h-3" />

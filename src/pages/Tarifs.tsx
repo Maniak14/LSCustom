@@ -88,7 +88,7 @@ const Tarifs: React.FC = () => {
               Nos Services
             </h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto animate-fade-up-2">
-              Prix RP indicatifs · Devis personnalisé en jeu
+              Prix principaux · Devis personnalisé au garage
             </p>
           </div>
 
@@ -140,7 +140,7 @@ const Tarifs: React.FC = () => {
           <div className="mt-16 text-center">
             <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-sm text-muted-foreground">
               <span>💡</span>
-              <span>Les prix varient selon le véhicule. Contactez-nous en jeu.</span>
+              <span>Les prix varient selon le véhicule. Contactez-nous.</span>
             </div>
           </div>
         </div>

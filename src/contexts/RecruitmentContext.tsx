@@ -1343,16 +1343,28 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       createdAt: new Date(),
     };
 
+    // Mettre à jour le state
     setPartenaires(prev => [...prev, newPartenaire]);
 
+    // Sauvegarder dans Supabase si configuré
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('partenaires').insert(partenaireToRow(newPartenaire));
+        const { error } = await supabase.from('partenaires').insert(partenaireToRow(newPartenaire));
+        if (error) {
+          console.error('Error adding partenaire to Supabase:', error);
+          // En cas d'erreur, sauvegarder dans localStorage comme fallback
+          saveToLocalStorage();
+          throw error;
+        }
+        // Sauvegarder aussi dans localStorage comme backup même si Supabase fonctionne
+        saveToLocalStorage();
       } catch (error) {
         console.error('Error adding partenaire to Supabase:', error);
+        // Sauvegarder dans localStorage comme fallback
         saveToLocalStorage();
       }
     } else {
+      // Si Supabase n'est pas configuré, sauvegarder dans localStorage
       saveToLocalStorage();
     }
   };

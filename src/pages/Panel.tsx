@@ -1508,48 +1508,59 @@ const Panel: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    {appointmentToView.status === 'pending' && (
-                      <div className="flex gap-2 pt-4 border-t border-border">
-                        <button
-                          onClick={async () => {
-                            if (currentUser) {
-                              await updateAppointmentStatus(appointmentToView.id, 'accepted', currentUser.id);
-                              setShowAppointmentDetailDialog(false);
-                            }
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
-                        >
-                          <Check className="w-4 h-4" />
-                          Accepter
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (currentUser) {
-                              await updateAppointmentStatus(appointmentToView.id, 'rejected', currentUser.id);
-                              setShowAppointmentDetailDialog(false);
-                            }
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                          Refuser
-                        </button>
-                      </div>
-                    )}
                   </div>
                 );
               })()}
-              <DialogFooter>
-                <button
-                  onClick={() => {
-                    setShowAppointmentDetailDialog(false);
-                    setAppointmentToView(null);
-                  }}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                >
-                  Fermer
-                </button>
+              <DialogFooter className="flex gap-2">
+                {appointmentToView?.status === 'pending' ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        if (currentUser && appointmentToView) {
+                          await updateAppointmentStatus(appointmentToView.id, 'accepted', currentUser.id);
+                          setShowAppointmentDetailDialog(false);
+                          setAppointmentToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Accepter
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (currentUser && appointmentToView) {
+                          await updateAppointmentStatus(appointmentToView.id, 'rejected', currentUser.id);
+                          setShowAppointmentDetailDialog(false);
+                          setAppointmentToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Refuser
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAppointmentDetailDialog(false);
+                        setAppointmentToView(null);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowAppointmentDetailDialog(false);
+                      setAppointmentToView(null);
+                    }}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    Fermer
+                  </button>
+                )}
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -1645,44 +1656,59 @@ const Panel: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Actions */}
-                    {appToView.status === 'pending' && (
-                      <div className="flex gap-2 pt-4 border-t border-border">
-                        <button
-                          onClick={async () => {
-                            await updateApplicationStatus(appToView.id, 'accepted');
-                            setShowAppDetailDialog(false);
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
-                        >
-                          <Check className="w-4 h-4" />
-                          Accepter
-                        </button>
-                        <button
-                          onClick={async () => {
-                            await updateApplicationStatus(appToView.id, 'rejected');
-                            setShowAppDetailDialog(false);
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                          Refuser
-                        </button>
-                      </div>
-                    )}
                   </div>
                 );
               })()}
-              <DialogFooter>
-                <button
-                  onClick={() => {
-                    setShowAppDetailDialog(false);
-                    setAppToView(null);
-                  }}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                >
-                  Fermer
-                </button>
+              <DialogFooter className="flex gap-2">
+                {appToView?.status === 'pending' ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        if (appToView) {
+                          await updateApplicationStatus(appToView.id, 'accepted');
+                          setShowAppDetailDialog(false);
+                          setAppToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Accepter
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (appToView) {
+                          await updateApplicationStatus(appToView.id, 'rejected');
+                          setShowAppDetailDialog(false);
+                          setAppToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Refuser
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAppDetailDialog(false);
+                        setAppToView(null);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowAppDetailDialog(false);
+                      setAppToView(null);
+                    }}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    Fermer
+                  </button>
+                )}
               </DialogFooter>
             </DialogContent>
           </Dialog>

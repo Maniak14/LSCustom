@@ -164,8 +164,12 @@ const Panel: React.FC = () => {
                 onClick={async () => await handleSetRecruitmentOpen(!isRecruitmentOpen)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                   isRecruitmentOpen
-                    ? 'dark:bg-[#4CAF50] dark:hover:bg-[#45a049] dark:text-white bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
-                    : 'dark:bg-[#D32F2F] dark:hover:bg-[#C62828] dark:text-white bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
+                    ? theme === 'dark'
+                      ? 'bg-[#4CAF50] hover:bg-[#45a049] text-white'
+                      : 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
+                    : theme === 'dark'
+                      ? 'bg-[#D32F2F] hover:bg-[#C62828] text-white'
+                      : 'bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
                 }`}
               >
                 <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : 'fill-current'}`} />

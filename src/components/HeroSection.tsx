@@ -35,7 +35,11 @@ const HeroSection: React.FC = () => {
               Recrutement ouvert
             </Link>
           ) : (
-            <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm dark:bg-[#D32F2F] dark:hover:bg-[#C62828] dark:text-white bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground`}>
+            <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm ${
+              theme === 'dark'
+                ? 'bg-[#D32F2F] hover:bg-[#C62828] text-white'
+                : 'bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
+            }`}>
               <Circle className="w-2 h-2 fill-current" />
               Recrutement fermé
             </div>

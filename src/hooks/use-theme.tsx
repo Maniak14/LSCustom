@@ -4,18 +4,11 @@ type Theme = 'light' | 'dark';
 
 export const useTheme = () => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Vérifier d'abord la classe actuelle sur l'élément HTML (appliquée par le script dans index.html)
-    const root = window.document.documentElement;
-    const hasDarkClass = root.classList.contains('dark');
-    
-    if (hasDarkClass) {
-      return 'dark';
-    }
-    
-    // Sinon, vérifier localStorage
+    // Vérifier si un thème est stocké dans localStorage
     const stored = localStorage.getItem('theme') as Theme;
     if (stored === 'dark' || stored === 'light') {
       // Appliquer immédiatement au chargement
+      const root = window.document.documentElement;
       if (stored === 'dark') {
         root.classList.add('dark');
         root.classList.remove('light');
@@ -31,6 +24,7 @@ export const useTheme = () => {
     const initialTheme = prefersDark ? 'dark' : 'light';
     
     // Appliquer immédiatement au chargement
+    const root = window.document.documentElement;
     if (initialTheme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');

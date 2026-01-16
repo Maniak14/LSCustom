@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid3x3, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -10,12 +10,6 @@ const Footer: React.FC = () => {
     <footer className="relative border-t border-foreground/10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* QUICK DONATE avec icône grille */}
-          <div className="flex items-center gap-3">
-            <Grid3x3 className="w-5 h-5 text-foreground" />
-            <span className="text-sm font-medium text-foreground">DONATION RAPIDE</span>
-          </div>
-
           {/* Logos de partenaires */}
           <div className="flex items-center gap-8 flex-wrap justify-center">
             {/* Placeholder pour logos partenaires */}

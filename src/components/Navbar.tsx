@@ -64,12 +64,12 @@ const Navbar: React.FC = () => {
               )}
             </button>
 
-            {/* Bouton EMPLOYÉ */}
+            {/* Bouton DASHBOARD */}
             <Link
               to="/panel"
               className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
             >
-              EMPLOYÉ
+              DASHBOARD
             </Link>
           </div>
 
@@ -118,7 +118,7 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsOpen(false)}
                   className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
                 >
-                  EMPLOYÉ
+                  DASHBOARD
                 </Link>
               </div>
             </div>

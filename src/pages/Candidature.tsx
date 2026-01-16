@@ -87,9 +87,9 @@ const Candidature: React.FC = () => {
 
   if (!isRecruitmentOpen) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
-        <main className="pt-32 pb-24 px-4">
+        <main className="flex-1 pt-32 pb-24 px-4">
           <div className="max-w-md mx-auto text-center">
             <div className="glass-card">
               <XCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
@@ -114,9 +114,9 @@ const Candidature: React.FC = () => {
 
   if (status === 'success') {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
-        <main className="pt-32 pb-24 px-4">
+        <main className="flex-1 pt-32 pb-24 px-4">
           <div className="max-w-md mx-auto text-center">
             <div className="glass-card">
               <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
@@ -133,10 +133,10 @@ const Candidature: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <main className="pt-32 pb-24 px-4">
+      <main className="flex-1 pt-32 pb-24 px-4">
         <div className="max-w-xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">

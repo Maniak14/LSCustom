@@ -74,10 +74,10 @@ const pricingCategories = [
 
 const Tarifs: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <main className="pt-32 pb-24 px-4">
+      <main className="flex-1 pt-32 pb-24 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">

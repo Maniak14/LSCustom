@@ -61,9 +61,9 @@ const Panel: React.FC = () => {
 
   if (!isEmployeeLoggedIn) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
-        <main className="pt-32 pb-24 px-4">
+        <main className="flex-1 pt-32 pb-24 px-4">
           <div className="max-w-sm mx-auto">
             <div className="text-center mb-8">
               <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
@@ -101,10 +101,10 @@ const Panel: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <main className="pt-32 pb-24 px-4">
+      <main className="flex-1 pt-32 pb-24 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">

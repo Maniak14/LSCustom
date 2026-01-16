@@ -74,7 +74,11 @@ const ServicesSection: React.FC = () => {
 
         {/* CTA */}
         <div className="mt-16 text-center">
-          <Link to="/tarifs" className="btn-accent">
+          <Link 
+            to="/tarifs" 
+            className="btn-accent"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
             Voir les tarifs
           </Link>
         </div>

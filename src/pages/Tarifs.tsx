@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Wrench, Paintbrush, Gauge, Car, Sparkles, Shield } from 'lucide-react';
@@ -73,6 +73,10 @@ const pricingCategories = [
 ];
 
 const Tarifs: React.FC = () => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />

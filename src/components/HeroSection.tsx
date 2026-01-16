@@ -4,34 +4,7 @@ import { ArrowUpRight, Circle } from 'lucide-react';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
 
 const HeroSection: React.FC = () => {
-  const { isRecruitmentOpen, isLoading } = useRecruitment();
-  
-  // Ne pas afficher le badge pendant le chargement pour éviter le flash
-  if (isLoading) {
-    return (
-      <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">
-        <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <div className="relative text-center md:text-left">
-            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-foreground leading-none">
-              LS Custom's
-            </h1>
-          </div>
-          <div className="mt-12 flex flex-col sm:flex-row items-center gap-6">
-            {/* Badge placeholder - invisible mais garde l'espace */}
-            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium opacity-0">
-              <Circle className="w-2 h-2 fill-current" />
-              <span>Chargement...</span>
-            </div>
-          </div>
-          <div className="mt-10 max-w-2xl mx-auto text-center">
-            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              Le garage de référence à Los Santos. Réparations, customisation et performances depuis 1987.
-            </p>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const { isRecruitmentOpen } = useRecruitment();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">

@@ -412,7 +412,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     // Charger l'état du recrutement
-    // Note: On ne met à jour que si une valeur existe dans Supabase, sinon on garde celle de localStorage
+    // Note: On ne met à jour que si la valeur dans Supabase est différente de celle dans localStorage
+    // pour éviter le clignotement lors du F5
     try {
       const { data: settingsData, error: settingsError } = await supabase
         .from('settings')
@@ -420,11 +421,19 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         .eq('key', 'recruitment_open')
         .maybeSingle(); // Utiliser maybeSingle() au lieu de single() pour éviter l'erreur 406 si aucun résultat
 
-      // Ne mettre à jour que si on a une valeur valide de Supabase
+      // Ne mettre à jour que si on a une valeur valide de Supabase ET qu'elle est différente de localStorage
       if (!settingsError && settingsData && settingsData.value !== null && settingsData.value !== undefined) {
-        setIsRecruitmentOpen(settingsData.value === 'true');
-        // Synchroniser avec localStorage
-        localStorage.setItem(STORAGE_KEYS.RECRUITMENT_OPEN, settingsData.value);
+        const supabaseValue = settingsData.value === 'true';
+        // Comparer avec la valeur dans localStorage (pas avec l'état actuel qui peut avoir été mis à jour)
+        const storedValue = localStorage.getItem(STORAGE_KEYS.RECRUITMENT_OPEN);
+        const localStorageValue = storedValue !== null ? storedValue === 'true' : false;
+        
+        // Seulement mettre à jour si la valeur Supabase est différente de localStorage pour éviter le clignotement
+        if (supabaseValue !== localStorageValue) {
+          setIsRecruitmentOpen(supabaseValue);
+          // Synchroniser avec localStorage
+          localStorage.setItem(STORAGE_KEYS.RECRUITMENT_OPEN, settingsData.value);
+        }
       }
       // Sinon, on garde la valeur déjà chargée depuis localStorage dans getInitialRecruitmentState()
     } catch (error) {

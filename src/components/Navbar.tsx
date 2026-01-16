@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import logoImage from '@/components/ui/0f4c0073c58cda701de3ecc0e6153a3f.png';
+import { useTheme } from '@/hooks/use-theme';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const navLinks = [
     { href: '/', label: 'QUI SOMMES-NOUS' },
     { href: '/tarifs', label: 'SERVICES' },
-    { href: '/candidature', label: 'ACTUALITÉS' },
     { href: '/candidature', label: 'REJOINDRE' },
   ];
 
@@ -18,7 +19,9 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
+      {/* Conteneur avec fond sombre */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-md border-b border-border/50" />
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo Los Santos Customs */}
           <Link to="/" className="flex items-center">
@@ -48,12 +51,17 @@ const Navbar: React.FC = () => {
 
           {/* Right side buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Bouton téléphone circulaire */}
+            {/* Bouton Dark/Light mode */}
             <button
+              onClick={toggleTheme}
               className="w-10 h-10 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center transition-colors"
-              aria-label="Appeler"
+              aria-label="Toggle theme"
             >
-              <Phone className="w-5 h-5 text-foreground" />
+              {theme === 'dark' ? (
+                <Sun className="w-5 h-5 text-foreground" />
+              ) : (
+                <Moon className="w-5 h-5 text-foreground" />
+              )}
             </button>
 
             {/* Bouton EMPLOYÉ */}
@@ -95,10 +103,15 @@ const Navbar: React.FC = () => {
               ))}
               <div className="flex items-center gap-4 pt-2">
                 <button
+                  onClick={toggleTheme}
                   className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center"
-                  aria-label="Appeler"
+                  aria-label="Toggle theme"
                 >
-                  <Phone className="w-5 h-5 text-foreground" />
+                  {theme === 'dark' ? (
+                    <Sun className="w-5 h-5 text-foreground" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-foreground" />
+                  )}
                 </button>
                 <Link
                   to="/panel"

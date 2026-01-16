@@ -68,13 +68,13 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client', prenom?: string, nom?: string) => Promise<User | null>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
   users: User[];
-  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }) => Promise<boolean>;
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }) => Promise<boolean | { error: 'telephone' }>;
   deleteUser: (userId: string) => Promise<boolean>;
 }
 
@@ -503,19 +503,28 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const deleteApplication = async (id: string) => {
-    setApplications(prev => prev.filter(app => app.id !== id));
-
     if (isSupabaseConfigured()) {
       try {
-        await supabase
+        const { error } = await supabase
           .from('applications')
           .delete()
           .eq('id', id);
+
+        if (error) {
+          console.error('Error deleting application from Supabase:', error);
+          throw error;
+        }
+
+        // Supprimer de l'état local seulement si la suppression Supabase réussit
+        setApplications(prev => prev.filter(app => app.id !== id));
       } catch (error) {
         console.error('Error deleting application from Supabase:', error);
-        saveToLocalStorage();
+        // Ne pas supprimer de l'état local si la suppression Supabase échoue
+        throw error;
       }
     } else {
+      // Supprimer de l'état local pour localStorage
+      setApplications(prev => prev.filter(app => app.id !== id));
       saveToLocalStorage();
     }
   };
@@ -540,11 +549,17 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client', prenom?: string, nom?: string): Promise<User | null> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
     // Vérifier si l'ID personnel existe déjà
-    const existingUser = users.find(u => u.idPersonnel === idPersonnel);
-    if (existingUser) {
-      return null; // Utilisateur déjà existant
+    const existingUserById = users.find(u => u.idPersonnel === idPersonnel);
+    if (existingUserById) {
+      return { error: 'id' }; // ID déjà utilisé
+    }
+
+    // Vérifier si le numéro de téléphone existe déjà
+    const existingUserByTel = users.find(u => u.telephone === telephone);
+    if (existingUserByTel) {
+      return { error: 'telephone' }; // Téléphone déjà utilisé
     }
 
     const newUser: User = {
@@ -562,6 +577,31 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
+        // Vérifier aussi dans Supabase avant d'insérer
+        const { data: existingById } = await supabase
+          .from('users')
+          .select('id')
+          .eq('id_personnel', idPersonnel)
+          .maybeSingle();
+        
+        if (existingById) {
+          // Annuler l'ajout dans le state
+          setUsers(prev => prev.filter(u => u.id !== newUser.id));
+          return { error: 'id' };
+        }
+
+        const { data: existingByTel } = await supabase
+          .from('users')
+          .select('id')
+          .eq('telephone', telephone)
+          .maybeSingle();
+
+        if (existingByTel) {
+          // Annuler l'ajout dans le state
+          setUsers(prev => prev.filter(u => u.id !== newUser.id));
+          return { error: 'telephone' };
+        }
+
         await supabase.from('users').insert({
           id: newUser.id,
           id_personnel: newUser.idPersonnel,
@@ -572,8 +612,22 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
           grade: newUser.grade,
           created_at: newUser.createdAt.toISOString(),
         });
-      } catch (error) {
+      } catch (error: any) {
+        // Vérifier si c'est une erreur de contrainte unique
+        if (error?.code === '23505') {
+          const message = error.message || '';
+          // Annuler l'ajout dans le state
+          setUsers(prev => prev.filter(u => u.id !== newUser.id));
+          if (message.includes('id_personnel')) {
+            return { error: 'id' };
+          }
+          if (message.includes('telephone')) {
+            return { error: 'telephone' };
+          }
+        }
         console.error('Error registering user in Supabase:', error);
+        // Annuler l'ajout dans le state
+        setUsers(prev => prev.filter(u => u.id !== newUser.id));
         saveToLocalStorage();
         return null;
       }
@@ -652,10 +706,38 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management for admins
-  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }): Promise<boolean> => {
+  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }): Promise<boolean | { error: 'telephone' }> => {
     const userToUpdate = users.find(u => u.id === userId);
     if (!userToUpdate) {
       return false;
+    }
+
+    // Vérifier si le nouveau numéro de téléphone est déjà utilisé par un autre utilisateur
+    if (data.telephone !== undefined && data.telephone !== userToUpdate.telephone) {
+      const existingUserByTel = users.find(u => u.telephone === data.telephone && u.id !== userId);
+      if (existingUserByTel) {
+        return { error: 'telephone' };
+      }
+
+      // Vérifier aussi dans Supabase si configuré
+      if (isSupabaseConfigured()) {
+        try {
+          const { data: existingByTel } = await supabase
+            .from('users')
+            .select('id')
+            .eq('telephone', data.telephone)
+            .neq('id', userId)
+            .single();
+
+          if (existingByTel) {
+            return { error: 'telephone' };
+          }
+        } catch (error: any) {
+          if (error?.code === '23505') {
+            return { error: 'telephone' };
+          }
+        }
+      }
     }
 
     const updatedUser: User = {
@@ -707,25 +789,33 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       return false;
     }
 
-    // Retirer de la liste
-    setUsers(prev => prev.filter(u => u.id !== userId));
-
-    // Supprimer de Supabase
+    // Supprimer de Supabase d'abord
     if (isSupabaseConfigured()) {
       try {
-        await supabase
+        const { error } = await supabase
           .from('users')
           .delete()
           .eq('id', userId);
+
+        if (error) {
+          console.error('Error deleting user from Supabase:', error);
+          throw error;
+        }
+
+        // Supprimer de l'état local seulement si la suppression Supabase réussit
+        setUsers(prev => prev.filter(u => u.id !== userId));
+        return true;
       } catch (error) {
         console.error('Error deleting user from Supabase:', error);
-        saveToLocalStorage();
+        // Ne pas supprimer de l'état local si la suppression Supabase échoue
+        return false;
       }
     } else {
+      // Supprimer de l'état local pour localStorage
+      setUsers(prev => prev.filter(u => u.id !== userId));
       saveToLocalStorage();
+      return true;
     }
-
-    return true;
   };
 
   // Charger l'utilisateur connecté au démarrage

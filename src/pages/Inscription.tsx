@@ -55,8 +55,17 @@ const Inscription: React.FC = () => {
         return;
       }
 
-      const newUser = await registerUser(formData.idPersonnel, formData.password, formData.telephone, 'client', formData.prenom, formData.nom);
-      if (newUser) {
+      const result = await registerUser(formData.idPersonnel, formData.password, formData.telephone, 'client', formData.prenom, formData.nom);
+      if (result && 'error' in result) {
+        // Erreur de doublon
+        if (result.error === 'id') {
+          setError('Cet identifiant est déjà utilisé.');
+        } else if (result.error === 'telephone') {
+          setError('Ce numéro de téléphone est déjà utilisé.');
+        }
+        setLoading(false);
+      } else if (result) {
+        // Inscription réussie
         // Connecter automatiquement après inscription
         // Utiliser loginUser qui va chercher l'utilisateur dans le tableau users
         // Attendre un peu pour que le state soit mis à jour
@@ -70,7 +79,7 @@ const Inscription: React.FC = () => {
           }
         }, 100);
       } else {
-        setError('Cet identifiant est déjà utilisé.');
+        setError('Une erreur est survenue lors de l\'inscription.');
         setLoading(false);
       }
     }

@@ -89,6 +89,7 @@ const Panel: React.FC = () => {
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userFormError, setUserFormError] = useState(''); // Added for error handling
   const [showDeleteAppDialog, setShowDeleteAppDialog] = useState(false);
   const [appToDelete, setAppToDelete] = useState<Application | null>(null);
   const [showDeleteTeamDialog, setShowDeleteTeamDialog] = useState(false);
@@ -830,21 +831,35 @@ const Panel: React.FC = () => {
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  await updateUserByAdmin(editingUser.id, {
+                  setUserFormError('');
+                  const result = await updateUserByAdmin(editingUser.id, {
                     prenom: userFormData.prenom || undefined,
                     nom: userFormData.nom || undefined,
                     telephone: userFormData.telephone,
                     grade: userFormData.grade,
                   });
-                  setShowUserForm(false);
-                  setEditingUser(null);
-                  setUserFormData({ prenom: '', nom: '', telephone: '', grade: 'client' });
+                  if (result && typeof result === 'object' && 'error' in result) {
+                    if (result.error === 'telephone') {
+                      setUserFormError('Ce numéro de téléphone est déjà utilisé par un autre utilisateur.');
+                    }
+                  } else if (result === true) {
+                    setShowUserForm(false);
+                    setEditingUser(null);
+                    setUserFormData({ prenom: '', nom: '', telephone: '', grade: 'client' });
+                    setUserFormError('');
+                  }
                 }}
                 className="p-4 border-b border-border animate-fade-up"
               >
                 <h3 className="text-lg font-semibold mb-4">
                   Modifier un utilisateur
                 </h3>
+                {userFormError && (
+                  <div className="mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+                    <p className="text-sm text-destructive">{userFormError}</p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Prénom</label>
@@ -902,6 +917,7 @@ const Panel: React.FC = () => {
                       setShowUserForm(false);
                       setUserFormData({ prenom: '', nom: '', telephone: '', grade: 'client' });
                       setEditingUser(null);
+                      setUserFormError('');
                     }}
                     className="btn-ghost flex-1"
                   >
@@ -975,8 +991,8 @@ const Panel: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  ))}
-                </div>
+                ))}
+              </div>
 
                 {/* Pagination utilisateurs */}
                 {totalUserPages > 1 && (
@@ -1048,14 +1064,19 @@ const Panel: React.FC = () => {
                 >
                   Annuler
                 </button>
-                <button
-                  onClick={async () => {
-                    if (userToDelete) {
-                      await deleteUser(userToDelete.id);
-                      setShowDeleteDialog(false);
-                      setUserToDelete(null);
-                    }
-                  }}
+                        <button
+                          onClick={async () => {
+                            if (userToDelete) {
+                              const success = await deleteUser(userToDelete.id);
+                              if (success) {
+                                setShowDeleteDialog(false);
+                                setUserToDelete(null);
+                              } else {
+                                // Erreur lors de la suppression - peut-être afficher un message
+                                console.error('Erreur lors de la suppression de l\'utilisateur');
+                              }
+                            }
+                          }}
                   className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
                 >
                   Supprimer définitivement
@@ -1105,9 +1126,14 @@ const Panel: React.FC = () => {
                 <button
                   onClick={async () => {
                     if (appToDelete) {
-                      await deleteApplication(appToDelete.id);
-                      setShowDeleteAppDialog(false);
-                      setAppToDelete(null);
+                      try {
+                        await deleteApplication(appToDelete.id);
+                        setShowDeleteAppDialog(false);
+                        setAppToDelete(null);
+                      } catch (error) {
+                        // Erreur lors de la suppression - peut-être afficher un message
+                        console.error('Erreur lors de la suppression de la candidature:', error);
+                      }
                     }
                   }}
                   className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"

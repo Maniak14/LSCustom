@@ -82,6 +82,9 @@ CREATE POLICY "Allow public insert access on applications" ON applications
 CREATE POLICY "Allow public update access on applications" ON applications
   FOR UPDATE USING (true);
 
+CREATE POLICY "Allow public delete access on applications" ON applications
+  FOR DELETE USING (true);
+
 CREATE POLICY "Allow public read access on sessions" ON sessions
   FOR SELECT USING (true);
 
@@ -120,6 +123,9 @@ CREATE POLICY "Allow public insert access on users" ON users
 
 CREATE POLICY "Allow public update access on users" ON users
   FOR UPDATE USING (true);
+
+CREATE POLICY "Allow public delete access on users" ON users
+  FOR DELETE USING (true);
 
 -- Pour créer le premier utilisateur "direction", exécutez cette commande :
 -- INSERT INTO users (id_personnel, password, telephone, grade) 

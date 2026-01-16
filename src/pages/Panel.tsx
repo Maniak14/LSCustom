@@ -107,6 +107,8 @@ const Panel: React.FC = () => {
   const [appToView, setAppToView] = useState<Application | null>(null);
   const [showAppointmentDetailDialog, setShowAppointmentDetailDialog] = useState(false);
   const [appointmentToView, setAppointmentToView] = useState<Appointment | null>(null);
+  const [showReviewDetailDialog, setShowReviewDetailDialog] = useState(false);
+  const [reviewToView, setReviewToView] = useState<ClientReview | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const applicationsPerPage = 10;
   const [appSearchQuery, setAppSearchQuery] = useState('');
@@ -1081,6 +1083,16 @@ const Panel: React.FC = () => {
 
                         <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
                           <button
+                            onClick={() => {
+                              setReviewToView(review);
+                              setShowReviewDetailDialog(true);
+                            }}
+                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                            title="Voir les détails"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={async () => {
                               if (currentUser) {
                                 await updateReviewStatus(review.id, 'approved', currentUser.id);
@@ -1704,6 +1716,155 @@ const Panel: React.FC = () => {
                     onClick={() => {
                       setShowAppointmentDetailDialog(false);
                       setAppointmentToView(null);
+                    }}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    Fermer
+                  </button>
+                )}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal de détail d'avis client */}
+          <Dialog open={showReviewDetailDialog} onOpenChange={setShowReviewDetailDialog}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto scrollbar-hide">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold mb-4">
+                  Détails de l'avis client
+                </DialogTitle>
+              </DialogHeader>
+              {reviewToView && (
+                <div className="space-y-4">
+                  {/* Statut */}
+                  <div className="flex items-center gap-3">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      reviewToView.status === 'pending'
+                        ? 'bg-accent/20 text-accent'
+                        : reviewToView.status === 'approved'
+                        ? 'bg-success/20 text-success'
+                        : 'bg-destructive/20 text-destructive'
+                    }`}>
+                      {reviewToView.status === 'pending' && 'En attente'}
+                      {reviewToView.status === 'approved' && 'Approuvé'}
+                      {reviewToView.status === 'rejected' && 'Refusé'}
+                    </span>
+                  </div>
+
+                  {/* Note */}
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                      Note
+                    </label>
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-6 h-6 ${
+                            i < reviewToView.rating
+                              ? 'fill-accent text-accent'
+                              : 'text-muted-foreground/30'
+                          }`}
+                        />
+                      ))}
+                      <span className="text-sm text-muted-foreground ml-2">
+                        ({reviewToView.rating}/5)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Informations personnelles */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
+                        Prénom
+                      </label>
+                      <p className="text-base font-medium">{reviewToView.prenom}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
+                        Nom
+                      </label>
+                      <p className="text-base font-medium">{reviewToView.nom}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
+                        Identifiant
+                      </label>
+                      <p className="text-base font-medium">{reviewToView.idPersonnel}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
+                        <Clock className="w-3 h-3" />
+                        Date de l'avis
+                      </label>
+                      <p className="text-base font-medium">
+                        {new Date(reviewToView.createdAt).toLocaleDateString('fr-FR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Commentaire */}
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                      Commentaire
+                    </label>
+                    <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                      <p className="text-sm whitespace-pre-wrap">{reviewToView.comment}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <DialogFooter className="flex gap-2">
+                {reviewToView?.status === 'pending' ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        if (currentUser && reviewToView) {
+                          await updateReviewStatus(reviewToView.id, 'approved', currentUser.id);
+                          setShowReviewDetailDialog(false);
+                          setReviewToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Accepter
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (currentUser && reviewToView) {
+                          await updateReviewStatus(reviewToView.id, 'rejected', currentUser.id);
+                          setShowReviewDetailDialog(false);
+                          setReviewToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Refuser
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowReviewDetailDialog(false);
+                        setReviewToView(null);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowReviewDetailDialog(false);
+                      setReviewToView(null);
                     }}
                     className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
                   >

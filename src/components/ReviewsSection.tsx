@@ -24,8 +24,10 @@ const ReviewsSection: React.FC = () => {
   });
   const MAX_COMMENT_LENGTH = 250;
 
-  // Filtrer seulement les avis approuvés
-  const approvedReviews = clientReviews.filter(review => review.status === 'approved');
+  // Filtrer seulement les avis approuvés et les trier par date (les plus récents en premier)
+  const approvedReviews = clientReviews
+    .filter(review => review.status === 'approved')
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   // Pagination des avis
   const totalReviewPages = Math.ceil(approvedReviews.length / reviewsPerPage);

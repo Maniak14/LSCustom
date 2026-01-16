@@ -1165,6 +1165,7 @@ const Panel: React.FC = () => {
               <div className="divide-y divide-border">
                 {clientReviews
                   .filter(review => review.status === 'pending')
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                   .map((review) => (
                     <div
                       key={review.id}

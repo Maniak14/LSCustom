@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { UserPlus, LogIn, AlertCircle, ArrowLeft } from 'lucide-react';
+import { UserPlus, LogIn, AlertCircle, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const Inscription: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ const Inscription: React.FC = () => {
     telephone: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,11 +27,13 @@ const Inscription: React.FC = () => {
       [e.target.name]: e.target.value,
     }));
     setError('');
+    setSuccess('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     if (isLogin) {
@@ -74,7 +77,9 @@ const Inscription: React.FC = () => {
           if (loginSuccess) {
             navigate('/profil');
           } else {
-            setError('Inscription réussie mais connexion échouée. Veuillez vous connecter.');
+            // Inscription réussie, basculer vers l'onglet connexion
+            setSuccess('Inscription réussie ! Veuillez vous connecter.');
+            setIsLogin(true);
             setLoading(false);
           }
         }, 100);
@@ -122,6 +127,7 @@ const Inscription: React.FC = () => {
               onClick={() => {
                 setIsLogin(false);
                 setError('');
+                setSuccess('');
                 setFormData({ prenom: '', nom: '', idPersonnel: '', password: '', telephone: '' });
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
@@ -136,6 +142,7 @@ const Inscription: React.FC = () => {
               onClick={() => {
                 setIsLogin(true);
                 setError('');
+                setSuccess('');
                 setFormData({ prenom: '', nom: '', idPersonnel: '', password: '', telephone: '' });
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
@@ -150,6 +157,12 @@ const Inscription: React.FC = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="glass-card">
+            {success && (
+              <div className="mb-4 p-4 rounded-xl bg-success/10 border border-success/20 flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
+                <p className="text-sm text-success">{success}</p>
+              </div>
+            )}
             {error && (
               <div className="mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />

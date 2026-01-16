@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Sun, Moon, User } from 'lucide-react';
 import logoImage from '@/components/ui/0f4c0073c58cda701de3ecc0e6153a3f.png';
 import { useTheme } from '@/hooks/use-theme';
+import { useRecruitment } from '@/contexts/RecruitmentContext';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { isUserLoggedIn, currentUser } = useRecruitment();
 
   const navLinks = [
     { href: '/', label: 'QUI SOMMES-NOUS' },
@@ -64,13 +67,23 @@ const Navbar: React.FC = () => {
               )}
             </button>
 
-            {/* Bouton DASHBOARD */}
-            <Link
-              to="/panel"
-              className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
-            >
-              DASHBOARD
-            </Link>
+            {/* Bouton S'INSCRIRE ou Profil */}
+            {isUserLoggedIn ? (
+              <Link
+                to="/profil"
+                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                {currentUser?.idPersonnel || 'Profil'}
+              </Link>
+            ) : (
+              <Link
+                to="/inscription"
+                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
+              >
+                S'INSCRIRE
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -113,13 +126,24 @@ const Navbar: React.FC = () => {
                     <Moon className="w-5 h-5 text-foreground" />
                   )}
                 </button>
-                <Link
-                  to="/panel"
-                  onClick={() => setIsOpen(false)}
-                  className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
-                >
-                  DASHBOARD
-                </Link>
+                {isUserLoggedIn ? (
+                  <Link
+                    to="/profil"
+                    onClick={() => setIsOpen(false)}
+                    className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    {currentUser?.idPersonnel || 'Profil'}
+                  </Link>
+                ) : (
+                  <Link
+                    to="/inscription"
+                    onClick={() => setIsOpen(false)}
+                    className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
+                  >
+                    S'INSCRIRE
+                  </Link>
+                )}
               </div>
             </div>
           </div>

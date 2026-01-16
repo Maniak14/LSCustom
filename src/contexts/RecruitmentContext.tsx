@@ -29,6 +29,14 @@ export interface TeamMember {
   photo?: string;
 }
 
+export interface User {
+  id: string;
+  idPersonnel: string;
+  password: string; // Hashé en production
+  telephone: string;
+  createdAt: Date;
+}
+
 interface RecruitmentContextType {
   isRecruitmentOpen: boolean;
   setIsRecruitmentOpen: (open: boolean) => void;
@@ -50,6 +58,12 @@ interface RecruitmentContextType {
   loginEmployee: (password: string) => boolean;
   logoutEmployee: () => void;
   isLoading: boolean;
+  // User management
+  isUserLoggedIn: boolean;
+  currentUser: User | null;
+  registerUser: (idPersonnel: string, password: string, telephone: string) => Promise<boolean>;
+  loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
+  logoutUser: () => void;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
@@ -127,6 +141,8 @@ const STORAGE_KEYS = {
   SESSIONS: 'ls_customs_sessions',
   TEAM_MEMBERS: 'ls_customs_team_members',
   RECRUITMENT_OPEN: 'ls_customs_recruitment_open',
+  USERS: 'ls_customs_users',
+  CURRENT_USER: 'ls_customs_current_user',
 };
 
 export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -136,6 +152,9 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isEmployeeLoggedIn, setIsEmployeeLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   // Récupérer la session active
   const currentSession = sessions.find(s => s.isActive) || null;
@@ -205,6 +224,22 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (!settingsError && settingsData) {
       setIsRecruitmentOpen(settingsData.value === 'true');
     }
+
+    // Charger les utilisateurs
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!usersError && usersData) {
+      setUsers(usersData.map((row: any) => ({
+        id: row.id,
+        idPersonnel: row.id_personnel,
+        password: row.password,
+        telephone: row.telephone,
+        createdAt: new Date(row.created_at),
+      })));
+    }
   };
 
   const loadFromLocalStorage = () => {
@@ -236,6 +271,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (storedRecruitment) {
       setIsRecruitmentOpen(storedRecruitment === 'true');
     }
+
+    const storedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+    if (storedUsers) {
+      const parsed = JSON.parse(storedUsers);
+      setUsers(parsed.map((user: any) => ({
+        ...user,
+        createdAt: new Date(user.createdAt),
+      })));
+    }
   };
 
   const saveToLocalStorage = () => {
@@ -243,6 +287,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
     localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
     localStorage.setItem(STORAGE_KEYS.RECRUITMENT_OPEN, String(isRecruitmentOpen));
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
   };
 
   const createSession = async (name: string) => {
@@ -424,6 +469,75 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     setIsEmployeeLoggedIn(false);
   };
 
+  // User management functions
+  const registerUser = async (idPersonnel: string, password: string, telephone: string): Promise<boolean> => {
+    // Vérifier si l'ID personnel existe déjà
+    const existingUser = users.find(u => u.idPersonnel === idPersonnel);
+    if (existingUser) {
+      return false; // Utilisateur déjà existant
+    }
+
+    const newUser: User = {
+      id: crypto.randomUUID(),
+      idPersonnel,
+      password, // En production, hash le mot de passe
+      telephone,
+      createdAt: new Date(),
+    };
+
+    setUsers(prev => [...prev, newUser]);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('users').insert({
+          id: newUser.id,
+          id_personnel: newUser.idPersonnel,
+          password: newUser.password,
+          telephone: newUser.telephone,
+          created_at: newUser.createdAt.toISOString(),
+        });
+      } catch (error) {
+        console.error('Error registering user in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    return true;
+  };
+
+  const loginUser = async (idPersonnel: string, password: string): Promise<boolean> => {
+    const user = users.find(u => u.idPersonnel === idPersonnel && u.password === password);
+    if (user) {
+      setCurrentUser(user);
+      setIsUserLoggedIn(true);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      return true;
+    }
+    return false;
+  };
+
+  const logoutUser = () => {
+    setCurrentUser(null);
+    setIsUserLoggedIn(false);
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+  };
+
+  // Charger l'utilisateur connecté au démarrage
+  useEffect(() => {
+    const storedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        setIsUserLoggedIn(true);
+      } catch (error) {
+        console.error('Error loading current user:', error);
+      }
+    }
+  }, []);
+
   const addTeamMember = async (member: Omit<TeamMember, 'id'>) => {
     const newMember: TeamMember = {
       ...member,
@@ -507,6 +621,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         loginEmployee,
         logoutEmployee,
         isLoading,
+        isUserLoggedIn,
+        currentUser,
+        registerUser,
+        loginUser,
+        logoutUser,
       }}
     >
       {children}

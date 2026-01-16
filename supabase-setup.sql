@@ -41,12 +41,22 @@ CREATE TABLE IF NOT EXISTS settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Table des utilisateurs
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id_personnel TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  telephone TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Index pour améliorer les performances
 CREATE INDEX IF NOT EXISTS idx_applications_session_id ON applications(session_id);
 CREATE INDEX IF NOT EXISTS idx_applications_id_joueur ON applications(id_joueur);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
 CREATE INDEX IF NOT EXISTS idx_sessions_is_active ON sessions(is_active);
 CREATE INDEX IF NOT EXISTS idx_settings_key ON settings(key);
+CREATE INDEX IF NOT EXISTS idx_users_id_personnel ON users(id_personnel);
 
 -- RLS (Row Level Security) - Activer l'accès public en lecture/écriture pour ce projet
 -- ATTENTION: Pour la production, configurez des politiques de sécurité appropriées
@@ -55,6 +65,7 @@ ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Politiques pour permettre l'accès public (à adapter selon vos besoins de sécurité)
 CREATE POLICY "Allow public read access on applications" ON applications
@@ -94,4 +105,10 @@ CREATE POLICY "Allow public update access on settings" ON settings
   FOR UPDATE USING (true);
 
 CREATE POLICY "Allow public insert access on settings" ON settings
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Allow public read access on users" ON users
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow public insert access on users" ON users
   FOR INSERT WITH CHECK (true);

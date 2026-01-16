@@ -22,6 +22,11 @@ const ReviewsSection: React.FC = () => {
   // Filtrer seulement les avis approuvés
   const approvedReviews = clientReviews.filter(review => review.status === 'approved');
 
+  // Vérifier si l'utilisateur a déjà un avis en attente d'approbation
+  const hasPendingReview = currentUser
+    ? clientReviews.some(review => review.userId === currentUser.id && review.status === 'pending')
+    : false;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isUserLoggedIn || !currentUser) return;
@@ -108,7 +113,7 @@ const ReviewsSection: React.FC = () => {
           </div>
         )}
 
-        {isUserLoggedIn && currentUser && (
+        {isUserLoggedIn && currentUser && !hasPendingReview && (
           <div className="text-center">
             <button
               onClick={() => setShowReviewForm(true)}
@@ -117,6 +122,13 @@ const ReviewsSection: React.FC = () => {
               <Plus className="w-4 h-4" />
               Laisser un avis
             </button>
+          </div>
+        )}
+        {isUserLoggedIn && currentUser && hasPendingReview && (
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Votre avis est en attente d'approbation
+            </p>
           </div>
         )}
 

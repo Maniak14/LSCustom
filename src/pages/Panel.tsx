@@ -1238,6 +1238,19 @@ const Panel: React.FC = () => {
                                 </button>
                               </>
                             )}
+                            {appointment.status === 'accepted' && (
+                              <button
+                                onClick={async () => {
+                                  if (currentUser) {
+                                    await updateAppointmentStatus(appointment.id, 'completed', currentUser.id);
+                                  }
+                                }}
+                                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors whitespace-nowrap"
+                              >
+                                <Check className="w-4 h-4" />
+                                Terminer
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1710,6 +1723,31 @@ const Panel: React.FC = () => {
                     >
                       <X className="w-4 h-4" />
                       Refuser
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAppointmentDetailDialog(false);
+                        setAppointmentToView(null);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </>
+                ) : appointmentToView?.status === 'accepted' ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        if (currentUser && appointmentToView) {
+                          await updateAppointmentStatus(appointmentToView.id, 'completed', currentUser.id);
+                          setShowAppointmentDetailDialog(false);
+                          setAppointmentToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Terminer
                     </button>
                     <button
                       onClick={() => {

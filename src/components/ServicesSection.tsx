@@ -6,7 +6,7 @@ const services = [
   {
     icon: Wrench,
     title: 'Réparations',
-    description: 'Mécanique générale et carrosserie. Diagnostic complet et intervention rapide.',
+    description: 'Mécanique et carrosserie. Diagnostic complet et intervention rapide.',
     price: 'À partir de 500$',
   },
   {
@@ -65,12 +65,8 @@ const ServicesSection: React.FC = () => {
                 {service.title}
               </h3>
               
-              <p className="text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 {service.description}
-              </p>
-              
-              <p className="text-sm font-medium text-primary">
-                {service.price}
               </p>
             </div>
           ))}

@@ -4,7 +4,15 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment, TeamMember, User } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const Panel: React.FC = () => {
   const navigate = useNavigate();
@@ -59,6 +67,8 @@ const Panel: React.FC = () => {
     telephone: '',
     grade: 'client' as 'direction' | 'client',
   });
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -683,10 +693,9 @@ const Panel: React.FC = () => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={async () => {
-                          if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.prenom && user.nom ? `${user.prenom} ${user.nom}` : user.idPersonnel} ?`)) {
-                            await deleteUser(user.id);
-                          }
+                        onClick={() => {
+                          setUserToDelete(user);
+                          setShowDeleteDialog(true);
                         }}
                         className="p-2 rounded-full text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
                         title="Supprimer"
@@ -700,6 +709,56 @@ const Panel: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Modal de confirmation de suppression */}
+          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-destructive" />
+                  </div>
+                  <DialogTitle>Supprimer l'utilisateur</DialogTitle>
+                </div>
+                <DialogDescription>
+                  Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+                  <strong>
+                    {userToDelete?.prenom && userToDelete?.nom
+                      ? `${userToDelete.prenom} ${userToDelete.nom}`
+                      : userToDelete?.prenom || userToDelete?.nom || userToDelete?.idPersonnel}
+                  </strong>
+                  ?
+                  <br />
+                  <span className="text-xs text-muted-foreground mt-2 block">
+                    Cette action est irréversible.
+                  </span>
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <button
+                  onClick={() => {
+                    setShowDeleteDialog(false);
+                    setUserToDelete(null);
+                  }}
+                  className="btn-ghost"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={async () => {
+                    if (userToDelete) {
+                      await deleteUser(userToDelete.id);
+                      setShowDeleteDialog(false);
+                      setUserToDelete(null);
+                    }
+                  }}
+                  className="btn-primary bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                >
+                  Supprimer
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </main>
 

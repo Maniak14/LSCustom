@@ -482,11 +482,39 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       if (partenairesError) {
         console.warn('Error loading partenaires from Supabase:', partenairesError);
-      } else if (partenairesData) {
+        // En cas d'erreur, charger depuis localStorage comme fallback
+        const storedPartenaires = localStorage.getItem(STORAGE_KEYS.PARTENAIRES);
+        if (storedPartenaires) {
+          const parsed = JSON.parse(storedPartenaires);
+          setPartenaires(parsed.map((partenaire: any) => ({
+            ...partenaire,
+            createdAt: new Date(partenaire.createdAt),
+          })));
+        }
+      } else if (partenairesData && partenairesData.length > 0) {
         setPartenaires(partenairesData.map(rowToPartenaire));
+      } else {
+        // Si Supabase retourne un tableau vide, charger depuis localStorage comme fallback
+        const storedPartenaires = localStorage.getItem(STORAGE_KEYS.PARTENAIRES);
+        if (storedPartenaires) {
+          const parsed = JSON.parse(storedPartenaires);
+          setPartenaires(parsed.map((partenaire: any) => ({
+            ...partenaire,
+            createdAt: new Date(partenaire.createdAt),
+          })));
+        }
       }
     } catch (error) {
       console.warn('Error loading partenaires:', error);
+      // En cas d'erreur, charger depuis localStorage comme fallback
+      const storedPartenaires = localStorage.getItem(STORAGE_KEYS.PARTENAIRES);
+      if (storedPartenaires) {
+        const parsed = JSON.parse(storedPartenaires);
+        setPartenaires(parsed.map((partenaire: any) => ({
+          ...partenaire,
+          createdAt: new Date(partenaire.createdAt),
+        })));
+      }
     }
   };
 

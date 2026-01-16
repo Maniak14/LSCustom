@@ -84,9 +84,14 @@ const Navbar: React.FC = () => {
                 className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors flex items-center gap-2"
               >
                 <User className="w-4 h-4" />
-                {currentUser?.prenom && currentUser?.nom
-                  ? `${currentUser.prenom} ${currentUser.nom}`
-                  : currentUser?.prenom || currentUser?.nom || currentUser?.idPersonnel || 'Profil'}
+                <span className="hidden md:inline">
+                  {currentUser?.prenom && currentUser?.nom
+                    ? `${currentUser.prenom} ${currentUser.nom}`
+                    : currentUser?.prenom || currentUser?.nom || currentUser?.idPersonnel || 'Profil'}
+                </span>
+                <span className="md:hidden">
+                  {currentUser?.idPersonnel || 'Profil'}
+                </span>
               </Link>
             ) : (
               <Link
@@ -154,9 +159,7 @@ const Navbar: React.FC = () => {
                     className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground flex items-center gap-2"
                   >
                     <User className="w-4 h-4" />
-                    {currentUser?.prenom && currentUser?.nom
-                      ? `${currentUser.prenom} ${currentUser.nom}`
-                      : currentUser?.prenom || currentUser?.nom || currentUser?.idPersonnel || 'Profil'}
+                    {currentUser?.idPersonnel || 'Profil'}
                   </Link>
                 ) : (
                   <Link

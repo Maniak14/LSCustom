@@ -64,6 +64,7 @@ interface RecruitmentContextType {
   registerUser: (idPersonnel: string, password: string, telephone: string) => Promise<boolean>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
+  updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
@@ -524,6 +525,56 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
   };
 
+  const updateUser = async (oldPassword: string, newPassword?: string, newTelephone?: string): Promise<boolean> => {
+    if (!currentUser) {
+      return false;
+    }
+
+    // Vérifier que l'ancien mot de passe est correct
+    if (currentUser.password !== oldPassword) {
+      return false;
+    }
+
+    // Mettre à jour l'utilisateur
+    const updatedUser: User = {
+      ...currentUser,
+      password: newPassword || currentUser.password,
+      telephone: newTelephone || currentUser.telephone,
+    };
+
+    // Mettre à jour dans la liste des utilisateurs
+    setUsers(prev =>
+      prev.map(u => (u.id === currentUser.id ? updatedUser : u))
+    );
+
+    // Mettre à jour l'utilisateur actuel si c'est lui
+    if (currentUser.id === updatedUser.id) {
+      setCurrentUser(updatedUser);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(updatedUser));
+    }
+
+    // Sauvegarder dans Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        const updateData: any = {};
+        if (newPassword) updateData.password = newPassword;
+        if (newTelephone) updateData.telephone = newTelephone;
+
+        await supabase
+          .from('users')
+          .update(updateData)
+          .eq('id', currentUser.id);
+      } catch (error) {
+        console.error('Error updating user in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    return true;
+  };
+
   // Charger l'utilisateur connecté au démarrage
   useEffect(() => {
     const storedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
@@ -626,6 +677,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         registerUser,
         loginUser,
         logoutUser,
+        updateUser,
       }}
     >
       {children}

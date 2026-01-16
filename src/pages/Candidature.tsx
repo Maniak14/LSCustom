@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Candidature: React.FC = () => {
   const navigate = useNavigate();
@@ -31,28 +32,23 @@ const Candidature: React.FC = () => {
     e.preventDefault();
     setStatus('checking');
 
-    // Validate
     if (!formData.nomRP || !formData.prenomRP || !formData.idJoueur || !formData.motivation) {
       setStatus('error');
       setErrorMessage('Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
-    // Check for existing application
     if (hasActiveApplication(formData.idJoueur)) {
       setStatus('error');
       setErrorMessage('Votre candidature est déjà en traitement. Merci de patienter.');
       return;
     }
 
-    // Submit
     const success = addApplication(formData);
     
     if (success) {
       setStatus('success');
-      setTimeout(() => {
-        navigate('/');
-      }, 3000);
+      setTimeout(() => navigate('/'), 3000);
     } else {
       setStatus('error');
       setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
@@ -63,22 +59,18 @@ const Candidature: React.FC = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="pt-24 pb-16">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-md mx-auto bg-card rounded-xl p-8 border border-border">
-              <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-              <h1 className="font-display text-2xl font-bold mb-4 text-foreground">
-                Recrutement Fermé
-              </h1>
+        <main className="pt-32 pb-24 px-4">
+          <div className="max-w-md mx-auto text-center">
+            <div className="glass-card">
+              <XCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h1 className="text-2xl font-bold mb-2">Recrutement fermé</h1>
               <p className="text-muted-foreground mb-6">
-                Nous ne recrutons pas actuellement. Revenez plus tard !
+                Nous ne recrutons pas actuellement.
               </p>
-              <button
-                onClick={() => navigate('/')}
-                className="btn-blue px-6 py-3 rounded-lg"
-              >
-                Retour à l'accueil
-              </button>
+              <Link to="/" className="btn-primary">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour
+              </Link>
             </div>
           </div>
         </main>
@@ -91,18 +83,13 @@ const Candidature: React.FC = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="pt-24 pb-16">
-          <div className="container mx-auto px-4 text-center">
-            <div className="max-w-md mx-auto bg-card rounded-xl p-8 border border-success/30">
-              <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-              <h1 className="font-display text-2xl font-bold mb-4 text-foreground">
-                Candidature Envoyée !
-              </h1>
-              <p className="text-muted-foreground mb-6">
-                Votre candidature a été reçue. Notre équipe l'examinera dans les plus brefs délais.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Redirection automatique...
+        <main className="pt-32 pb-24 px-4">
+          <div className="max-w-md mx-auto text-center">
+            <div className="glass-card">
+              <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
+              <h1 className="text-2xl font-bold mb-2">Candidature envoyée</h1>
+              <p className="text-muted-foreground">
+                Nous examinerons votre candidature rapidement.
               </p>
             </div>
           </div>
@@ -116,122 +103,106 @@ const Candidature: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 animate-fade-in-up">
-                <span className="text-gradient-blue">Rejoins</span> l'équipe
-              </h1>
-              <p className="text-muted-foreground animate-fade-in-up-delay-1">
-                Deviens mécanicien chez LS Custom's
-              </p>
+      <main className="pt-32 pb-24 px-4">
+        <div className="max-w-xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4 animate-fade-up">
+              Recrutement
+            </p>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight animate-fade-up-1">
+              Rejoins l'équipe
+            </h1>
+            <p className="mt-4 text-muted-foreground animate-fade-up-2">
+              Deviens mécanicien chez LS Custom's
+            </p>
+          </div>
+
+          {/* Error */}
+          {status === 'error' && (
+            <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 animate-fade-up">
+              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+              <p className="text-sm text-destructive">{errorMessage}</p>
             </div>
+          )}
 
-            {/* Error Message */}
-            {status === 'error' && (
-              <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
-                <p className="text-sm text-destructive">{errorMessage}</p>
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="card-gradient rounded-xl p-6 md:p-8 animate-fade-in-up-delay-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {/* Nom RP */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Nom RP *
-                  </label>
-                  <input
-                    type="text"
-                    name="nomRP"
-                    value={formData.nomRP}
-                    onChange={handleChange}
-                    className="input-ls"
-                    placeholder="Ex: Martinez"
-                    required
-                  />
-                </div>
-
-                {/* Prénom RP */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Prénom RP *
-                  </label>
-                  <input
-                    type="text"
-                    name="prenomRP"
-                    value={formData.prenomRP}
-                    onChange={handleChange}
-                    className="input-ls"
-                    placeholder="Ex: Carlos"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* ID Joueur */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  ID Joueur *
-                </label>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="glass-card animate-fade-up-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Prénom RP *</label>
                 <input
                   type="text"
-                  name="idJoueur"
-                  value={formData.idJoueur}
+                  name="prenomRP"
+                  value={formData.prenomRP}
                   onChange={handleChange}
-                  className="input-ls"
-                  placeholder="Votre ID en jeu"
+                  className="input-modern"
+                  placeholder="Carlos"
                   required
                 />
               </div>
-
-              {/* Motivation */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Motivation RP *
-                </label>
-                <textarea
-                  name="motivation"
-                  value={formData.motivation}
+              <div>
+                <label className="block text-sm font-medium mb-2">Nom RP *</label>
+                <input
+                  type="text"
+                  name="nomRP"
+                  value={formData.nomRP}
                   onChange={handleChange}
-                  className="input-ls min-h-[120px] resize-none"
-                  placeholder="Pourquoi voulez-vous rejoindre LS Custom's ? (Répondez en RP)"
+                  className="input-modern"
+                  placeholder="Martinez"
                   required
                 />
               </div>
+            </div>
 
-              {/* Expérience */}
-              <div className="mb-8">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Expérience mécanique RP
-                </label>
-                <textarea
-                  name="experience"
-                  value={formData.experience}
-                  onChange={handleChange}
-                  className="input-ls min-h-[100px] resize-none"
-                  placeholder="Décrivez votre expérience en mécanique (optionnel)"
-                />
-              </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">ID Joueur *</label>
+              <input
+                type="text"
+                name="idJoueur"
+                value={formData.idJoueur}
+                onChange={handleChange}
+                className="input-modern"
+                placeholder="Votre ID en jeu"
+                required
+              />
+            </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={status === 'checking'}
-                className="btn-gold w-full py-4 rounded-lg text-lg disabled:opacity-50"
-              >
-                {status === 'checking' ? 'Envoi en cours...' : 'Envoyer ma candidature'}
-              </button>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Motivation *</label>
+              <textarea
+                name="motivation"
+                value={formData.motivation}
+                onChange={handleChange}
+                className="input-modern min-h-[120px] resize-none"
+                placeholder="Pourquoi souhaitez-vous rejoindre LS Custom's ?"
+                required
+              />
+            </div>
 
-              <p className="text-xs text-muted-foreground text-center mt-4">
-                * Champs obligatoires • Une seule candidature active par joueur
-              </p>
-            </form>
-          </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Expérience</label>
+              <textarea
+                name="experience"
+                value={formData.experience}
+                onChange={handleChange}
+                className="input-modern min-h-[80px] resize-none"
+                placeholder="Expérience en mécanique (optionnel)"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={status === 'checking'}
+              className="btn-accent w-full disabled:opacity-50"
+            >
+              {status === 'checking' ? 'Envoi...' : 'Envoyer ma candidature'}
+            </button>
+
+            <p className="text-xs text-center text-muted-foreground mt-4">
+              * Champs obligatoires · Une candidature par joueur
+            </p>
+          </form>
         </div>
       </main>
 

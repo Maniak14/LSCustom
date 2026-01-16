@@ -7,7 +7,6 @@ const pricingCategories = [
   {
     icon: Wrench,
     title: 'Réparations',
-    color: 'primary',
     services: [
       { name: 'Réparation légère', price: '500$' },
       { name: 'Réparation moyenne', price: '1 500$' },
@@ -17,61 +16,58 @@ const pricingCategories = [
   },
   {
     icon: Paintbrush,
-    title: 'Peinture & Finitions',
-    color: 'accent',
+    title: 'Peinture',
     services: [
       { name: 'Couleur classique', price: '800$' },
-      { name: 'Couleur métallisée', price: '1 500$' },
-      { name: 'Peinture nacrée', price: '2 500$' },
-      { name: 'Peinture mate', price: '2 000$' },
-      { name: 'Vinyles / Stickers', price: 'Sur devis' },
+      { name: 'Métallisée', price: '1 500$' },
+      { name: 'Nacrée', price: '2 500$' },
+      { name: 'Mate', price: '2 000$' },
+      { name: 'Vinyles', price: 'Devis' },
     ],
   },
   {
     icon: Gauge,
-    title: 'Performances',
-    color: 'primary',
+    title: 'Performance',
+    featured: true,
     services: [
-      { name: 'Amélioration moteur Niv.1', price: '5 000$' },
-      { name: 'Amélioration moteur Niv.2', price: '10 000$' },
-      { name: 'Amélioration moteur Niv.3', price: '18 000$' },
+      { name: 'Moteur Niv.1', price: '5 000$' },
+      { name: 'Moteur Niv.2', price: '10 000$' },
+      { name: 'Moteur Niv.3', price: '18 000$' },
       { name: 'Turbo', price: '15 000$' },
       { name: 'Freins sport', price: '3 500$' },
-      { name: 'Transmission sport', price: '8 000$' },
+      { name: 'Transmission', price: '8 000$' },
     ],
   },
   {
     icon: Car,
     title: 'Esthétique',
-    color: 'accent',
     services: [
       { name: 'Jantes standard', price: '1 200$' },
       { name: 'Jantes sport', price: '3 000$' },
       { name: 'Kit carrosserie', price: '8 000$' },
-      { name: 'Spoiler / Aileron', price: '2 500$' },
+      { name: 'Spoiler', price: '2 500$' },
       { name: 'Vitres teintées', price: '1 000$' },
     ],
   },
   {
     icon: Sparkles,
-    title: 'Options Premium',
-    color: 'primary',
+    title: 'Options',
     services: [
       { name: 'Néons', price: '2 000$' },
-      { name: 'Klaxon personnalisé', price: '500$' },
-      { name: 'Plaque personnalisée', price: '1 500$' },
+      { name: 'Klaxon custom', price: '500$' },
+      { name: 'Plaque perso', price: '1 500$' },
       { name: 'Intérieur cuir', price: '5 000$' },
     ],
   },
   {
     icon: Shield,
     title: 'Forfaits',
-    color: 'accent',
+    featured: true,
     services: [
       { name: 'Pack Entretien', price: '2 500$' },
       { name: 'Pack Sport', price: '25 000$' },
-      { name: 'Pack Luxe Complet', price: '50 000$' },
-      { name: 'Révision complète', price: '4 000$' },
+      { name: 'Pack Luxe', price: '50 000$' },
+      { name: 'Révision', price: '4 000$' },
     ],
   },
 ];
@@ -81,15 +77,18 @@ const Tarifs: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
+      <main className="pt-32 pb-24 px-4">
+        <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 animate-fade-in-up">
-              Nos <span className="text-gradient-gold">Tarifs</span>
+          <div className="text-center mb-16">
+            <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4 animate-fade-up">
+              Tarifs
+            </p>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight animate-fade-up-1">
+              Nos Services
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto animate-fade-in-up-delay-1">
-              Prix RP indicatifs - Devis personnalisé disponible en jeu
+            <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto animate-fade-up-2">
+              Prix RP indicatifs · Devis personnalisé en jeu
             </p>
           </div>
 
@@ -98,19 +97,23 @@ const Tarifs: React.FC = () => {
             {pricingCategories.map((category, index) => (
               <div
                 key={category.title}
-                className="pricing-card animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className={`pricing-card ${category.featured ? 'ring-2 ring-primary/20' : ''}`}
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                    category.color === 'accent' ? 'bg-accent/20' : 'bg-primary/20'
-                  }`}>
-                    <category.icon className={`w-6 h-6 ${
-                      category.color === 'accent' ? 'text-accent' : 'text-primary'
-                    }`} />
+                {category.featured && (
+                  <div className="absolute top-4 right-4">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      Populaire
+                    </span>
                   </div>
-                  <h2 className="font-display text-xl font-semibold text-foreground">
+                )}
+                
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <category.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-lg font-semibold">
                     {category.title}
                   </h2>
                 </div>
@@ -120,12 +123,10 @@ const Tarifs: React.FC = () => {
                   {category.services.map((service) => (
                     <li
                       key={service.name}
-                      className="flex justify-between items-center text-sm"
+                      className="flex justify-between items-center py-2 border-b border-border/50 last:border-0"
                     >
-                      <span className="text-muted-foreground">{service.name}</span>
-                      <span className={`font-display font-semibold ${
-                        category.color === 'accent' ? 'text-accent' : 'text-primary'
-                      }`}>
+                      <span className="text-sm text-muted-foreground">{service.name}</span>
+                      <span className="text-sm font-medium text-foreground">
                         {service.price}
                       </span>
                     </li>
@@ -136,11 +137,11 @@ const Tarifs: React.FC = () => {
           </div>
 
           {/* Disclaimer */}
-          <div className="mt-12 text-center">
-            <p className="text-sm text-muted-foreground bg-secondary/50 inline-block px-6 py-3 rounded-lg">
-              💡 Les prix peuvent varier selon le véhicule et les options choisies. 
-              Contactez-nous en jeu pour un devis précis.
-            </p>
+          <div className="mt-16 text-center">
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-sm text-muted-foreground">
+              <span>💡</span>
+              <span>Les prix varient selon le véhicule. Contactez-nous en jeu.</span>
+            </div>
           </div>
         </div>
       </main>

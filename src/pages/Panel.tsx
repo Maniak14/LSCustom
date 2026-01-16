@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Lock, LogOut, ToggleLeft, ToggleRight, Check, X, Clock, Users } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle } from 'lucide-react';
 
 const Panel: React.FC = () => {
   const {
@@ -36,44 +36,36 @@ const Panel: React.FC = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="pt-24 pb-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-md mx-auto">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Lock className="w-8 h-8 text-primary" />
-                </div>
-                <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-                  Panel Employé
-                </h1>
-                <p className="text-muted-foreground">
-                  Accès réservé aux employés LS Custom's
-                </p>
+        <main className="pt-32 pb-24 px-4">
+          <div className="max-w-sm mx-auto">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-7 h-7 text-muted-foreground" />
               </div>
-
-              <form onSubmit={handleLogin} className="card-gradient rounded-xl p-6">
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Mot de passe
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`input-ls ${loginError ? 'border-destructive' : ''}`}
-                    placeholder="••••••••"
-                  />
-                  {loginError && (
-                    <p className="text-sm text-destructive mt-2">
-                      Mot de passe incorrect
-                    </p>
-                  )}
-                </div>
-                <button type="submit" className="btn-blue w-full py-3 rounded-lg">
-                  Connexion
-                </button>
-              </form>
+              <h1 className="text-2xl font-bold">Panel Employé</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Accès réservé
+              </p>
             </div>
+
+            <form onSubmit={handleLogin} className="glass-card">
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Mot de passe</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`input-modern ${loginError ? 'ring-2 ring-destructive/50' : ''}`}
+                  placeholder="••••••••"
+                />
+                {loginError && (
+                  <p className="text-sm text-destructive mt-2">Mot de passe incorrect</p>
+                )}
+              </div>
+              <button type="submit" className="btn-primary w-full">
+                Connexion
+              </button>
+            </form>
           </div>
         </main>
         <Footer />
@@ -85,19 +77,17 @@ const Panel: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
+      <main className="pt-32 pb-24 px-4">
+        <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
-              <h1 className="font-display text-3xl font-bold text-foreground">
-                Panel Employé
-              </h1>
-              <p className="text-muted-foreground">Gestion du recrutement</p>
+              <h1 className="text-2xl font-bold">Panel Employé</h1>
+              <p className="text-sm text-muted-foreground">Gestion du recrutement</p>
             </div>
             <button
               onClick={logoutEmployee}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-muted text-muted-foreground hover:bg-secondary transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Déconnexion
@@ -106,87 +96,72 @@ const Panel: React.FC = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="card-gradient rounded-lg p-4 text-center">
-              <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-              <p className="text-2xl font-display font-bold text-foreground">{applications.length}</p>
+            <div className="glass-card text-center !p-4">
+              <Users className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
+              <p className="text-2xl font-bold">{applications.length}</p>
               <p className="text-xs text-muted-foreground">Total</p>
             </div>
-            <div className="card-gradient rounded-lg p-4 text-center">
-              <Clock className="w-6 h-6 text-accent mx-auto mb-2" />
-              <p className="text-2xl font-display font-bold text-accent">{pendingCount}</p>
+            <div className="glass-card text-center !p-4">
+              <Clock className="w-5 h-5 text-accent mx-auto mb-2" />
+              <p className="text-2xl font-bold text-accent">{pendingCount}</p>
               <p className="text-xs text-muted-foreground">En attente</p>
             </div>
-            <div className="card-gradient rounded-lg p-4 text-center">
-              <Check className="w-6 h-6 text-success mx-auto mb-2" />
-              <p className="text-2xl font-display font-bold text-success">{acceptedCount}</p>
+            <div className="glass-card text-center !p-4">
+              <Check className="w-5 h-5 text-success mx-auto mb-2" />
+              <p className="text-2xl font-bold text-success">{acceptedCount}</p>
               <p className="text-xs text-muted-foreground">Acceptées</p>
             </div>
-            <div className="card-gradient rounded-lg p-4 text-center">
-              <X className="w-6 h-6 text-destructive mx-auto mb-2" />
-              <p className="text-2xl font-display font-bold text-destructive">{rejectedCount}</p>
+            <div className="glass-card text-center !p-4">
+              <X className="w-5 h-5 text-destructive mx-auto mb-2" />
+              <p className="text-2xl font-bold text-destructive">{rejectedCount}</p>
               <p className="text-xs text-muted-foreground">Refusées</p>
             </div>
           </div>
 
           {/* Recruitment Toggle */}
-          <div className="card-gradient rounded-xl p-6 mb-8">
+          <div className="glass-card mb-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="font-display text-xl font-semibold text-foreground mb-1">
-                  État du recrutement
-                </h2>
+                <h2 className="font-semibold mb-1">État du recrutement</h2>
                 <p className="text-sm text-muted-foreground">
-                  {isRecruitmentOpen
-                    ? 'Le recrutement est actuellement ouvert'
-                    : 'Le recrutement est actuellement fermé'}
+                  {isRecruitmentOpen ? 'Ouvert aux candidatures' : 'Fermé temporairement'}
                 </p>
               </div>
               <button
                 onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
-                className={`flex items-center gap-3 px-6 py-3 rounded-lg font-display uppercase tracking-wider transition-all ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                   isRecruitmentOpen
-                    ? 'recruitment-open text-white'
-                    : 'bg-destructive/20 text-destructive border border-destructive/30'
+                    ? 'bg-success text-white'
+                    : 'bg-muted text-muted-foreground'
                 }`}
               >
-                {isRecruitmentOpen ? (
-                  <>
-                    <ToggleRight className="w-6 h-6" />
-                    Ouvert
-                  </>
-                ) : (
-                  <>
-                    <ToggleLeft className="w-6 h-6" />
-                    Fermé
-                  </>
-                )}
+                <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : ''}`} />
+                {isRecruitmentOpen ? 'Ouvert' : 'Fermé'}
               </button>
             </div>
           </div>
 
-          {/* Applications List */}
-          <div className="card-gradient rounded-xl overflow-hidden">
+          {/* Applications */}
+          <div className="glass-card !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
-              <h2 className="font-display text-xl font-semibold text-foreground">
-                Candidatures
-              </h2>
+              <h2 className="font-semibold">Candidatures</h2>
             </div>
 
             {applications.length === 0 ? (
-              <div className="p-8 text-center">
-                <p className="text-muted-foreground">Aucune candidature pour le moment</p>
+              <div className="p-12 text-center">
+                <p className="text-muted-foreground">Aucune candidature</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
                 {applications.map((app) => (
-                  <div key={app.id} className="p-4">
+                  <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
                     <div className="flex flex-col lg:flex-row justify-between gap-4">
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-display text-lg font-semibold text-foreground">
+                          <h3 className="font-medium">
                             {app.prenomRP} {app.nomRP}
                           </h3>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                             app.status === 'pending'
                               ? 'bg-accent/20 text-accent'
                               : app.status === 'accepted'
@@ -198,31 +173,22 @@ const Panel: React.FC = () => {
                             {app.status === 'rejected' && 'Refusée'}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-1">
-                          <span className="text-foreground">ID:</span> {app.idJoueur}
-                        </p>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          <span className="text-foreground">Motivation:</span> {app.motivation}
-                        </p>
-                        {app.experience && (
-                          <p className="text-sm text-muted-foreground">
-                            <span className="text-foreground">Expérience:</span> {app.experience}
-                          </p>
-                        )}
+                        <p className="text-xs text-muted-foreground mb-1">ID: {app.idJoueur}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{app.motivation}</p>
                       </div>
 
                       {app.status === 'pending' && (
-                        <div className="flex gap-2 lg:flex-col">
+                        <div className="flex gap-2 shrink-0">
                           <button
                             onClick={() => updateApplicationStatus(app.id, 'accepted')}
-                            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-success/20 text-success hover:bg-success/30 transition-colors"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-success/10 text-success hover:bg-success/20 transition-colors"
                           >
                             <Check className="w-4 h-4" />
                             Accepter
                           </button>
                           <button
                             onClick={() => updateApplicationStatus(app.id, 'rejected')}
-                            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-destructive/20 text-destructive hover:bg-destructive/30 transition-colors"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                           >
                             <X className="w-4 h-4" />
                             Refuser

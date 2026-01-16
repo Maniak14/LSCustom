@@ -437,16 +437,16 @@ const Profil: React.FC = () => {
               </p>
             </div>
             {photoUrl && (
-              <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border">
+              <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/30 border border-border max-w-full overflow-hidden">
                 <Avatar className="w-16 h-16 flex-shrink-0">
                   <AvatarImage src={photoUrl} alt="Aperçu" />
                   <AvatarFallback>
                     <ImageIcon className="w-8 h-8 text-muted-foreground" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="text-sm font-medium mb-1">Aperçu</p>
-                  <p className="text-xs text-muted-foreground truncate">{photoUrl}</p>
+                  <p className="text-xs text-muted-foreground truncate break-all">{photoUrl}</p>
                 </div>
               </div>
             )}

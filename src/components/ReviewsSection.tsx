@@ -17,6 +17,7 @@ const ReviewsSection: React.FC = () => {
     comment: '',
     rating: 5,
   });
+  const MAX_COMMENT_LENGTH = 250;
 
   // Filtrer seulement les avis approuvés
   const approvedReviews = clientReviews.filter(review => review.status === 'approved');

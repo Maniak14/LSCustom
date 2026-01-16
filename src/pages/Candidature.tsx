@@ -264,7 +264,7 @@ const Candidature: React.FC = () => {
               )}
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="glass-card animate-fade-up-3">
+              <form onSubmit={handleSubmit} className="glass-card mb-8 animate-fade-up-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Prénom *</label>
@@ -347,24 +347,22 @@ const Candidature: React.FC = () => {
           ) : null}
 
           {/* Historique des candidatures */}
-          {isUserLoggedIn && currentUser && (
-            <div className="glass-card mb-6 mt-12 animate-fade-up">
-              <div className="flex items-center gap-2 mb-4">
-                <History className="w-5 h-5 text-primary" />
-                <h2 className="text-lg font-semibold">Historique de mes candidatures</h2>
-              </div>
-              {(() => {
-                const userApplications = applications
-                  .filter(app => app.idJoueur === currentUser.idPersonnel)
-                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                
-                if (userApplications.length === 0) {
-                  return (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      Aucune candidature enregistrée
-                    </p>
-                  );
-                }
+          {isUserLoggedIn && currentUser && (() => {
+            const userApplications = applications
+              .filter(app => app.idJoueur === currentUser.idPersonnel)
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            
+            if (userApplications.length === 0) {
+              return null;
+            }
+
+            return (
+              <div className="glass-card mb-6 animate-fade-up">
+                <div className="flex items-center gap-2 mb-4">
+                  <History className="w-5 h-5 text-primary" />
+                  <h2 className="text-lg font-semibold">Historique de mes candidatures</h2>
+                </div>
+                {(() => {
 
                 // Pagination
                 const totalPages = Math.ceil(userApplications.length / applicationsPerPage);
@@ -476,8 +474,9 @@ const Candidature: React.FC = () => {
                   </>
                 );
               })()}
-            </div>
-          )}
+              </div>
+            );
+          })()}
         </div>
       </main>
 

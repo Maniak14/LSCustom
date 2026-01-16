@@ -2,11 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Circle } from 'lucide-react';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { useTheme } from '@/hooks/use-theme';
 
 const HeroSection: React.FC = () => {
   const { isRecruitmentOpen } = useRecruitment();
-  const { theme } = useTheme();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">
@@ -25,17 +23,13 @@ const HeroSection: React.FC = () => {
           {isRecruitmentOpen ? (
             <Link
               to="/candidature"
-              className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm ${
-                theme === 'dark'
-                  ? 'bg-[#4CAF50] hover:bg-[#45a049] text-white'
-                  : 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
-              }`}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm dark:bg-[#4CAF50] dark:hover:bg-[#45a049] dark:text-white bg-[#90EE90] hover:bg-[#7ED87E] text-foreground"
             >
               <Circle className="w-2 h-2 fill-current" />
               Recrutement ouvert
             </Link>
           ) : (
-            <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm dark:bg-[#D32F2F] dark:hover:bg-[#C62828] dark:text-white bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground`}>
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm dark:bg-[#D32F2F] dark:hover:bg-[#C62828] dark:text-white bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground">
               <Circle className="w-2 h-2 fill-current" />
               Recrutement fermé
             </div>

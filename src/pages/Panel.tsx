@@ -1088,7 +1088,7 @@ const Panel: React.FC = () => {
 
           {/* Modal de détail de candidature */}
           <Dialog open={showAppDetailDialog} onOpenChange={setShowAppDetailDialog}>
-            <DialogContent className="sm:max-w-[600px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto scrollbar-hide">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold mb-4">
                   Détails de la candidature

@@ -5,6 +5,7 @@ import LocalisationSection from '@/components/LocalisationSection';
 import TeamSection from '@/components/TeamSection';
 import ServicesSection from '@/components/ServicesSection';
 import ReviewsSection from '@/components/ReviewsSection';
+import PartenairesSection from '@/components/PartenairesSection';
 import Footer from '@/components/Footer';
 
 const Index: React.FC = () => {
@@ -17,6 +18,7 @@ const Index: React.FC = () => {
         <TeamSection />
         <ServicesSection />
         <ReviewsSection />
+        <PartenairesSection />
       </div>
       <Footer />
     </div>

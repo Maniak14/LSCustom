@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRecruitment, TeamMember, User, Application, ClientReview, Appointment } from '@/contexts/RecruitmentContext';
+import { useRecruitment, TeamMember, User, Application, ClientReview, Appointment, Partenaire } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search, ChevronUp, ChevronDown, Star, Calendar, MessageSquare, Phone } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search, ChevronUp, ChevronDown, Star, Calendar, MessageSquare, Phone, Building2, Image as ImageIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,9 @@ const Panel: React.FC = () => {
     updateAppointmentStatus,
     deleteAppointment,
     hasPendingAppointment,
+    partenaires,
+    addPartenaire,
+    deletePartenaire,
   } = useRecruitment();
 
   const [password, setPassword] = useState('');
@@ -121,6 +124,13 @@ const Panel: React.FC = () => {
   const appointmentsPerPage = 10;
   const [showDeleteAppointmentDialog, setShowDeleteAppointmentDialog] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null);
+  const [showPartenaireForm, setShowPartenaireForm] = useState(false);
+  const [partenaireFormData, setPartenaireFormData] = useState({
+    nom: '',
+    logoUrl: '',
+  });
+  const [showDeletePartenaireDialog, setShowDeletePartenaireDialog] = useState(false);
+  const [partenaireToDelete, setPartenaireToDelete] = useState<Partenaire | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -1393,6 +1403,138 @@ const Panel: React.FC = () => {
             )}
           </div>
 
+          {/* Gestion des partenaires */}
+          <div className="glass-card mb-8 mt-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Building2 className="w-5 h-5 text-primary" />
+                  <h2 className="font-semibold">Gestion des partenaires</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Gérez les partenaires affichés sur le site
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPartenaireForm(true);
+                  setPartenaireFormData({ nom: '', logoUrl: '' });
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Ajouter un partenaire
+              </button>
+            </div>
+
+            {/* Formulaire ajout partenaire */}
+            {showPartenaireForm && (
+              <div className="mb-4 p-4 rounded-lg bg-muted/50 border border-border">
+                <h3 className="font-semibold mb-4">Nouveau partenaire</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Nom de l'entreprise *</label>
+                    <input
+                      type="text"
+                      value={partenaireFormData.nom}
+                      onChange={(e) => setPartenaireFormData({ ...partenaireFormData, nom: e.target.value })}
+                      className="input-modern"
+                      placeholder="Nom de l'entreprise"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">URL du logo *</label>
+                    <input
+                      type="url"
+                      value={partenaireFormData.logoUrl}
+                      onChange={(e) => setPartenaireFormData({ ...partenaireFormData, logoUrl: e.target.value })}
+                      className="input-modern"
+                      placeholder="https://exemple.com/logo.png"
+                      required
+                    />
+                  </div>
+                </div>
+                {partenaireFormData.logoUrl && (
+                  <div className="mb-4 p-4 rounded-lg bg-muted/30 border border-border flex items-center justify-center max-w-xs">
+                    <img
+                      src={partenaireFormData.logoUrl}
+                      alt={partenaireFormData.nom || 'Aperçu'}
+                      className="max-w-full max-h-24 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      if (partenaireFormData.nom && partenaireFormData.logoUrl) {
+                        await addPartenaire({
+                          nom: partenaireFormData.nom,
+                          logoUrl: partenaireFormData.logoUrl,
+                        });
+                        setShowPartenaireForm(false);
+                        setPartenaireFormData({ nom: '', logoUrl: '' });
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!partenaireFormData.nom || !partenaireFormData.logoUrl}
+                  >
+                    Ajouter
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPartenaireForm(false);
+                      setPartenaireFormData({ nom: '', logoUrl: '' });
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Liste des partenaires */}
+            {partenaires.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Aucun partenaire enregistré
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {partenaires.map((partenaire) => (
+                  <div
+                    key={partenaire.id}
+                    className="p-4 rounded-lg bg-muted/30 border border-border flex flex-col items-center justify-center aspect-square"
+                  >
+                    {partenaire.logoUrl ? (
+                      <img
+                        src={partenaire.logoUrl}
+                        alt={partenaire.nom}
+                        className="max-w-full max-h-24 object-contain mb-3"
+                      />
+                    ) : (
+                      <Building2 className="w-12 h-12 text-muted-foreground mb-3" />
+                    )}
+                    <p className="text-sm font-medium text-center mb-3">{partenaire.nom}</p>
+                    <button
+                      onClick={() => {
+                        setPartenaireToDelete(partenaire);
+                        setShowDeletePartenaireDialog(true);
+                      }}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Supprimer
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Modal de confirmation de suppression */}
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
@@ -1903,6 +2045,64 @@ const Panel: React.FC = () => {
                     Fermer
                   </button>
                 )}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal de confirmation de suppression de partenaire */}
+          <Dialog open={showDeletePartenaireDialog} onOpenChange={setShowDeletePartenaireDialog}>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
+              <DialogHeader className="text-center sm:text-left">
+                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left min-w-0">
+                    <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
+                      Supprimer le partenaire
+                    </DialogTitle>
+                    <DialogDescription className="text-sm sm:text-base break-words">
+                      Êtes-vous sûr de vouloir supprimer le partenaire{' '}
+                      <span className="font-semibold text-foreground">
+                        {partenaireToDelete?.nom}
+                      </span>
+                      ?
+                    </DialogDescription>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span className="break-words">Cette action est irréversible et supprimera définitivement le partenaire.</span>
+                  </p>
+                </div>
+              </DialogHeader>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+                <button
+                  onClick={() => {
+                    setShowDeletePartenaireDialog(false);
+                    setPartenaireToDelete(null);
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={async () => {
+                    if (partenaireToDelete) {
+                      try {
+                        await deletePartenaire(partenaireToDelete.id);
+                        setShowDeletePartenaireDialog(false);
+                        setPartenaireToDelete(null);
+                      } catch (error) {
+                        console.error('Erreur lors de la suppression du partenaire:', error);
+                      }
+                    }
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
+                >
+                  Supprimer définitivement
+                </button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

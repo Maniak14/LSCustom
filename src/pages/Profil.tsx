@@ -141,6 +141,19 @@ const Profil: React.FC = () => {
                 <p className="text-lg font-medium">{currentUser.idPersonnel}</p>
               </div>
 
+              {(currentUser.prenom || currentUser.nom) && (
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    Nom complet
+                  </label>
+                  <p className="text-lg font-medium">
+                    {currentUser.prenom && currentUser.nom
+                      ? `${currentUser.prenom} ${currentUser.nom}`
+                      : currentUser.prenom || currentUser.nom || '-'}
+                  </p>
+                </div>
+              )}
+
               {!isEditing ? (
                 <>
                   <div>
@@ -187,6 +200,37 @@ const Profil: React.FC = () => {
                     <div className="p-4 rounded-xl bg-success/10 border border-success/20 flex items-center gap-3">
                       <Save className="w-5 h-5 text-success flex-shrink-0" />
                       <p className="text-sm text-success">{success}</p>
+                    </div>
+                  )}
+
+                  {(currentUser.prenom || currentUser.nom) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {currentUser.prenom && (
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Prénom
+                          </label>
+                          <input
+                            type="text"
+                            value={currentUser.prenom}
+                            className="input-modern disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled
+                          />
+                        </div>
+                      )}
+                      {currentUser.nom && (
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Nom
+                          </label>
+                          <input
+                            type="text"
+                            value={currentUser.nom}
+                            className="input-modern disabled:opacity-60 disabled:cursor-not-allowed"
+                            disabled
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
 

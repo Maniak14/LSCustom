@@ -105,8 +105,6 @@ const Panel: React.FC = () => {
   const [teamMemberToDelete, setTeamMemberToDelete] = useState<TeamMember | null>(null);
   const [showAppDetailDialog, setShowAppDetailDialog] = useState(false);
   const [appToView, setAppToView] = useState<Application | null>(null);
-  const [showAppointmentDetailDialog, setShowAppointmentDetailDialog] = useState(false);
-  const [appointmentToView, setAppointmentToView] = useState<Appointment | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const applicationsPerPage = 10;
   const [appSearchQuery, setAppSearchQuery] = useState('');
@@ -1121,7 +1119,7 @@ const Panel: React.FC = () => {
                 Aucun rendez-vous
               </p>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="space-y-3">
                 {appointments
                   .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
                   .map((appointment) => {
@@ -1143,28 +1141,29 @@ const Panel: React.FC = () => {
                     return (
                       <div
                         key={appointment.id}
-                        className="p-4 hover:bg-muted/30 transition-colors"
+                        className="p-4 rounded-lg border border-border bg-muted/30"
                       >
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-medium">
-                                {appointment.prenom} {appointment.nom}
-                              </h3>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[appointment.status]}`}>
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[appointment.status]}`}>
                                 {statusLabels[appointment.status]}
                               </span>
                             </div>
-                            <p className="text-xs text-muted-foreground mb-1">ID: {appointment.idPersonnel}</p>
+                            <p className="text-sm font-medium mb-1">
+                              {appointment.prenom} {appointment.nom} ({appointment.idPersonnel})
+                            </p>
                             {directionUser && (
                               <p className="text-xs text-muted-foreground mb-1">
                                 Direction: {directionUser.prenom} {directionUser.nom}
                               </p>
                             )}
                             <p className="text-xs text-muted-foreground mb-1">
-                              Tél: {appointment.telephone}
+                              <Phone className="w-3 h-3 inline mr-1" />
+                              {appointment.telephone}
                             </p>
                             <p className="text-xs text-muted-foreground mb-1">
+                              <Calendar className="w-3 h-3 inline mr-1" />
                               {new Date(appointment.dateTime).toLocaleDateString('fr-FR', {
                                 year: 'numeric',
                                 month: 'long',
@@ -1173,47 +1172,34 @@ const Panel: React.FC = () => {
                                 minute: '2-digit',
                               })}
                             </p>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{appointment.reason}</p>
+                            <p className="text-sm mt-2">{appointment.reason}</p>
                           </div>
-
-                          <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
-                            <button
-                              onClick={() => {
-                                setAppointmentToView(appointment);
-                                setShowAppointmentDetailDialog(true);
-                              }}
-                              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                              title="Voir les détails"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            {appointment.status === 'pending' && (
-                              <>
-                                <button
-                                  onClick={async () => {
-                                    if (currentUser) {
-                                      await updateAppointmentStatus(appointment.id, 'accepted', currentUser.id);
-                                    }
-                                  }}
-                                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
-                                >
-                                  <Check className="w-4 h-4" />
-                                  Accepter
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    if (currentUser) {
-                                      await updateAppointmentStatus(appointment.id, 'rejected', currentUser.id);
-                                    }
-                                  }}
-                                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
-                                >
-                                  <X className="w-4 h-4" />
-                                  Refuser
-                                </button>
-                              </>
-                            )}
-                          </div>
+                          {appointment.status === 'pending' && (
+                            <div className="flex gap-2 shrink-0">
+                              <button
+                                onClick={async () => {
+                                  if (currentUser) {
+                                    await updateAppointmentStatus(appointment.id, 'accepted', currentUser.id);
+                                  }
+                                }}
+                                className="p-2 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+                                title="Accepter"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (currentUser) {
+                                    await updateAppointmentStatus(appointment.id, 'rejected', currentUser.id);
+                                  }
+                                }}
+                                className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                                title="Refuser"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -1396,175 +1382,6 @@ const Panel: React.FC = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Modal de détail de rendez-vous */}
-          <Dialog open={showAppointmentDetailDialog} onOpenChange={setShowAppointmentDetailDialog}>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto scrollbar-hide">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold mb-4">
-                  Détails du rendez-vous
-                </DialogTitle>
-              </DialogHeader>
-              {appointmentToView && (() => {
-                const directionUser = users.find(u => u.id === appointmentToView.directionUserId);
-                const statusColors = {
-                  pending: 'bg-accent/20 text-accent',
-                  accepted: 'bg-success/20 text-success',
-                  rejected: 'bg-destructive/20 text-destructive',
-                  completed: 'bg-primary/20 text-primary',
-                  cancelled: 'bg-muted text-muted-foreground',
-                };
-                const statusLabels = {
-                  pending: 'En attente',
-                  accepted: 'Accepté',
-                  rejected: 'Refusé',
-                  completed: 'Terminé',
-                  cancelled: 'Annulé',
-                };
-                return (
-                  <div className="space-y-4">
-                    {/* Statut */}
-                    <div className="flex items-center gap-3">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[appointmentToView.status]}`}>
-                        {statusLabels[appointmentToView.status]}
-                      </span>
-                    </div>
-
-                    {/* Informations personnelles */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-muted-foreground mb-1">
-                          Prénom
-                        </label>
-                        <p className="text-base font-medium">{appointmentToView.prenom}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-muted-foreground mb-1">
-                          Nom
-                        </label>
-                        <p className="text-base font-medium">{appointmentToView.nom}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-muted-foreground mb-1">
-                          Identifiant
-                        </label>
-                        <p className="text-base font-medium">{appointmentToView.idPersonnel}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
-                          <Phone className="w-3 h-3" />
-                          Téléphone
-                        </label>
-                        <p className="text-base font-medium">{appointmentToView.telephone}</p>
-                      </div>
-                      {directionUser && (
-                        <div className="sm:col-span-2">
-                          <label className="block text-sm font-medium text-muted-foreground mb-1">
-                            Membre de la direction
-                          </label>
-                          <p className="text-base font-medium">
-                            {directionUser.prenom} {directionUser.nom} ({directionUser.idPersonnel})
-                          </p>
-                        </div>
-                      )}
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
-                          <Calendar className="w-3 h-3" />
-                          Date et heure du rendez-vous
-                        </label>
-                        <p className="text-base font-medium">
-                          {new Date(appointmentToView.dateTime).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
-                          <Clock className="w-3 h-3" />
-                          Date de demande
-                        </label>
-                        <p className="text-base font-medium">
-                          {new Date(appointmentToView.createdAt).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Raison */}
-                    <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-2">
-                        Raison du rendez-vous
-                      </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                        <p className="text-sm whitespace-pre-wrap">{appointmentToView.reason}</p>
-                      </div>
-                    </div>
-
-                  </div>
-                );
-              })()}
-              <DialogFooter className="flex gap-2">
-                {appointmentToView?.status === 'pending' ? (
-                  <>
-                    <button
-                      onClick={async () => {
-                        if (currentUser && appointmentToView) {
-                          await updateAppointmentStatus(appointmentToView.id, 'accepted', currentUser.id);
-                          setShowAppointmentDetailDialog(false);
-                          setAppointmentToView(null);
-                        }
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
-                    >
-                      <Check className="w-4 h-4" />
-                      Accepter
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (currentUser && appointmentToView) {
-                          await updateAppointmentStatus(appointmentToView.id, 'rejected', currentUser.id);
-                          setShowAppointmentDetailDialog(false);
-                          setAppointmentToView(null);
-                        }
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                      Refuser
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowAppointmentDetailDialog(false);
-                        setAppointmentToView(null);
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                    >
-                      Fermer
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setShowAppointmentDetailDialog(false);
-                      setAppointmentToView(null);
-                    }}
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                  >
-                    Fermer
-                  </button>
-                )}
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
           {/* Modal de détail de candidature */}
           <Dialog open={showAppDetailDialog} onOpenChange={setShowAppDetailDialog}>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto scrollbar-hide">
@@ -1656,59 +1473,44 @@ const Panel: React.FC = () => {
                       </div>
                     )}
 
+                    {/* Actions */}
+                    {appToView.status === 'pending' && (
+                      <div className="flex gap-2 pt-4 border-t border-border">
+                        <button
+                          onClick={async () => {
+                            await updateApplicationStatus(appToView.id, 'accepted');
+                            setShowAppDetailDialog(false);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                        >
+                          <Check className="w-4 h-4" />
+                          Accepter
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await updateApplicationStatus(appToView.id, 'rejected');
+                            setShowAppDetailDialog(false);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                          Refuser
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
-              <DialogFooter className="flex gap-2">
-                {appToView?.status === 'pending' ? (
-                  <>
-                    <button
-                      onClick={async () => {
-                        if (appToView) {
-                          await updateApplicationStatus(appToView.id, 'accepted');
-                          setShowAppDetailDialog(false);
-                          setAppToView(null);
-                        }
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
-                    >
-                      <Check className="w-4 h-4" />
-                      Accepter
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (appToView) {
-                          await updateApplicationStatus(appToView.id, 'rejected');
-                          setShowAppDetailDialog(false);
-                          setAppToView(null);
-                        }
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                      Refuser
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowAppDetailDialog(false);
-                        setAppToView(null);
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                    >
-                      Fermer
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setShowAppDetailDialog(false);
-                      setAppToView(null);
-                    }}
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                  >
-                    Fermer
-                  </button>
-                )}
+              <DialogFooter>
+                <button
+                  onClick={() => {
+                    setShowAppDetailDialog(false);
+                    setAppToView(null);
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                >
+                  Fermer
+                </button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

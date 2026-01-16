@@ -117,6 +117,7 @@ const Candidature: React.FC = () => {
           localStorage.setItem('ls_customs_candidate_id', formData.idJoueur);
         }
         setStatus('success');
+        setTimeout(() => navigate('/'), 3000);
       } else {
         setStatus('error');
         setErrorMessage('Une erreur est survenue. Veuillez réessayer.');

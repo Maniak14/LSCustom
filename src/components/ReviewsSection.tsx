@@ -17,7 +17,6 @@ const ReviewsSection: React.FC = () => {
     comment: '',
     rating: 5,
   });
-  const MAX_COMMENT_LENGTH = 500;
 
   // Filtrer seulement les avis approuvés
   const approvedReviews = clientReviews.filter(review => review.status === 'approved');
@@ -131,50 +130,39 @@ const ReviewsSection: React.FC = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                  <span>Votre avis *</span>
-                  <span className="text-xs text-muted-foreground font-normal">
-                    ({formData.comment.length}/{MAX_COMMENT_LENGTH})
-                  </span>
+                <label className="block text-sm font-medium mb-2">
+                  Note (1-5 étoiles)
+                </label>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, rating: i + 1 }))}
+                      className="focus:outline-none"
+                    >
+                      <Star
+                        className={`w-6 h-6 transition-colors ${
+                          i < formData.rating
+                            ? 'fill-accent text-accent'
+                            : 'text-muted-foreground/30 hover:text-accent/50'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Votre avis *
                 </label>
                 <textarea
                   value={formData.comment}
-                  onChange={(e) => {
-                    if (e.target.value.length <= MAX_COMMENT_LENGTH) {
-                      setFormData(prev => ({ ...prev, comment: e.target.value }));
-                    }
-                  }}
+                  onChange={(e) => setFormData(prev => ({ ...prev, comment: e.target.value }))}
                   className="input-modern min-h-[120px] resize-none"
                   placeholder="Décrivez votre expérience..."
                   required
-                  maxLength={MAX_COMMENT_LENGTH}
                 />
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, rating: i + 1 }))}
-                        className="focus:outline-none"
-                      >
-                        <Star
-                          className={`w-5 h-5 transition-colors ${
-                            i < formData.rating
-                              ? 'fill-accent text-accent'
-                              : 'text-muted-foreground/30 hover:text-accent/50'
-                          }`}
-                        />
-                      </button>
-                    ))}
-                    <span className="text-xs text-muted-foreground ml-1">
-                      {formData.rating}/5
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {MAX_COMMENT_LENGTH - formData.comment.length} caractères restants
-                  </p>
-                </div>
               </div>
               <DialogFooter>
                 <button

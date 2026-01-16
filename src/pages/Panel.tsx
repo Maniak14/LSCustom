@@ -10,7 +10,7 @@ const Panel: React.FC = () => {
     loginEmployee,
     logoutEmployee,
     isRecruitmentOpen,
-    setIsRecruitmentOpen,
+    handleSetRecruitmentOpen,
     applications,
     sessions,
     currentSession,
@@ -159,7 +159,7 @@ const Panel: React.FC = () => {
                 )}
               </div>
               <button
-                onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
+                onClick={() => handleSetRecruitmentOpen(!isRecruitmentOpen)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                   isRecruitmentOpen
                     ? 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
@@ -247,31 +247,19 @@ const Panel: React.FC = () => {
                   {sessions.map((session) => {
                     const sessionApps = getApplicationsBySession(session.id);
                     return (
-                      <div key={session.id} className="flex items-center gap-1">
-                        <button
-                          onClick={() => setSelectedSessionId(session.id)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                            selectedSessionId === session.id
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted text-muted-foreground hover:bg-secondary'
-                          }`}
-                        >
-                          {session.name} ({sessionApps.length})
-                        </button>
-                        {session.isActive ? (
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-[#90EE90] text-foreground">
-                            Active
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => closeSession(session.id)}
-                            className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground hover:bg-secondary"
-                            title="Fermer la session"
-                          >
-                            Fermée
-                          </button>
-                        )}
-                      </div>
+                      <button
+                        key={session.id}
+                        onClick={() => setSelectedSessionId(session.id)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          selectedSessionId === session.id
+                            ? 'bg-primary text-primary-foreground'
+                            : session.isActive
+                            ? 'bg-[#90EE90]/20 text-[#4CAF50] hover:bg-[#90EE90]/30'
+                            : 'bg-muted text-muted-foreground hover:bg-secondary'
+                        }`}
+                      >
+                        {session.name} ({sessionApps.length})
+                      </button>
                     );
                   })}
                 </div>

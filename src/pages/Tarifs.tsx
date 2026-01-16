@@ -140,7 +140,7 @@ const Tarifs: React.FC = () => {
           <div className="mt-16 text-center">
             <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-sm text-muted-foreground">
               <span>💡</span>
-              <span>Les prix varient selon le véhicule. Contactez-nous.</span>
+              <span>Les prix varient selon le véhicule.</span>
             </div>
           </div>
         </div>

@@ -31,6 +31,7 @@ export interface TeamMember {
 interface RecruitmentContextType {
   isRecruitmentOpen: boolean;
   setIsRecruitmentOpen: (open: boolean) => void;
+  handleSetRecruitmentOpen: (open: boolean) => void;
   applications: Application[];
   sessions: RecruitmentSession[];
   currentSession: RecruitmentSession | null;
@@ -63,7 +64,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const createSession = (name: string) => {
     // Fermer toutes les sessions actives
-    setSessions(prev => prev.map(s => ({ ...s, isActive: false })));
+    setSessions(prev => prev.map(s => ({ ...s, isActive: false, endDate: s.isActive ? new Date() : s.endDate })));
     
     const newSession: RecruitmentSession = {
       id: crypto.randomUUID(),
@@ -72,6 +73,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       isActive: true,
     };
     setSessions(prev => [...prev, newSession]);
+    // Ouvrir automatiquement le recrutement lors de la création d'une session
+    setIsRecruitmentOpen(true);
   };
 
   const closeSession = (sessionId: string) => {
@@ -80,6 +83,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         s.id === sessionId ? { ...s, isActive: false, endDate: new Date() } : s
       )
     );
+  };
+
+  // Fonction wrapper pour setIsRecruitmentOpen qui ferme aussi la session active
+  const handleSetRecruitmentOpen = (open: boolean) => {
+    setIsRecruitmentOpen(open);
+    // Si on ferme le recrutement, fermer aussi la session active
+    if (!open && currentSession) {
+      closeSession(currentSession.id);
+    }
   };
 
   const getApplicationsBySession = (sessionId: string | null) => {
@@ -166,6 +178,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       value={{
         isRecruitmentOpen,
         setIsRecruitmentOpen,
+        handleSetRecruitmentOpen,
         applications,
         sessions,
         currentSession,

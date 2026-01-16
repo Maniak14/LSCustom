@@ -544,9 +544,14 @@ const Panel: React.FC = () => {
           </div>
 
           {/* User Management */}
-          <div className="glass-card !p-0 overflow-hidden">
+          <div className="glass-card !p-0 overflow-hidden mb-8 mt-12">
             <div className="p-4 border-b border-border flex justify-between items-center">
-              <h2 className="font-semibold">Gestion des utilisateurs</h2>
+              <div>
+                <h2 className="font-semibold">Gestion des utilisateurs</h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {users.length} utilisateur{users.length > 1 ? 's' : ''} enregistré{users.length > 1 ? 's' : ''}
+                </p>
+              </div>
             </div>
 
             {showUserForm && editingUser && (

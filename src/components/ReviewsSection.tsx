@@ -216,7 +216,7 @@ const ReviewsSection: React.FC = () => {
         )}
 
         {isUserLoggedIn && currentUser && !hasPendingReview && (
-          <div className="text-center">
+          <div className="text-center mt-6">
             <button
               onClick={() => setShowReviewForm(true)}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"

@@ -7,7 +7,7 @@ import { UserPlus, LogIn, AlertCircle, ArrowLeft } from 'lucide-react';
 
 const Inscription: React.FC = () => {
   const navigate = useNavigate();
-  const { registerUser, loginUser, isUserLoggedIn } = useRecruitment();
+  const { registerUser, loginUserDirect, isUserLoggedIn } = useRecruitment();
   
   const [isLogin, setIsLogin] = useState(false);
   const [formData, setFormData] = useState({
@@ -53,10 +53,10 @@ const Inscription: React.FC = () => {
         return;
       }
 
-      const success = await registerUser(formData.idPersonnel, formData.password, formData.telephone);
-      if (success) {
+      const newUser = await registerUser(formData.idPersonnel, formData.password, formData.telephone);
+      if (newUser) {
         // Connecter automatiquement après inscription
-        await loginUser(formData.idPersonnel, formData.password);
+        loginUserDirect(newUser);
         navigate('/profil');
       } else {
         setError('Cet identifiant est déjà utilisé.');

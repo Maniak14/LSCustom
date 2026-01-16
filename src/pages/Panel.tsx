@@ -1474,23 +1474,34 @@ const Panel: React.FC = () => {
                   <button
                     onClick={async () => {
                       if (partenaireFormData.nom && partenaireFormData.logoUrl) {
-                        await addPartenaire({
-                          nom: partenaireFormData.nom,
-                          logoUrl: partenaireFormData.logoUrl,
-                        });
+                        if (editingPartenaire) {
+                          // Mode édition
+                          await updatePartenaire(editingPartenaire.id, {
+                            nom: partenaireFormData.nom,
+                            logoUrl: partenaireFormData.logoUrl,
+                          });
+                        } else {
+                          // Mode ajout
+                          await addPartenaire({
+                            nom: partenaireFormData.nom,
+                            logoUrl: partenaireFormData.logoUrl,
+                          });
+                        }
                         setShowPartenaireForm(false);
                         setPartenaireFormData({ nom: '', logoUrl: '' });
+                        setEditingPartenaire(null);
                       }
                     }}
                     className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={!partenaireFormData.nom || !partenaireFormData.logoUrl}
                   >
-                    Ajouter
+                    {editingPartenaire ? 'Enregistrer' : 'Ajouter'}
                   </button>
                   <button
                     onClick={() => {
                       setShowPartenaireForm(false);
                       setPartenaireFormData({ nom: '', logoUrl: '' });
+                      setEditingPartenaire(null);
                     }}
                     className="px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
                   >

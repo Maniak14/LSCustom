@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 const Candidature: React.FC = () => {
   const navigate = useNavigate();
-  const { isRecruitmentOpen, addApplication, hasActiveApplication } = useRecruitment();
+  const { isRecruitmentOpen, addApplication, hasActiveApplication, applications } = useRecruitment();
   
   const [formData, setFormData] = useState({
     nomRP: '',
@@ -18,8 +18,36 @@ const Candidature: React.FC = () => {
     experience: '',
   });
   
-  const [status, setStatus] = useState<'idle' | 'checking' | 'error' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'checking' | 'error' | 'success' | 'existing'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [hasExistingApplication, setHasExistingApplication] = useState(false);
+
+  // Vérifier au chargement si l'utilisateur a déjà une candidature en cours
+  useEffect(() => {
+    const savedId = localStorage.getItem('ls_customs_candidate_id');
+    if (savedId) {
+      const hasActive = hasActiveApplication(savedId);
+      if (hasActive) {
+        setHasExistingApplication(true);
+        setStatus('existing');
+        setFormData(prev => ({ ...prev, idJoueur: savedId }));
+      }
+    }
+  }, [applications, hasActiveApplication]);
+
+  // Vérifier quand l'identifiant change
+  useEffect(() => {
+    if (formData.idJoueur) {
+      const hasActive = hasActiveApplication(formData.idJoueur);
+      if (hasActive) {
+        setHasExistingApplication(true);
+        setStatus('existing');
+      } else if (status === 'existing') {
+        setHasExistingApplication(false);
+        setStatus('idle');
+      }
+    }
+  }, [formData.idJoueur, applications, status, hasActiveApplication]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -47,6 +75,8 @@ const Candidature: React.FC = () => {
     const success = addApplication(formData);
     
     if (success) {
+      // Sauvegarder l'identifiant dans localStorage
+      localStorage.setItem('ls_customs_candidate_id', formData.idJoueur);
       setStatus('success');
       setTimeout(() => navigate('/'), 3000);
     } else {
@@ -62,14 +92,17 @@ const Candidature: React.FC = () => {
         <main className="pt-32 pb-24 px-4">
           <div className="max-w-md mx-auto text-center">
             <div className="glass-card">
-              <XCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <XCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-2">Recrutement fermé</h1>
-              <p className="text-muted-foreground mb-6">
-                Nous ne recrutons pas actuellement.
+              <p className="text-muted-foreground mb-4">
+                Il n'est actuellement pas possible de nous rejoindre.
+              </p>
+              <p className="text-sm text-muted-foreground mb-6">
+                Le recrutement est temporairement fermé. Revenez plus tard pour postuler.
               </p>
               <Link to="/" className="btn-primary">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour
+                Retour à l'accueil
               </Link>
             </div>
           </div>
@@ -118,19 +151,36 @@ const Candidature: React.FC = () => {
             </p>
           </div>
 
-          {/* Error */}
-          {status === 'error' && (
-            <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 animate-fade-up">
-              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
-              <p className="text-sm text-destructive">{errorMessage}</p>
+          {/* Message candidature existante - Affiche seulement le message, pas le formulaire */}
+          {status === 'existing' ? (
+            <div className="glass-card animate-fade-up">
+              <div className="text-center">
+                <AlertCircle className="w-12 h-12 text-accent mx-auto mb-4" />
+                <h2 className="text-xl font-bold mb-2">Candidature en cours</h2>
+                <p className="text-muted-foreground mb-6">
+                  Vous avez déjà une candidature en traitement. Nous examinerons votre dossier rapidement.
+                </p>
+                <Link to="/" className="btn-primary">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Retour à l'accueil
+                </Link>
+              </div>
             </div>
-          )}
+          ) : (
+            <>
+              {/* Error */}
+              {status === 'error' && (
+                <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 animate-fade-up">
+                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                  <p className="text-sm text-destructive">{errorMessage}</p>
+                </div>
+              )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="glass-card animate-fade-up-3">
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="glass-card animate-fade-up-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Prénom RP *</label>
+                <label className="block text-sm font-medium mb-2">Prénom *</label>
                 <input
                   type="text"
                   name="prenomRP"
@@ -142,7 +192,7 @@ const Candidature: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Nom RP *</label>
+                <label className="block text-sm font-medium mb-2">Nom *</label>
                 <input
                   type="text"
                   name="nomRP"
@@ -156,14 +206,14 @@ const Candidature: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">ID Joueur *</label>
+              <label className="block text-sm font-medium mb-2">Identifiant *</label>
               <input
                 type="text"
                 name="idJoueur"
                 value={formData.idJoueur}
                 onChange={handleChange}
                 className="input-modern"
-                placeholder="Votre ID en jeu"
+                placeholder="Votre identifiant"
                 required
               />
             </div>
@@ -193,16 +243,18 @@ const Candidature: React.FC = () => {
 
             <button
               type="submit"
-              disabled={status === 'checking'}
+              disabled={status === 'checking' || status === 'existing'}
               className="btn-accent w-full disabled:opacity-50"
             >
-              {status === 'checking' ? 'Envoi...' : 'Envoyer ma candidature'}
+              {status === 'checking' ? 'Envoi...' : status === 'existing' ? 'Candidature en cours' : 'Envoyer ma candidature'}
             </button>
 
             <p className="text-xs text-center text-muted-foreground mt-4">
-              * Champs obligatoires · Une candidature par joueur
+              * Champs obligatoires · Une candidature par personne
             </p>
           </form>
+            </>
+          )}
         </div>
       </main>
 

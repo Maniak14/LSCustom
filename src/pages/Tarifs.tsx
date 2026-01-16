@@ -85,7 +85,7 @@ const Tarifs: React.FC = () => {
               Tarifs
             </p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight animate-fade-up-1">
-              Nos Services
+              Nos services
             </h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto animate-fade-up-2">
               Prix principaux · Devis personnalisé au garage

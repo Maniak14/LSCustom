@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Lock, LogOut, Check, X, Clock, Users, Circle } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter } from 'lucide-react';
 
 const Panel: React.FC = () => {
   const {
@@ -12,11 +12,28 @@ const Panel: React.FC = () => {
     isRecruitmentOpen,
     setIsRecruitmentOpen,
     applications,
+    sessions,
+    currentSession,
     updateApplicationStatus,
+    createSession,
+    closeSession,
+    getApplicationsBySession,
   } = useRecruitment();
 
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [newSessionName, setNewSessionName] = useState('');
+  const [showNewSessionForm, setShowNewSessionForm] = useState(false);
+
+  // Filtrer les candidatures selon la session sélectionnée
+  const filteredApplications = selectedSessionId === null 
+    ? applications 
+    : getApplicationsBySession(selectedSessionId);
+
+  const pendingCount = filteredApplications.filter(a => a.status === 'pending').length;
+  const acceptedCount = filteredApplications.filter(a => a.status === 'accepted').length;
+  const rejectedCount = filteredApplications.filter(a => a.status === 'rejected').length;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +44,6 @@ const Panel: React.FC = () => {
     }
     setPassword('');
   };
-
-  const pendingCount = applications.filter(a => a.status === 'pending').length;
-  const acceptedCount = applications.filter(a => a.status === 'accepted').length;
-  const rejectedCount = applications.filter(a => a.status === 'rejected').length;
 
   if (!isEmployeeLoggedIn) {
     return (
@@ -125,6 +138,11 @@ const Panel: React.FC = () => {
                 <p className="text-sm text-muted-foreground">
                   {isRecruitmentOpen ? 'Ouvert aux candidatures' : 'Fermé temporairement'}
                 </p>
+                {currentSession && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Session active : {currentSession.name}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
@@ -140,20 +158,138 @@ const Panel: React.FC = () => {
             </div>
           </div>
 
+          {/* Sessions Management */}
+          <div className="glass-card mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <div>
+                <h2 className="font-semibold mb-1">Sessions de recrutement</h2>
+                <p className="text-sm text-muted-foreground">
+                  Gérez les sessions de recrutement
+                </p>
+              </div>
+              <button
+                onClick={() => setShowNewSessionForm(!showNewSessionForm)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Nouvelle session
+              </button>
+            </div>
+
+            {/* Formulaire nouvelle session */}
+            {showNewSessionForm && (
+              <div className="mb-4 p-4 rounded-lg bg-muted/50 border border-border">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSessionName}
+                    onChange={(e) => setNewSessionName(e.target.value)}
+                    placeholder="Nom de la session (ex: Recrutement Janvier 2024)"
+                    className="input-modern flex-1"
+                  />
+                  <button
+                    onClick={() => {
+                      if (newSessionName.trim()) {
+                        createSession(newSessionName.trim());
+                        setNewSessionName('');
+                        setShowNewSessionForm(false);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                  >
+                    Créer
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowNewSessionForm(false);
+                      setNewSessionName('');
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Liste des sessions */}
+            {sessions.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Filtrer par session :</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedSessionId(null)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      selectedSessionId === null
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-secondary'
+                    }`}
+                  >
+                    Toutes ({applications.length})
+                  </button>
+                  {sessions.map((session) => {
+                    const sessionApps = getApplicationsBySession(session.id);
+                    return (
+                      <div key={session.id} className="flex items-center gap-1">
+                        <button
+                          onClick={() => setSelectedSessionId(session.id)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            selectedSessionId === session.id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted text-muted-foreground hover:bg-secondary'
+                          }`}
+                        >
+                          {session.name} ({sessionApps.length})
+                        </button>
+                        {session.isActive ? (
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-[#90EE90] text-foreground">
+                            Active
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => closeSession(session.id)}
+                            className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground hover:bg-secondary"
+                            title="Fermer la session"
+                          >
+                            Fermée
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Applications */}
           <div className="glass-card !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
-              <h2 className="font-semibold">Candidatures</h2>
+              <h2 className="font-semibold">
+                Candidatures
+                {selectedSessionId && (
+                  <span className="text-sm font-normal text-muted-foreground ml-2">
+                    ({filteredApplications.length} candidature{filteredApplications.length > 1 ? 's' : ''})
+                  </span>
+                )}
+              </h2>
             </div>
 
-            {applications.length === 0 ? (
+            {filteredApplications.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-muted-foreground">Aucune candidature</p>
+                <p className="text-muted-foreground">
+                  {selectedSessionId ? 'Aucune candidature pour cette session' : 'Aucune candidature'}
+                </p>
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {applications.map((app) => (
-                  <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
+                {filteredApplications.map((app) => {
+                  const session = sessions.find(s => s.id === app.sessionId);
+                  return (
+                    <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
                     <div className="flex flex-col lg:flex-row justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
@@ -173,6 +309,11 @@ const Panel: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground mb-1">ID: {app.idJoueur}</p>
+                        {session && (
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Session: {session.name}
+                          </p>
+                        )}
                         <p className="text-sm text-muted-foreground line-clamp-2">{app.motivation}</p>
                       </div>
 
@@ -196,7 +337,8 @@ const Panel: React.FC = () => {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

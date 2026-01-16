@@ -10,10 +10,10 @@ const TeamSection: React.FC = () => {
   }
 
   return (
-    <section className="py-24 px-4">
+    <section className="py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4">
             Équipe
           </p>

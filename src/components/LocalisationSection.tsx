@@ -1,12 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import mapImage from '@/components/ui/map.png';
 
 const LocalisationSection: React.FC = () => {
   return (
-    <section className="pt-0 pb-24 px-4">
+    <section className="pt-0 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4">
             LOCALISATION
           </p>

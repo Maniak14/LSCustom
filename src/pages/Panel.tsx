@@ -50,6 +50,16 @@ const Panel: React.FC = () => {
     photo: '',
   });
 
+  // User management
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userFormData, setUserFormData] = useState({
+    prenom: '',
+    nom: '',
+    telephone: '',
+    grade: 'client' as 'direction' | 'client',
+  });
+
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
     ? applications 
@@ -539,18 +549,16 @@ const Panel: React.FC = () => {
               <h2 className="font-semibold">Gestion des utilisateurs</h2>
             </div>
 
-            {showUserForm && (
+            {showUserForm && editingUser && (
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  if (editingUser) {
-                    await updateUserByAdmin(editingUser.id, {
-                      prenom: userFormData.prenom || undefined,
-                      nom: userFormData.nom || undefined,
-                      telephone: userFormData.telephone,
-                      grade: userFormData.grade,
-                    });
-                  }
+                  await updateUserByAdmin(editingUser.id, {
+                    prenom: userFormData.prenom || undefined,
+                    nom: userFormData.nom || undefined,
+                    telephone: userFormData.telephone,
+                    grade: userFormData.grade,
+                  });
                   setShowUserForm(false);
                   setEditingUser(null);
                   setUserFormData({ prenom: '', nom: '', telephone: '', grade: 'client' });
@@ -558,7 +566,7 @@ const Panel: React.FC = () => {
                 className="p-4 border-b border-border animate-fade-up"
               >
                 <h3 className="text-lg font-semibold mb-4">
-                  {editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}
+                  Modifier un utilisateur
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div>
@@ -609,7 +617,7 @@ const Panel: React.FC = () => {
                 </div>
                 <div className="flex gap-2">
                   <button type="submit" className="btn-primary flex-1">
-                    {editingUser ? 'Modifier' : 'Ajouter'}
+                    Modifier
                   </button>
                   <button
                     type="button"

@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS users (
   id_personnel TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
   telephone TEXT NOT NULL,
+  prenom TEXT,
+  nom TEXT,
   grade TEXT NOT NULL CHECK (grade IN ('direction', 'client')) DEFAULT 'client',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

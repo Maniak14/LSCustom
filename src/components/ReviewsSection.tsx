@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { Star, MessageSquare, Plus, X, User, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, MessageSquare, Plus, X, User, AlertTriangle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Dialog,
@@ -16,8 +16,6 @@ const ReviewsSection: React.FC = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showDeleteReviewDialog, setShowDeleteReviewDialog] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
-  const [currentReviewPage, setCurrentReviewPage] = useState(0);
-  const reviewsPerPage = 6;
   const [formData, setFormData] = useState({
     comment: '',
     rating: 5,
@@ -26,12 +24,6 @@ const ReviewsSection: React.FC = () => {
 
   // Filtrer seulement les avis approuvés
   const approvedReviews = clientReviews.filter(review => review.status === 'approved');
-  
-  // Pagination des avis
-  const totalReviewPages = Math.ceil(approvedReviews.length / reviewsPerPage);
-  const startIndex = currentReviewPage * reviewsPerPage;
-  const endIndex = startIndex + reviewsPerPage;
-  const paginatedReviews = approvedReviews.slice(startIndex, endIndex);
 
   // Vérifier si l'utilisateur a déjà un avis en attente d'approbation
   const hasPendingReview = currentUser
@@ -76,34 +68,8 @@ const ReviewsSection: React.FC = () => {
         </div>
 
         {approvedReviews.length > 0 ? (
-          <>
-            <div className="relative mb-8">
-              {/* Flèche gauche */}
-              {totalReviewPages > 1 && (
-                <button
-                  onClick={() => setCurrentReviewPage(prev => Math.max(0, prev - 1))}
-                  disabled={currentReviewPage === 0}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Page précédente"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              )}
-              
-              {/* Flèche droite */}
-              {totalReviewPages > 1 && (
-                <button
-                  onClick={() => setCurrentReviewPage(prev => Math.min(totalReviewPages - 1, prev + 1))}
-                  disabled={currentReviewPage === totalReviewPages - 1}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Page suivante"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginatedReviews.map((review) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {approvedReviews.slice(0, 6).map((review) => (
             <div
               key={review.id}
               className="glass-card p-6 animate-fade-up relative group"
@@ -163,27 +129,7 @@ const ReviewsSection: React.FC = () => {
               </div>
             </div>
           ))}
-              </div>
-            </div>
-
-            {/* Indicateurs de pagination (points) */}
-            {totalReviewPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6">
-                {Array.from({ length: totalReviewPages }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentReviewPage(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentReviewPage
-                        ? 'bg-primary w-8'
-                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                    }`}
-                    aria-label={`Page ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </>
+          </div>
         ) : (
           <div className="text-center py-8 mb-8">
             <p className="text-muted-foreground">Aucun avis pour le moment.</p>

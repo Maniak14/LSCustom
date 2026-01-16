@@ -344,6 +344,175 @@ const Panel: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Team Management */}
+          <div className="glass-card mb-8 mt-12">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <div>
+                <h2 className="font-semibold mb-1">Équipe de direction</h2>
+                <p className="text-sm text-muted-foreground">
+                  Gérez les membres de l'équipe affichés sur le site
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowTeamForm(true);
+                  setEditingMember(null);
+                  setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                <UserPlus className="w-4 h-4" />
+                Ajouter un membre
+              </button>
+            </div>
+
+            {/* Formulaire ajout/édition membre */}
+            {showTeamForm && (
+              <div className="mb-4 p-4 rounded-lg bg-muted/50 border border-border">
+                <h3 className="font-semibold mb-4">
+                  {editingMember ? 'Modifier le membre' : 'Nouveau membre'}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Prénom *</label>
+                    <input
+                      type="text"
+                      value={teamFormData.prenom}
+                      onChange={(e) => setTeamFormData({ ...teamFormData, prenom: e.target.value })}
+                      className="input-modern"
+                      placeholder="Jean"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Nom *</label>
+                    <input
+                      type="text"
+                      value={teamFormData.nom}
+                      onChange={(e) => setTeamFormData({ ...teamFormData, nom: e.target.value })}
+                      className="input-modern"
+                      placeholder="Dupont"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Rôle *</label>
+                    <input
+                      type="text"
+                      value={teamFormData.role}
+                      onChange={(e) => setTeamFormData({ ...teamFormData, role: e.target.value })}
+                      className="input-modern"
+                      placeholder="Directeur"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Photo (URL)</label>
+                    <input
+                      type="text"
+                      value={teamFormData.photo}
+                      onChange={(e) => setTeamFormData({ ...teamFormData, photo: e.target.value })}
+                      className="input-modern"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      if (teamFormData.prenom && teamFormData.nom && teamFormData.role) {
+                        if (editingMember) {
+                          updateTeamMember(editingMember.id, teamFormData);
+                        } else {
+                          addTeamMember(teamFormData);
+                        }
+                        setShowTeamForm(false);
+                        setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
+                        setEditingMember(null);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                  >
+                    {editingMember ? 'Modifier' : 'Ajouter'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowTeamForm(false);
+                      setTeamFormData({ prenom: '', nom: '', role: '', photo: '' });
+                      setEditingMember(null);
+                    }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Liste des membres */}
+            {teamMembers.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Aucun membre dans l'équipe
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {teamMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className="p-4 rounded-lg bg-muted/30 border border-border"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {member.photo ? (
+                          <img
+                            src={member.photo}
+                            alt={`${member.prenom} ${member.nom}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-8 h-8 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold mb-1">
+                          {member.prenom} {member.nom}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {member.role}
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingMember(member);
+                              setTeamFormData({
+                                prenom: member.prenom,
+                                nom: member.nom,
+                                role: member.role,
+                                photo: member.photo || '',
+                              });
+                              setShowTeamForm(true);
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                          >
+                            <Edit className="w-3 h-3" />
+                            Modifier
+                          </button>
+                          <button
+                            onClick={() => removeTeamMember(member.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Retirer
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </main>
 

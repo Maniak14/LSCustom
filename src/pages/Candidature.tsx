@@ -239,7 +239,7 @@ const Candidature: React.FC = () => {
 
           {/* Message candidature existante - Affiche seulement le message, pas le formulaire */}
           {isRecruitmentOpen && status === 'existing' ? (
-            <div className="glass-card animate-fade-up">
+            <div className="glass-card mb-8 animate-fade-up">
               <div className="text-center">
                 <AlertCircle className="w-12 h-12 text-accent mx-auto mb-4" />
                 <h2 className="text-xl font-bold mb-2">Candidature en cours</h2>

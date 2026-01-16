@@ -83,7 +83,6 @@ const Panel: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
               <h1 className="text-2xl font-bold">Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Gestion du recrutement</p>
             </div>
             <button
               onClick={logoutEmployee}

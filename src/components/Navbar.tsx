@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone } from 'lucide-react';
+import logoImage from '@/components/ui/0f4c0073c58cda701de3ecc0e6153a3f.png';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,22 +20,13 @@ const Navbar: React.FC = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo avec trois cercles interconnectés */}
-          <Link to="/" className="flex items-center gap-3">
-            <div className="relative w-10 h-10">
-              {/* Trois cercles interconnectés */}
-              <div className="absolute top-0 left-0 w-5 h-5 rounded-full bg-foreground"></div>
-              <div className="absolute top-0 right-0 w-5 h-5 rounded-full bg-foreground"></div>
-              <div className="absolute bottom-1/2 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-foreground"></div>
-              {/* Lignes de connexion */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 40 40">
-                <line x1="10" y1="10" x2="20" y2="20" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-                <line x1="30" y1="10" x2="20" y2="20" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-              </svg>
-            </div>
-            <span className="font-bold text-xl tracking-tight text-foreground">
-              LS CUSTOM'S
-            </span>
+          {/* Logo Los Santos Customs */}
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logoImage} 
+              alt="LS Custom's Logo" 
+              className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0"
+            />
           </Link>
 
           {/* Desktop Navigation */}

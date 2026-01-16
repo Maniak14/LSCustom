@@ -47,3 +47,33 @@ export interface SettingsRow {
   key: string;
   value: string;
 }
+
+export interface ClientReviewRow {
+  id: string;
+  user_id?: string | null;
+  nom: string;
+  prenom: string;
+  id_personnel: string;
+  comment: string;
+  rating: number;
+  status: 'pending' | 'approved' | 'rejected';
+  approved_by?: string | null;
+  created_at: string;
+  approved_at?: string | null;
+}
+
+export interface AppointmentRow {
+  id: string;
+  user_id?: string | null;
+  id_personnel: string;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  direction_user_id?: string | null;
+  date_time: string;
+  reason: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
+  responded_by?: string | null;
+  created_at: string;
+  responded_at?: string | null;
+}

@@ -86,8 +86,8 @@ const Navbar: React.FC = () => {
                 <User className="w-4 h-4" />
                 <span className="hidden md:inline">
                   {currentUser?.prenom && currentUser?.nom
-                    ? `${currentUser.prenom} ${currentUser.nom}`
-                    : currentUser?.prenom || currentUser?.nom || currentUser?.idPersonnel || 'Profil'}
+                    ? `${currentUser.prenom.toUpperCase()} ${currentUser.nom.toUpperCase()}`
+                    : (currentUser?.prenom || currentUser?.nom || currentUser?.idPersonnel || 'Profil').toUpperCase()}
                 </span>
                 <span className="md:hidden">
                   {currentUser?.idPersonnel || 'Profil'}

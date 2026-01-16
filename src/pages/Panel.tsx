@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRecruitment, TeamMember, User, Application } from '@/contexts/RecruitmentContext';
+import { useRecruitment, TeamMember, User, Application, ClientReview, Appointment } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search, ChevronUp, ChevronDown } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search, ChevronUp, ChevronDown, Star, Calendar, MessageSquare, Phone } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,15 @@ const Panel: React.FC = () => {
     users,
     updateUserByAdmin,
     deleteUser,
+    clientReviews,
+    addClientReview,
+    updateReviewStatus,
+    deleteReview,
+    appointments,
+    addAppointment,
+    updateAppointmentStatus,
+    deleteAppointment,
+    hasPendingAppointment,
   } = useRecruitment();
 
   const [password, setPassword] = useState('');
@@ -1021,6 +1030,181 @@ const Panel: React.FC = () => {
                   </div>
                 )}
               </>
+            )}
+          </div>
+
+          {/* Gestion des avis clients */}
+          <div className="glass-card mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Star className="w-5 h-5 text-primary" />
+              <h2 className="font-semibold mb-1">Gestion des avis clients</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Approuvez ou refusez les avis clients
+            </p>
+            {clientReviews.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Aucun avis client en attente
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {clientReviews
+                  .filter(review => review.status === 'pending')
+                  .map((review) => (
+                    <div
+                      key={review.id}
+                      className="p-4 rounded-lg border border-border bg-muted/30"
+                    >
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? 'fill-accent text-accent'
+                                    : 'text-muted-foreground/30'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-sm mb-2">{review.comment}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {review.prenom} {review.nom} ({review.idPersonnel})
+                          </p>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={async () => {
+                              if (currentUser) {
+                                await updateReviewStatus(review.id, 'approved', currentUser.id);
+                              }
+                            }}
+                            className="p-2 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+                            title="Approuver"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (currentUser) {
+                                await updateReviewStatus(review.id, 'rejected', currentUser.id);
+                              }
+                            }}
+                            className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                            title="Refuser"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Gestion des rendez-vous */}
+          <div className="glass-card mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Calendar className="w-5 h-5 text-primary" />
+              <h2 className="font-semibold mb-1">Gestion des rendez-vous</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Consultez, acceptez ou refusez les rendez-vous
+            </p>
+            {appointments.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Aucun rendez-vous
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {appointments
+                  .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+                  .map((appointment) => {
+                    const statusColors = {
+                      pending: 'bg-accent/20 text-accent',
+                      accepted: 'bg-success/20 text-success',
+                      rejected: 'bg-destructive/20 text-destructive',
+                      completed: 'bg-primary/20 text-primary',
+                      cancelled: 'bg-muted text-muted-foreground',
+                    };
+                    const statusLabels = {
+                      pending: 'En attente',
+                      accepted: 'Accepté',
+                      rejected: 'Refusé',
+                      completed: 'Terminé',
+                      cancelled: 'Annulé',
+                    };
+                    const directionUser = users.find(u => u.id === appointment.directionUserId);
+                    return (
+                      <div
+                        key={appointment.id}
+                        className="p-4 rounded-lg border border-border bg-muted/30"
+                      >
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[appointment.status]}`}>
+                                {statusLabels[appointment.status]}
+                              </span>
+                            </div>
+                            <p className="text-sm font-medium mb-1">
+                              {appointment.prenom} {appointment.nom} ({appointment.idPersonnel})
+                            </p>
+                            {directionUser && (
+                              <p className="text-xs text-muted-foreground mb-1">
+                                Direction: {directionUser.prenom} {directionUser.nom}
+                              </p>
+                            )}
+                            <p className="text-xs text-muted-foreground mb-1">
+                              <Phone className="w-3 h-3 inline mr-1" />
+                              {appointment.telephone}
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              <Calendar className="w-3 h-3 inline mr-1" />
+                              {new Date(appointment.dateTime).toLocaleDateString('fr-FR', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                            <p className="text-sm mt-2">{appointment.reason}</p>
+                          </div>
+                          {appointment.status === 'pending' && (
+                            <div className="flex gap-2 shrink-0">
+                              <button
+                                onClick={async () => {
+                                  if (currentUser) {
+                                    await updateAppointmentStatus(appointment.id, 'accepted', currentUser.id);
+                                  }
+                                }}
+                                className="p-2 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+                                title="Accepter"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (currentUser) {
+                                    await updateAppointmentStatus(appointment.id, 'rejected', currentUser.id);
+                                  }
+                                }}
+                                className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                                title="Refuser"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
             )}
           </div>
 

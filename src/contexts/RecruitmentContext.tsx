@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, ApplicationRow, SessionRow, TeamMemberRow } from '@/lib/supabase';
+import { supabase, ApplicationRow, SessionRow, TeamMemberRow, ClientReviewRow, AppointmentRow } from '@/lib/supabase';
 
 export interface Application {
   id: string;
@@ -42,6 +42,36 @@ export interface User {
   createdAt: Date;
 }
 
+export interface ClientReview {
+  id: string;
+  userId?: string;
+  nom: string;
+  prenom: string;
+  idPersonnel: string;
+  comment: string;
+  rating: number;
+  status: 'pending' | 'approved' | 'rejected';
+  approvedBy?: string;
+  createdAt: Date;
+  approvedAt?: Date;
+}
+
+export interface Appointment {
+  id: string;
+  userId?: string;
+  idPersonnel: string;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  directionUserId?: string;
+  dateTime: Date;
+  reason: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
+  respondedBy?: string;
+  createdAt: Date;
+  respondedAt?: Date;
+}
+
 interface RecruitmentContextType {
   isRecruitmentOpen: boolean;
   setIsRecruitmentOpen: (open: boolean) => void;
@@ -76,6 +106,17 @@ interface RecruitmentContextType {
   users: User[];
   updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' }) => Promise<boolean | { error: 'telephone' }>;
   deleteUser: (userId: string) => Promise<boolean>;
+  // Client reviews
+  clientReviews: ClientReview[];
+  addClientReview: (review: Omit<ClientReview, 'id' | 'status' | 'createdAt' | 'approvedAt'>) => Promise<boolean>;
+  updateReviewStatus: (id: string, status: 'approved' | 'rejected', approvedBy: string) => Promise<void>;
+  deleteReview: (id: string) => Promise<void>;
+  // Appointments
+  appointments: Appointment[];
+  addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'createdAt' | 'respondedAt'>) => Promise<boolean>;
+  updateAppointmentStatus: (id: string, status: 'accepted' | 'rejected' | 'completed' | 'cancelled', respondedBy: string) => Promise<void>;
+  deleteAppointment: (id: string) => Promise<void>;
+  hasPendingAppointment: (userId: string) => boolean;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
@@ -151,6 +192,70 @@ const teamMemberToRow = (member: Omit<TeamMember, 'id'> & { id?: string }): Omit
   order: member.order ?? 0,
 });
 
+// Helper pour convertir ClientReviewRow en ClientReview
+const rowToClientReview = (row: ClientReviewRow): ClientReview => ({
+  id: row.id,
+  userId: row.user_id || undefined,
+  nom: row.nom,
+  prenom: row.prenom,
+  idPersonnel: row.id_personnel,
+  comment: row.comment,
+  rating: row.rating,
+  status: row.status,
+  approvedBy: row.approved_by || undefined,
+  createdAt: new Date(row.created_at),
+  approvedAt: row.approved_at ? new Date(row.approved_at) : undefined,
+});
+
+// Helper pour convertir ClientReview en ClientReviewRow
+const clientReviewToRow = (review: Omit<ClientReview, 'id' | 'createdAt' | 'approvedAt'> & { id?: string; createdAt?: Date; approvedAt?: Date }): Omit<ClientReviewRow, 'id' | 'created_at' | 'approved_at'> & { id?: string; created_at?: string; approved_at?: string | null } => ({
+  id: review.id,
+  user_id: review.userId || null,
+  nom: review.nom,
+  prenom: review.prenom,
+  id_personnel: review.idPersonnel,
+  comment: review.comment,
+  rating: review.rating,
+  status: review.status,
+  approved_by: review.approvedBy || null,
+  created_at: review.createdAt?.toISOString(),
+  approved_at: review.approvedAt?.toISOString() || null,
+});
+
+// Helper pour convertir AppointmentRow en Appointment
+const rowToAppointment = (row: AppointmentRow): Appointment => ({
+  id: row.id,
+  userId: row.user_id || undefined,
+  idPersonnel: row.id_personnel,
+  nom: row.nom,
+  prenom: row.prenom,
+  telephone: row.telephone,
+  directionUserId: row.direction_user_id || undefined,
+  dateTime: new Date(row.date_time),
+  reason: row.reason,
+  status: row.status,
+  respondedBy: row.responded_by || undefined,
+  createdAt: new Date(row.created_at),
+  respondedAt: row.responded_at ? new Date(row.responded_at) : undefined,
+});
+
+// Helper pour convertir Appointment en AppointmentRow
+const appointmentToRow = (appointment: Omit<Appointment, 'id' | 'createdAt' | 'respondedAt'> & { id?: string; createdAt?: Date; respondedAt?: Date }): Omit<AppointmentRow, 'id' | 'created_at' | 'responded_at'> & { id?: string; created_at?: string; responded_at?: string | null } => ({
+  id: appointment.id,
+  user_id: appointment.userId || null,
+  id_personnel: appointment.idPersonnel,
+  nom: appointment.nom,
+  prenom: appointment.prenom,
+  telephone: appointment.telephone,
+  direction_user_id: appointment.directionUserId || null,
+  date_time: appointment.dateTime.toISOString(),
+  reason: appointment.reason,
+  status: appointment.status,
+  responded_by: appointment.respondedBy || null,
+  created_at: appointment.createdAt?.toISOString(),
+  responded_at: appointment.respondedAt?.toISOString() || null,
+});
+
 // LocalStorage helpers (fallback)
 const STORAGE_KEYS = {
   APPLICATIONS: 'ls_customs_applications',
@@ -159,6 +264,8 @@ const STORAGE_KEYS = {
   RECRUITMENT_OPEN: 'ls_customs_recruitment_open',
   USERS: 'ls_customs_users',
   CURRENT_USER: 'ls_customs_current_user',
+  CLIENT_REVIEWS: 'ls_customs_client_reviews',
+  APPOINTMENTS: 'ls_customs_appointments',
 };
 
 export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -171,6 +278,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [clientReviews, setClientReviews] = useState<ClientReview[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   // Récupérer la session active
   const currentSession = sessions.find(s => s.isActive) || null;
@@ -285,6 +394,38 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     } catch (error) {
       console.warn('Error loading users:', error);
     }
+
+    // Charger les avis clients
+    try {
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from('client_reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (reviewsError) {
+        console.warn('Error loading client reviews from Supabase:', reviewsError);
+      } else if (reviewsData) {
+        setClientReviews(reviewsData.map(rowToClientReview));
+      }
+    } catch (error) {
+      console.warn('Error loading client reviews:', error);
+    }
+
+    // Charger les rendez-vous
+    try {
+      const { data: appointmentsData, error: appointmentsError } = await supabase
+        .from('appointments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (appointmentsError) {
+        console.warn('Error loading appointments from Supabase:', appointmentsError);
+      } else if (appointmentsData) {
+        setAppointments(appointmentsData.map(rowToAppointment));
+      }
+    } catch (error) {
+      console.warn('Error loading appointments:', error);
+    }
   };
 
   const loadFromLocalStorage = () => {
@@ -332,6 +473,27 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         createdAt: new Date(user.createdAt),
       })));
     }
+
+    const storedReviews = localStorage.getItem(STORAGE_KEYS.CLIENT_REVIEWS);
+    if (storedReviews) {
+      const parsed = JSON.parse(storedReviews);
+      setClientReviews(parsed.map((review: any) => ({
+        ...review,
+        createdAt: new Date(review.createdAt),
+        approvedAt: review.approvedAt ? new Date(review.approvedAt) : undefined,
+      })));
+    }
+
+    const storedAppointments = localStorage.getItem(STORAGE_KEYS.APPOINTMENTS);
+    if (storedAppointments) {
+      const parsed = JSON.parse(storedAppointments);
+      setAppointments(parsed.map((appointment: any) => ({
+        ...appointment,
+        dateTime: new Date(appointment.dateTime),
+        createdAt: new Date(appointment.createdAt),
+        respondedAt: appointment.respondedAt ? new Date(appointment.respondedAt) : undefined,
+      })));
+    }
   };
 
   const saveToLocalStorage = () => {
@@ -340,6 +502,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(teamMembers));
     localStorage.setItem(STORAGE_KEYS.RECRUITMENT_OPEN, String(isRecruitmentOpen));
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    localStorage.setItem(STORAGE_KEYS.CLIENT_REVIEWS, JSON.stringify(clientReviews));
+    localStorage.setItem(STORAGE_KEYS.APPOINTMENTS, JSON.stringify(appointments));
   };
 
   const createSession = async (name: string) => {
@@ -944,6 +1108,165 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
+  // Client Reviews functions
+  const addClientReview = async (review: Omit<ClientReview, 'id' | 'status' | 'createdAt' | 'approvedAt'>): Promise<boolean> => {
+    const newReview: ClientReview = {
+      ...review,
+      id: crypto.randomUUID(),
+      status: 'pending',
+      createdAt: new Date(),
+    };
+
+    setClientReviews(prev => [...prev, newReview]);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('client_reviews').insert(clientReviewToRow(newReview));
+      } catch (error) {
+        console.error('Error adding client review to Supabase:', error);
+        saveToLocalStorage();
+        return true;
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    return true;
+  };
+
+  const updateReviewStatus = async (id: string, status: 'approved' | 'rejected', approvedBy: string) => {
+    const updatedReviews = clientReviews.map(review =>
+      review.id === id
+        ? {
+            ...review,
+            status,
+            approvedBy,
+            approvedAt: new Date(),
+          }
+        : review
+    );
+    setClientReviews(updatedReviews);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('client_reviews')
+          .update({
+            status,
+            approved_by: approvedBy,
+            approved_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+      } catch (error) {
+        console.error('Error updating review status in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+  };
+
+  const deleteReview = async (id: string) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('client_reviews').delete().eq('id', id);
+        if (error) throw error;
+        setClientReviews(prev => prev.filter(review => review.id !== id));
+      } catch (error) {
+        console.error('Error deleting review from Supabase:', error);
+        throw error;
+      }
+    } else {
+      setClientReviews(prev => prev.filter(review => review.id !== id));
+      saveToLocalStorage();
+    }
+  };
+
+  // Appointments functions
+  const addAppointment = async (appointment: Omit<Appointment, 'id' | 'status' | 'createdAt' | 'respondedAt'>): Promise<boolean> => {
+    if (hasPendingAppointment(appointment.userId || '')) {
+      return false;
+    }
+
+    const newAppointment: Appointment = {
+      ...appointment,
+      id: crypto.randomUUID(),
+      status: 'pending',
+      createdAt: new Date(),
+    };
+
+    setAppointments(prev => [...prev, newAppointment]);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('appointments').insert(appointmentToRow(newAppointment));
+      } catch (error) {
+        console.error('Error adding appointment to Supabase:', error);
+        saveToLocalStorage();
+        return true;
+      }
+    } else {
+      saveToLocalStorage();
+    }
+
+    return true;
+  };
+
+  const updateAppointmentStatus = async (id: string, status: 'accepted' | 'rejected' | 'completed' | 'cancelled', respondedBy: string) => {
+    const updatedAppointments = appointments.map(appointment =>
+      appointment.id === id
+        ? {
+            ...appointment,
+            status,
+            respondedBy,
+            respondedAt: new Date(),
+          }
+        : appointment
+    );
+    setAppointments(updatedAppointments);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('appointments')
+          .update({
+            status,
+            responded_by: respondedBy,
+            responded_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+      } catch (error) {
+        console.error('Error updating appointment status in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+  };
+
+  const deleteAppointment = async (id: string) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('appointments').delete().eq('id', id);
+        if (error) throw error;
+        setAppointments(prev => prev.filter(appointment => appointment.id !== id));
+      } catch (error) {
+        console.error('Error deleting appointment from Supabase:', error);
+        throw error;
+      }
+    } else {
+      setAppointments(prev => prev.filter(appointment => appointment.id !== id));
+      saveToLocalStorage();
+    }
+  };
+
+  const hasPendingAppointment = (userId: string) => {
+    if (!userId) return false;
+    return appointments.some(
+      appointment => appointment.userId === userId && (appointment.status === 'pending' || appointment.status === 'accepted')
+    );
+  };
+
   return (
     <RecruitmentContext.Provider
       value={{
@@ -978,6 +1301,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         users,
         updateUserByAdmin,
         deleteUser,
+        clientReviews,
+        addClientReview,
+        updateReviewStatus,
+        deleteReview,
+        appointments,
+        addAppointment,
+        updateAppointmentStatus,
+        deleteAppointment,
+        hasPendingAppointment,
       }}
     >
       {children}

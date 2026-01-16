@@ -10,6 +10,7 @@ import Candidature from "./pages/Candidature";
 import Panel from "./pages/Panel";
 import Inscription from "./pages/Inscription";
 import Profil from "./pages/Profil";
+import RendezVous from "./pages/RendezVous";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/panel" element={<Panel />} />
             <Route path="/inscription" element={<Inscription />} />
             <Route path="/profil" element={<Profil />} />
+            <Route path="/rendez-vous" element={<RendezVous />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

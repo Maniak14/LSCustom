@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment, TeamMember, User, Application } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -94,6 +94,10 @@ const Panel: React.FC = () => {
   const [appToView, setAppToView] = useState<Application | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const applicationsPerPage = 10;
+  const [appSearchQuery, setAppSearchQuery] = useState('');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [currentUserPage, setCurrentUserPage] = useState(1);
+  const usersPerPage = 10;
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -113,10 +117,37 @@ const Panel: React.FC = () => {
     }
   }, [currentPage, totalPages]);
 
-  // Réinitialiser la page quand on change de session
+  // Réinitialiser la page quand on change de session ou de recherche
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedSessionId]);
+  }, [selectedSessionId, appSearchQuery]);
+
+  // Filtrer les utilisateurs selon la recherche
+  const filteredUsers = userSearchQuery.trim()
+    ? users.filter(user => {
+        const query = userSearchQuery.toLowerCase().trim();
+        const fullName = user.prenom && user.nom 
+          ? `${user.prenom} ${user.nom}`.toLowerCase()
+          : (user.prenom || user.nom || '').toLowerCase();
+        return (
+          fullName.includes(query) ||
+          user.idPersonnel.toLowerCase().includes(query) ||
+          (user.prenom && user.prenom.toLowerCase().includes(query)) ||
+          (user.nom && user.nom.toLowerCase().includes(query))
+        );
+      })
+    : users;
+
+  // Pagination pour les utilisateurs
+  const totalUserPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const userStartIndex = (currentUserPage - 1) * usersPerPage;
+  const userEndIndex = userStartIndex + usersPerPage;
+  const paginatedUsers = filteredUsers.slice(userStartIndex, userEndIndex);
+
+  // Réinitialiser la page utilisateur quand on change de recherche
+  useEffect(() => {
+    setCurrentUserPage(1);
+  }, [userSearchQuery]);
 
   const pendingCount = filteredApplications.filter(a => a.status === 'pending').length;
   const acceptedCount = filteredApplications.filter(a => a.status === 'accepted').length;
@@ -352,14 +383,29 @@ const Panel: React.FC = () => {
           {/* Applications */}
           <div className="glass-card !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
-              <h2 className="font-semibold">
-                Candidatures
-                {selectedSessionId && (
-                  <span className="text-sm font-normal text-muted-foreground ml-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                <div>
+                  <h2 className="font-semibold mb-1">
+                    Candidatures
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
                     ({filteredApplications.length} candidature{filteredApplications.length > 1 ? 's' : ''})
-                  </span>
-                )}
-              </h2>
+                  </p>
+                </div>
+                {/* Recherche candidatures */}
+                <div className="w-full sm:w-auto">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={appSearchQuery}
+                      onChange={(e) => setAppSearchQuery(e.target.value)}
+                      placeholder="Rechercher par nom, prénom ou ID..."
+                      className="input-modern pl-10 w-full sm:w-64"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {filteredApplications.length === 0 ? (
@@ -724,8 +770,28 @@ const Panel: React.FC = () => {
 
           {/* User Management */}
           <div className="glass-card !p-0 overflow-hidden">
-            <div className="p-4 border-b border-border flex justify-between items-center">
-              <h2 className="font-semibold">Gestion des utilisateurs</h2>
+            <div className="p-4 border-b border-border">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                <div>
+                  <h2 className="font-semibold mb-1">Gestion des utilisateurs</h2>
+                  <p className="text-sm text-muted-foreground">
+                    ({filteredUsers.length} utilisateur{filteredUsers.length > 1 ? 's' : ''})
+                  </p>
+                </div>
+                {/* Recherche utilisateurs */}
+                <div className="w-full sm:w-auto">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      placeholder="Rechercher par nom ou ID..."
+                      className="input-modern pl-10 w-full sm:w-64"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {showUserForm && editingUser && (
@@ -813,13 +879,16 @@ const Panel: React.FC = () => {
               </form>
             )}
 
-            {users.length === 0 ? (
+            {filteredUsers.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-muted-foreground">Aucun utilisateur enregistré</p>
+                <p className="text-muted-foreground">
+                  {userSearchQuery.trim() ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur enregistré'}
+                </p>
               </div>
             ) : (
-              <div className="divide-y divide-border">
-                {users.map((user) => (
+              <>
+                <div className="divide-y divide-border">
+                  {paginatedUsers.map((user) => (
                   <div key={user.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
@@ -874,8 +943,36 @@ const Panel: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+
+                {/* Pagination utilisateurs */}
+                {totalUserPages > 1 && (
+                  <div className="flex items-center justify-between p-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      Page {currentUserPage} sur {totalUserPages} ({filteredUsers.length} utilisateur{filteredUsers.length > 1 ? 's' : ''})
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentUserPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentUserPage === 1}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Page précédente"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setCurrentUserPage(prev => Math.min(totalUserPages, prev + 1))}
+                        disabled={currentUserPage === totalUserPages}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Page suivante"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

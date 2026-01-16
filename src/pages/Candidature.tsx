@@ -3,8 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { AlertCircle, CheckCircle, XCircle, ArrowLeft, Clock, History } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, ArrowLeft, Clock, History, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Candidature: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +29,10 @@ const Candidature: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'checking' | 'error' | 'success' | 'existing'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [hasExistingApplication, setHasExistingApplication] = useState(false);
+  const [showAppDetailDialog, setShowAppDetailDialog] = useState(false);
+  const [appToView, setAppToView] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const applicationsPerPage = 10;
 
   // Pré-remplir les champs depuis le compte connecté
   useEffect(() => {
@@ -218,7 +230,10 @@ const Candidature: React.FC = () => {
                 <h2 className="text-lg font-semibold">Historique de mes candidatures</h2>
               </div>
               {(() => {
-                const userApplications = applications.filter(app => app.idJoueur === currentUser.idPersonnel);
+                const userApplications = applications
+                  .filter(app => app.idJoueur === currentUser.idPersonnel)
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                
                 if (userApplications.length === 0) {
                   return (
                     <p className="text-sm text-muted-foreground text-center py-4">
@@ -226,11 +241,17 @@ const Candidature: React.FC = () => {
                     </p>
                   );
                 }
+
+                // Pagination
+                const totalPages = Math.ceil(userApplications.length / applicationsPerPage);
+                const startIndex = (currentPage - 1) * applicationsPerPage;
+                const endIndex = startIndex + applicationsPerPage;
+                const paginatedApplications = userApplications.slice(startIndex, endIndex);
+
                 return (
-                  <div className="space-y-3">
-                    {userApplications
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                      .map((app) => {
+                  <>
+                    <div className="space-y-3">
+                      {paginatedApplications.map((app) => {
                         const session = sessions.find(s => s.id === app.sessionId);
                         return (
                           <div
@@ -275,7 +296,17 @@ const Candidature: React.FC = () => {
                                   </p>
                                 )}
                               </div>
-                              <div className="shrink-0">
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  onClick={() => {
+                                    setAppToView(app);
+                                    setShowAppDetailDialog(true);
+                                  }}
+                                  className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                                  title="Voir les détails"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
                                 {app.status === 'pending' && (
                                   <AlertCircle className="w-5 h-5 text-accent" />
                                 )}
@@ -290,7 +321,35 @@ const Candidature: React.FC = () => {
                           </div>
                         );
                       })}
-                  </div>
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                        <p className="text-sm text-muted-foreground">
+                          Page {currentPage} sur {totalPages} ({userApplications.length} candidature{userApplications.length > 1 ? 's' : ''})
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Page précédente"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Page suivante"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 );
               })()}
             </div>
@@ -407,6 +466,113 @@ const Candidature: React.FC = () => {
       </main>
 
       <Footer />
+
+      {/* Modal de détail de candidature */}
+      <Dialog open={showAppDetailDialog} onOpenChange={setShowAppDetailDialog}>
+        <DialogContent className="sm:max-w-[600px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold mb-4">
+              Détails de la candidature
+            </DialogTitle>
+          </DialogHeader>
+          {appToView && (() => {
+            const session = sessions.find(s => s.id === appToView.sessionId);
+            return (
+              <div className="space-y-4">
+                {/* Statut */}
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    appToView.status === 'pending'
+                      ? 'bg-accent/20 text-accent'
+                      : appToView.status === 'accepted'
+                      ? 'bg-success/20 text-success'
+                      : 'bg-destructive/20 text-destructive'
+                  }`}>
+                    {appToView.status === 'pending' && 'En attente'}
+                    {appToView.status === 'accepted' && 'Acceptée'}
+                    {appToView.status === 'rejected' && 'Refusée'}
+                  </span>
+                  {session && (
+                    <span className="text-sm text-muted-foreground">
+                      Session: {session.name}
+                    </span>
+                  )}
+                </div>
+
+                {/* Informations personnelles */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
+                      Prénom
+                    </label>
+                    <p className="text-base font-medium">{appToView.prenomRP}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
+                      Nom
+                    </label>
+                    <p className="text-base font-medium">{appToView.nomRP}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
+                      Identifiant
+                    </label>
+                    <p className="text-base font-medium">{appToView.idJoueur}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
+                      <Clock className="w-3 h-3" />
+                      Date de candidature
+                    </label>
+                    <p className="text-base font-medium">
+                      {new Date(appToView.createdAt).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Motivation */}
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    Motivation
+                  </label>
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                    <p className="text-sm whitespace-pre-wrap">{appToView.motivation}</p>
+                  </div>
+                </div>
+
+                {/* Expérience */}
+                {appToView.experience && (
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                      Expérience
+                    </label>
+                    <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                      <p className="text-sm whitespace-pre-wrap">{appToView.experience}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <button
+              onClick={() => {
+                setShowAppDetailDialog(false);
+                setAppToView(null);
+              }}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+            >
+              Fermer
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

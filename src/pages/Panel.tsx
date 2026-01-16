@@ -978,19 +978,19 @@ const Panel: React.FC = () => {
 
           {/* Modal de confirmation de suppression */}
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto">
+            <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto scrollbar-hide p-4 sm:p-6">
               <DialogHeader className="text-center sm:text-left">
                 <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
                     <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
                   </div>
-                  <div className="flex-1 text-center sm:text-left">
+                  <div className="flex-1 text-center sm:text-left min-w-0">
                     <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
                       Supprimer l'utilisateur
                     </DialogTitle>
-                    <DialogDescription className="text-sm sm:text-base">
+                    <DialogDescription className="text-sm sm:text-base break-words">
                       Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
-                      <span className="font-semibold text-foreground break-words">
+                      <span className="font-semibold text-foreground">
                         {userToDelete?.prenom && userToDelete?.nom
                           ? `${userToDelete.prenom} ${userToDelete.nom}`
                           : userToDelete?.prenom || userToDelete?.nom || userToDelete?.idPersonnel}
@@ -1002,7 +1002,7 @@ const Panel: React.FC = () => {
                 <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
                   <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>Cette action est irréversible et supprimera définitivement toutes les données de l'utilisateur.</span>
+                    <span className="break-words">Cette action est irréversible et supprimera définitivement toutes les données de l'utilisateur.</span>
                   </p>
                 </div>
               </DialogHeader>
@@ -1034,17 +1034,17 @@ const Panel: React.FC = () => {
 
           {/* Modal de confirmation de suppression de candidature */}
           <Dialog open={showDeleteAppDialog} onOpenChange={setShowDeleteAppDialog}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto scrollbar-hide p-4 sm:p-6">
               <DialogHeader className="text-center sm:text-left">
-                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                    <AlertTriangle className="w-8 h-8 text-destructive" />
+                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
                   </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <DialogTitle className="text-xl font-bold mb-2">
+                  <div className="flex-1 text-center sm:text-left min-w-0">
+                    <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
                       Supprimer la candidature
                     </DialogTitle>
-                    <DialogDescription className="text-base">
+                    <DialogDescription className="text-sm sm:text-base break-words">
                       Êtes-vous sûr de vouloir supprimer la candidature de{' '}
                       <span className="font-semibold text-foreground">
                         {appToDelete?.prenomRP} {appToDelete?.nomRP}
@@ -1053,20 +1053,20 @@ const Panel: React.FC = () => {
                     </DialogDescription>
                   </div>
                 </div>
-                <div className="mt-4 p-4 rounded-lg bg-destructive/5 border border-destructive/20">
-                  <p className="text-sm text-destructive font-medium flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4" />
-                    Cette action est irréversible et supprimera définitivement la candidature.
+                <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span className="break-words">Cette action est irréversible et supprimera définitivement la candidature.</span>
                   </p>
                 </div>
               </DialogHeader>
-              <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-6">
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
                 <button
                   onClick={() => {
                     setShowDeleteAppDialog(false);
                     setAppToDelete(null);
                   }}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
                 >
                   Annuler
                 </button>
@@ -1078,7 +1078,7 @@ const Panel: React.FC = () => {
                       setAppToDelete(null);
                     }
                   }}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
                 >
                   Supprimer définitivement
                 </button>

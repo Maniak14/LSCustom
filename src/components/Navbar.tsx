@@ -27,8 +27,8 @@ const Navbar: React.FC = () => {
       <div className="absolute inset-0 bg-background/80 backdrop-blur-md border-b border-border/50" />
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo Los Santos Customs */}
-          <Link to="/" className="flex items-center">
+          {/* Logo Los Santos Customs - Centré sur mobile */}
+          <Link to="/" className="flex items-center absolute left-1/2 lg:left-0 transform -translate-x-1/2 lg:translate-x-0 lg:relative">
             <img 
               src={logoImage} 
               alt="LS Custom's Logo" 
@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -106,7 +106,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 rounded-full hover:bg-foreground/5 transition-colors"
+            className="lg:hidden p-2 rounded-full hover:bg-foreground/5 transition-colors ml-auto"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >

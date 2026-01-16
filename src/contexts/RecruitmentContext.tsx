@@ -53,7 +53,7 @@ interface RecruitmentContextType {
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
 
 export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(true);
+  const [isRecruitmentOpen, setIsRecruitmentOpen] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
   const [sessions, setSessions] = useState<RecruitmentSession[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);

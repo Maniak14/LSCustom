@@ -1534,9 +1534,7 @@ const Panel: React.FC = () => {
               </p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {partenaires
-                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                  .map((partenaire) => (
+                {partenaires.map((partenaire) => (
                   <div
                     key={partenaire.id}
                     className="p-4 rounded-lg bg-muted/30 border border-border flex flex-col items-center justify-center aspect-square"

@@ -22,9 +22,7 @@ const PartenairesSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {partenaires
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-            .map((partenaire) => (
+          {partenaires.map((partenaire) => (
             <div
               key={partenaire.id}
               className="glass-card p-6 flex flex-col items-center justify-center aspect-square animate-fade-up hover:scale-105 transition-transform"

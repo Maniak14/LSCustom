@@ -1382,8 +1382,13 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       createdAt: new Date(),
     };
 
-    // Mettre à jour le state
-    setPartenaires(prev => [...prev, newPartenaire]);
+    // Mettre à jour le state et sauvegarder immédiatement dans localStorage
+    setPartenaires(prev => {
+      const updatedPartenaires = [...prev, newPartenaire];
+      // Sauvegarder immédiatement dans localStorage
+      localStorage.setItem(STORAGE_KEYS.PARTENAIRES, JSON.stringify(updatedPartenaires));
+      return updatedPartenaires;
+    });
 
     // Sauvegarder dans Supabase si configuré
     if (isSupabaseConfigured()) {
@@ -1391,20 +1396,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         const { error } = await supabase.from('partenaires').insert(partenaireToRow(newPartenaire));
         if (error) {
           console.error('Error adding partenaire to Supabase:', error);
-          // En cas d'erreur, sauvegarder dans localStorage comme fallback
-          saveToLocalStorage();
-          throw error;
+          // Les données sont déjà dans localStorage, donc pas besoin de les sauvegarder à nouveau
         }
-        // Sauvegarder aussi dans localStorage comme backup même si Supabase fonctionne
-        saveToLocalStorage();
       } catch (error) {
         console.error('Error adding partenaire to Supabase:', error);
-        // Sauvegarder dans localStorage comme fallback
-        saveToLocalStorage();
+        // Les données sont déjà dans localStorage, donc pas besoin de les sauvegarder à nouveau
       }
-    } else {
-      // Si Supabase n'est pas configuré, sauvegarder dans localStorage
-      saveToLocalStorage();
     }
   };
 

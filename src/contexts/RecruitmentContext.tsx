@@ -64,7 +64,7 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client') => Promise<boolean>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client', prenom?: string, nom?: string) => Promise<boolean>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
@@ -484,7 +484,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client'): Promise<boolean> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client', prenom?: string, nom?: string): Promise<boolean> => {
     // Vérifier si l'ID personnel existe déjà
     const existingUser = users.find(u => u.idPersonnel === idPersonnel);
     if (existingUser) {
@@ -496,6 +496,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       idPersonnel,
       password, // En production, hash le mot de passe
       telephone,
+      prenom,
+      nom,
       grade,
       createdAt: new Date(),
     };

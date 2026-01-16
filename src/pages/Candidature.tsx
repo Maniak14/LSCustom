@@ -348,7 +348,7 @@ const Candidature: React.FC = () => {
 
           {/* Historique des candidatures */}
           {isUserLoggedIn && currentUser && (
-            <div className="glass-card mb-6 animate-fade-up">
+            <div className="glass-card mb-6 mt-12 animate-fade-up">
               <div className="flex items-center gap-2 mb-4">
                 <History className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-semibold">Historique de mes candidatures</h2>

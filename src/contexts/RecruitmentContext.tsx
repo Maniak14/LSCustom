@@ -412,6 +412,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     // Charger l'état du recrutement
+    // Note: On ne met à jour que si une valeur existe dans Supabase, sinon on garde celle de localStorage
     try {
       const { data: settingsData, error: settingsError } = await supabase
         .from('settings')
@@ -419,9 +420,13 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         .eq('key', 'recruitment_open')
         .maybeSingle(); // Utiliser maybeSingle() au lieu de single() pour éviter l'erreur 406 si aucun résultat
 
-      if (!settingsError && settingsData) {
+      // Ne mettre à jour que si on a une valeur valide de Supabase
+      if (!settingsError && settingsData && settingsData.value !== null && settingsData.value !== undefined) {
         setIsRecruitmentOpen(settingsData.value === 'true');
+        // Synchroniser avec localStorage
+        localStorage.setItem(STORAGE_KEYS.RECRUITMENT_OPEN, settingsData.value);
       }
+      // Sinon, on garde la valeur déjà chargée depuis localStorage dans getInitialRecruitmentState()
     } catch (error) {
       console.warn('Error loading settings from Supabase:', error);
       // Continuer même si les settings ne peuvent pas être chargés

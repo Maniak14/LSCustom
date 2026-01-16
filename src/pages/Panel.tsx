@@ -1049,44 +1049,47 @@ const Panel: React.FC = () => {
                 Aucun avis client en attente
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="divide-y divide-border">
                 {clientReviews
                   .filter(review => review.status === 'pending')
                   .map((review) => (
                     <div
                       key={review.id}
-                      className="p-4 rounded-lg border border-border bg-muted/30"
+                      className="p-4 hover:bg-muted/30 transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-4 h-4 ${
-                                  i < review.rating
-                                    ? 'fill-accent text-accent'
-                                    : 'text-muted-foreground/30'
-                                }`}
-                              />
-                            ))}
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="flex items-center gap-1">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < review.rating
+                                      ? 'fill-accent text-accent'
+                                      : 'text-muted-foreground/30'
+                                  }`}
+                                />
+                              ))}
+                            </div>
                           </div>
-                          <p className="text-sm mb-2">{review.comment}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground mb-1">
                             {review.prenom} {review.nom} ({review.idPersonnel})
                           </p>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{review.comment}</p>
                         </div>
-                        <div className="flex gap-2 shrink-0">
+
+                        <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
                           <button
                             onClick={async () => {
                               if (currentUser) {
                                 await updateReviewStatus(review.id, 'approved', currentUser.id);
                               }
                             }}
-                            className="p-2 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
-                            title="Approuver"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
                           >
                             <Check className="w-4 h-4" />
+                            Accepter
                           </button>
                           <button
                             onClick={async () => {
@@ -1094,10 +1097,10 @@ const Panel: React.FC = () => {
                                 await updateReviewStatus(review.id, 'rejected', currentUser.id);
                               }
                             }}
-                            className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                            title="Refuser"
+                            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
                           >
                             <X className="w-4 h-4" />
+                            Refuser
                           </button>
                         </div>
                       </div>

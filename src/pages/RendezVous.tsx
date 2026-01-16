@@ -373,14 +373,6 @@ const RendezVous: React.FC = () => {
               )}
             </div>
           )}
-
-          {/* Lien retour */}
-          <div className="mt-8 text-center">
-            <Link to="/profil" className="btn-primary inline-flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Retour au profil
-            </Link>
-          </div>
         </div>
       </main>
       <Footer />

@@ -1907,64 +1907,6 @@ const Panel: React.FC = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Modal de confirmation de suppression de rendez-vous */}
-          <Dialog open={showDeleteAppointmentDialog} onOpenChange={setShowDeleteAppointmentDialog}>
-            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
-              <DialogHeader className="text-center sm:text-left">
-                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
-                  </div>
-                  <div className="flex-1 text-center sm:text-left min-w-0">
-                    <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
-                      Supprimer le rendez-vous
-                    </DialogTitle>
-                    <DialogDescription className="text-sm sm:text-base break-words">
-                      Êtes-vous sûr de vouloir supprimer le rendez-vous de{' '}
-                      <span className="font-semibold text-foreground">
-                        {appointmentToDelete?.prenom} {appointmentToDelete?.nom}
-                      </span>
-                      ?
-                    </DialogDescription>
-                  </div>
-                </div>
-                <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
-                  <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span className="break-words">Cette action est irréversible et supprimera définitivement le rendez-vous.</span>
-                  </p>
-                </div>
-              </DialogHeader>
-              <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
-                <button
-                  onClick={() => {
-                    setShowDeleteAppointmentDialog(false);
-                    setAppointmentToDelete(null);
-                  }}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={async () => {
-                    if (appointmentToDelete) {
-                      try {
-                        await deleteAppointment(appointmentToDelete.id);
-                        setShowDeleteAppointmentDialog(false);
-                        setAppointmentToDelete(null);
-                      } catch (error) {
-                        console.error('Erreur lors de la suppression du rendez-vous:', error);
-                      }
-                    }
-                  }}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
-                >
-                  Supprimer définitivement
-                </button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
           {/* Modal de détail d'avis client */}
           <Dialog open={showReviewDetailDialog} onOpenChange={setShowReviewDetailDialog}>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto scrollbar-hide">

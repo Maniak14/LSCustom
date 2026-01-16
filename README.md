@@ -1,73 +1,67 @@
-# Welcome to your Lovable project
+# LSCustom's - Site Web
 
-## Project info
+## À propos
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Site web officiel de LSCustom's, le garage de référence à Los Santos. Réparations, customisation et performances depuis 1987.
 
-## How can I edit this code?
+## Technologies utilisées
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
+Ce projet est construit avec :
 
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (optionnel)
 
-## How can I deploy this project?
+## Installation et développement
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Prérequis
 
-## Can I connect a custom domain to my Lovable project?
+- Node.js & npm installés - [installer avec nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Yes, you can!
+### Étapes d'installation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```sh
+# Étape 1 : Cloner le dépôt
+git clone <YOUR_GIT_URL>
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Étape 2 : Naviguer vers le répertoire du projet
+cd ls-customs-hub-24
+
+# Étape 3 : Installer les dépendances
+npm i
+
+# Étape 4 : Démarrer le serveur de développement
+npm run dev
+```
+
+## Déploiement
+
+Le projet est configuré pour être déployé sur GitHub Pages. Les modifications sont automatiquement déployées via GitHub Actions.
+
+### Configuration GitHub Pages
+
+1. Allez dans les paramètres du dépôt GitHub
+2. Activez GitHub Pages dans la section "Pages"
+3. Configurez la source sur "GitHub Actions"
+
+## Configuration Supabase (optionnel)
+
+Pour utiliser Supabase comme backend, suivez les instructions dans `SUPABASE_SETUP.md`.
+
+## Structure du projet
+
+- `/src/components` - Composants React réutilisables
+- `/src/pages` - Pages de l'application
+- `/src/contexts` - Contextes React pour la gestion d'état
+- `/src/lib` - Utilitaires et configurations
+- `/public` - Fichiers statiques
+
+## Scripts disponibles
+
+- `npm run dev` - Démarrer le serveur de développement
+- `npm run build` - Construire pour la production
+- `npm run preview` - Prévisualiser le build de production
+- `npm run lint` - Lancer le linter

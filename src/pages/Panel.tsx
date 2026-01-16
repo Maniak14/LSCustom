@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment, TeamMember, User, Application } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -90,11 +90,33 @@ const Panel: React.FC = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [showDeleteAppDialog, setShowDeleteAppDialog] = useState(false);
   const [appToDelete, setAppToDelete] = useState<Application | null>(null);
+  const [showAppDetailDialog, setShowAppDetailDialog] = useState(false);
+  const [appToView, setAppToView] = useState<Application | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const applicationsPerPage = 10;
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
     ? applications 
     : getApplicationsBySession(selectedSessionId);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredApplications.length / applicationsPerPage);
+  const startIndex = (currentPage - 1) * applicationsPerPage;
+  const endIndex = startIndex + applicationsPerPage;
+  const paginatedApplications = filteredApplications.slice(startIndex, endIndex);
+
+  // Réinitialiser la page si elle dépasse le nombre total de pages
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
+
+  // Réinitialiser la page quand on change de session
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSessionId]);
 
   const pendingCount = filteredApplications.filter(a => a.status === 'pending').length;
   const acceptedCount = filteredApplications.filter(a => a.status === 'accepted').length;
@@ -347,8 +369,9 @@ const Panel: React.FC = () => {
                 </p>
               </div>
             ) : (
+              <>
               <div className="divide-y divide-border">
-                {filteredApplications.map((app) => {
+                  {paginatedApplications.map((app) => {
                   const session = sessions.find(s => s.id === app.sessionId);
                   return (
                   <div key={app.id} className="p-4 hover:bg-muted/30 transition-colors">
@@ -380,6 +403,16 @@ const Panel: React.FC = () => {
                       </div>
 
                       <div className="flex gap-2 shrink-0 lg:flex-row flex-col sm:flex-row">
+                        <button
+                          onClick={() => {
+                            setAppToView(app);
+                            setShowAppDetailDialog(true);
+                          }}
+                          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                          title="Voir les détails"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                       {app.status === 'pending' && (
                           <>
                             <button
@@ -413,7 +446,35 @@ const Panel: React.FC = () => {
                   </div>
                   );
                 })}
-              </div>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      Page {currentPage} sur {totalPages} ({filteredApplications.length} candidature{filteredApplications.length > 1 ? 's' : ''})
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Page précédente"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Page suivante"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -923,6 +984,139 @@ const Panel: React.FC = () => {
                   className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm"
                 >
                   Supprimer définitivement
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal de détail de candidature */}
+          <Dialog open={showAppDetailDialog} onOpenChange={setShowAppDetailDialog}>
+            <DialogContent className="sm:max-w-[600px] mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold mb-4">
+                  Détails de la candidature
+                </DialogTitle>
+              </DialogHeader>
+              {appToView && (() => {
+                const session = sessions.find(s => s.id === appToView.sessionId);
+                return (
+                  <div className="space-y-4">
+                    {/* Statut */}
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        appToView.status === 'pending'
+                          ? 'bg-accent/20 text-accent'
+                          : appToView.status === 'accepted'
+                          ? 'bg-success/20 text-success'
+                          : 'bg-destructive/20 text-destructive'
+                      }`}>
+                        {appToView.status === 'pending' && 'En attente'}
+                        {appToView.status === 'accepted' && 'Acceptée'}
+                        {appToView.status === 'rejected' && 'Refusée'}
+                      </span>
+                      {session && (
+                        <span className="text-sm text-muted-foreground">
+                          Session: {session.name}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Informations personnelles */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Prénom
+                        </label>
+                        <p className="text-base font-medium">{appToView.prenomRP}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Nom
+                        </label>
+                        <p className="text-base font-medium">{appToView.nomRP}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Identifiant
+                        </label>
+                        <p className="text-base font-medium">{appToView.idJoueur}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
+                          <Clock className="w-3 h-3" />
+                          Date de candidature
+                        </label>
+                        <p className="text-base font-medium">
+                          {new Date(appToView.createdAt).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Motivation */}
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-2">
+                        Motivation
+                      </label>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                        <p className="text-sm whitespace-pre-wrap">{appToView.motivation}</p>
+                      </div>
+                    </div>
+
+                    {/* Expérience */}
+                    {appToView.experience && (
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">
+                          Expérience
+                        </label>
+                        <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                          <p className="text-sm whitespace-pre-wrap">{appToView.experience}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    {appToView.status === 'pending' && (
+                      <div className="flex gap-2 pt-4 border-t border-border">
+                        <button
+                          onClick={async () => {
+                            await updateApplicationStatus(appToView.id, 'accepted');
+                            setShowAppDetailDialog(false);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                        >
+                          <Check className="w-4 h-4" />
+                          Accepter
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await updateApplicationStatus(appToView.id, 'rejected');
+                            setShowAppDetailDialog(false);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                          Refuser
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+              <DialogFooter>
+                <button
+                  onClick={() => {
+                    setShowAppDetailDialog(false);
+                    setAppToView(null);
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                >
+                  Fermer
                 </button>
               </DialogFooter>
             </DialogContent>

@@ -116,6 +116,11 @@ const Panel: React.FC = () => {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [currentUserPage, setCurrentUserPage] = useState(1);
   const usersPerPage = 10;
+  const [appointmentSearchQuery, setAppointmentSearchQuery] = useState('');
+  const [currentAppointmentPage, setCurrentAppointmentPage] = useState(1);
+  const appointmentsPerPage = 10;
+  const [showDeleteAppointmentDialog, setShowDeleteAppointmentDialog] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -166,6 +171,37 @@ const Panel: React.FC = () => {
   useEffect(() => {
     setCurrentUserPage(1);
   }, [userSearchQuery]);
+
+  // Filtrer les rendez-vous selon la recherche
+  const filteredAppointments = appointmentSearchQuery.trim()
+    ? appointments.filter(appointment => {
+        const query = appointmentSearchQuery.toLowerCase().trim();
+        const fullName = appointment.prenom && appointment.nom 
+          ? `${appointment.prenom} ${appointment.nom}`.toLowerCase()
+          : (appointment.prenom || appointment.nom || '').toLowerCase();
+        return (
+          fullName.includes(query) ||
+          appointment.idPersonnel.toLowerCase().includes(query) ||
+          appointment.telephone.toLowerCase().includes(query) ||
+          appointment.reason.toLowerCase().includes(query) ||
+          (appointment.prenom && appointment.prenom.toLowerCase().includes(query)) ||
+          (appointment.nom && appointment.nom.toLowerCase().includes(query))
+        );
+      })
+    : appointments;
+
+  // Pagination pour les rendez-vous
+  const totalAppointmentPages = Math.ceil(filteredAppointments.length / appointmentsPerPage);
+  const appointmentStartIndex = (currentAppointmentPage - 1) * appointmentsPerPage;
+  const appointmentEndIndex = appointmentStartIndex + appointmentsPerPage;
+  const paginatedAppointments = filteredAppointments
+    .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+    .slice(appointmentStartIndex, appointmentEndIndex);
+
+  // Réinitialiser la page rendez-vous quand on change de recherche
+  useEffect(() => {
+    setCurrentAppointmentPage(1);
+  }, [appointmentSearchQuery]);
 
   const pendingCount = filteredApplications.filter(a => a.status === 'pending').length;
   const acceptedCount = filteredApplications.filter(a => a.status === 'accepted').length;
@@ -1171,23 +1207,44 @@ const Panel: React.FC = () => {
           </div>
 
           {/* Gestion des rendez-vous */}
-          <div className="glass-card mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="w-5 h-5 text-primary" />
-              <h2 className="font-semibold mb-1">Gestion des rendez-vous</h2>
+          <div className="glass-card mb-8 !p-0 overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    <h2 className="font-semibold">Gestion des rendez-vous</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    ({filteredAppointments.length} rendez-vous{filteredAppointments.length > 1 ? 's' : ''})
+                  </p>
+                </div>
+                {/* Recherche rendez-vous */}
+                <div className="w-full sm:w-auto">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={appointmentSearchQuery}
+                      onChange={(e) => setAppointmentSearchQuery(e.target.value)}
+                      placeholder="Rechercher par nom, ID, téléphone..."
+                      className="input-modern pl-10 w-full sm:w-64"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Consultez, acceptez ou refusez les rendez-vous
-            </p>
-            {appointments.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Aucun rendez-vous
-              </p>
+
+            {filteredAppointments.length === 0 ? (
+              <div className="p-12 text-center">
+                <p className="text-muted-foreground">
+                  {appointmentSearchQuery.trim() ? 'Aucun rendez-vous trouvé' : 'Aucun rendez-vous'}
+                </p>
+              </div>
             ) : (
-              <div className="divide-y divide-border">
-                {appointments
-                  .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
-                  .map((appointment) => {
+              <>
+                <div className="divide-y divide-border">
+                  {paginatedAppointments.map((appointment) => {
                     const statusColors = {
                       pending: 'bg-accent/20 text-accent',
                       accepted: 'bg-success/20 text-success',
@@ -1289,12 +1346,50 @@ const Panel: React.FC = () => {
                                 Terminer
                               </button>
                             )}
+                            <button
+                              onClick={() => {
+                                setAppointmentToDelete(appointment);
+                                setShowDeleteAppointmentDialog(true);
+                              }}
+                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
                     );
                   })}
-              </div>
+                </div>
+
+                {/* Pagination rendez-vous */}
+                {totalAppointmentPages > 1 && (
+                  <div className="flex items-center justify-between p-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      Page {currentAppointmentPage} sur {totalAppointmentPages} ({filteredAppointments.length} rendez-vous{filteredAppointments.length > 1 ? 's' : ''})
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCurrentAppointmentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentAppointmentPage === 1}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Page précédente"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setCurrentAppointmentPage(prev => Math.min(totalAppointmentPages, prev + 1))}
+                        disabled={currentAppointmentPage === totalAppointmentPages}
+                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Page suivante"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -1808,6 +1903,64 @@ const Panel: React.FC = () => {
                     Fermer
                   </button>
                 )}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal de confirmation de suppression de rendez-vous */}
+          <Dialog open={showDeleteAppointmentDialog} onOpenChange={setShowDeleteAppointmentDialog}>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
+              <DialogHeader className="text-center sm:text-left">
+                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left min-w-0">
+                    <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
+                      Supprimer le rendez-vous
+                    </DialogTitle>
+                    <DialogDescription className="text-sm sm:text-base break-words">
+                      Êtes-vous sûr de vouloir supprimer le rendez-vous de{' '}
+                      <span className="font-semibold text-foreground">
+                        {appointmentToDelete?.prenom} {appointmentToDelete?.nom}
+                      </span>
+                      ?
+                    </DialogDescription>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span className="break-words">Cette action est irréversible et supprimera définitivement le rendez-vous.</span>
+                  </p>
+                </div>
+              </DialogHeader>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+                <button
+                  onClick={() => {
+                    setShowDeleteAppointmentDialog(false);
+                    setAppointmentToDelete(null);
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={async () => {
+                    if (appointmentToDelete) {
+                      try {
+                        await deleteAppointment(appointmentToDelete.id);
+                        setShowDeleteAppointmentDialog(false);
+                        setAppointmentToDelete(null);
+                      } catch (error) {
+                        console.error('Erreur lors de la suppression du rendez-vous:', error);
+                      }
+                    }
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
+                >
+                  Supprimer définitivement
+                </button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

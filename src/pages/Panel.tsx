@@ -42,7 +42,7 @@ const Panel: React.FC = () => {
               <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-7 h-7 text-muted-foreground" />
               </div>
-              <h1 className="text-2xl font-bold">Panel Employé</h1>
+              <h1 className="text-2xl font-bold">Dashboard</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Accès réservé
               </p>
@@ -82,7 +82,7 @@ const Panel: React.FC = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold">Panel Employé</h1>
+              <h1 className="text-2xl font-bold">Dashboard</h1>
               <p className="text-sm text-muted-foreground">Gestion du recrutement</p>
             </div>
             <button
@@ -131,11 +131,11 @@ const Panel: React.FC = () => {
                 onClick={() => setIsRecruitmentOpen(!isRecruitmentOpen)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                   isRecruitmentOpen
-                    ? 'bg-success text-white'
-                    : 'bg-muted text-muted-foreground'
+                    ? 'bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
+                    : 'bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
                 }`}
               >
-                <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : ''}`} />
+                <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : 'fill-current'}`} />
                 {isRecruitmentOpen ? 'Ouvert' : 'Fermé'}
               </button>
             </div>

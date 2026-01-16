@@ -32,6 +32,7 @@ const Panel: React.FC = () => {
     deleteApplication,
     createSession,
     closeSession,
+    deleteSession,
     getApplicationsBySession,
     addTeamMember,
     removeTeamMember,
@@ -133,6 +134,8 @@ const Panel: React.FC = () => {
   const [showDeletePartenaireDialog, setShowDeletePartenaireDialog] = useState(false);
   const [partenaireToDelete, setPartenaireToDelete] = useState<Partenaire | null>(null);
   const [editingPartenaire, setEditingPartenaire] = useState<Partenaire | null>(null);
+  const [showDeleteSessionDialog, setShowDeleteSessionDialog] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -426,19 +429,31 @@ const Panel: React.FC = () => {
                   {sessions.map((session) => {
                     const sessionApps = getApplicationsBySession(session.id);
                     return (
-                      <button
-                        key={session.id}
-                        onClick={() => setSelectedSessionId(session.id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          selectedSessionId === session.id
-                            ? 'bg-primary text-primary-foreground'
-                            : session.isActive
-                            ? 'bg-[#90EE90]/20 text-[#4CAF50] hover:bg-[#90EE90]/30'
-                            : 'bg-muted text-muted-foreground hover:bg-secondary'
-                        }`}
-                      >
-                        {session.name} ({sessionApps.length})
-                      </button>
+                      <div key={session.id} className="relative inline-flex items-center group">
+                        <button
+                          onClick={() => setSelectedSessionId(session.id)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            selectedSessionId === session.id
+                              ? 'bg-primary text-primary-foreground'
+                              : session.isActive
+                              ? 'bg-[#90EE90]/20 text-[#4CAF50] hover:bg-[#90EE90]/30'
+                              : 'bg-muted text-muted-foreground hover:bg-secondary'
+                          }`}
+                        >
+                          {session.name} ({sessionApps.length})
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSessionToDelete(session.id);
+                            setShowDeleteSessionDialog(true);
+                          }}
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity text-[10px]"
+                          title="Supprimer la session"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -1612,6 +1627,68 @@ const Panel: React.FC = () => {
                         setAppointmentToDelete(null);
                       } catch (error) {
                         console.error('Erreur lors de la suppression du rendez-vous:', error);
+                      }
+                    }
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm order-1 sm:order-2"
+                >
+                  Supprimer définitivement
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal de confirmation de suppression de session */}
+          <Dialog open={showDeleteSessionDialog} onOpenChange={setShowDeleteSessionDialog}>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto scrollbar-hide">
+              <DialogHeader className="text-center sm:text-left">
+                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-3 sm:gap-4 mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-destructive" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left min-w-0">
+                    <DialogTitle className="text-lg sm:text-xl font-bold mb-2">
+                      Supprimer la session
+                    </DialogTitle>
+                    <DialogDescription className="text-sm sm:text-base break-words">
+                      Êtes-vous sûr de vouloir supprimer la session{' '}
+                      <span className="font-semibold text-foreground">
+                        {sessionToDelete && sessions.find(s => s.id === sessionToDelete)?.name}
+                      </span>
+                      ?
+                    </DialogDescription>
+                  </div>
+                </div>
+                <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span className="break-words">Cette action est irréversible et supprimera définitivement la session. Les candidatures associées ne seront pas supprimées.</span>
+                  </p>
+                </div>
+              </DialogHeader>
+              <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
+                <button
+                  onClick={() => {
+                    setShowDeleteSessionDialog(false);
+                    setSessionToDelete(null);
+                  }}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={async () => {
+                    if (sessionToDelete) {
+                      try {
+                        await deleteSession(sessionToDelete);
+                        setShowDeleteSessionDialog(false);
+                        setSessionToDelete(null);
+                        // Si la session supprimée était sélectionnée, réinitialiser la sélection
+                        if (selectedSessionId === sessionToDelete) {
+                          setSelectedSessionId(null);
+                        }
+                      } catch (error) {
+                        console.error('Erreur lors de la suppression de la session:', error);
                       }
                     }
                   }}

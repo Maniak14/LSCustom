@@ -94,6 +94,7 @@ interface RecruitmentContextType {
   hasActiveApplication: (idJoueur: string) => boolean;
   createSession: (name: string) => Promise<void>;
   closeSession: (sessionId: string) => Promise<void>;
+  deleteSession: (sessionId: string) => Promise<void>;
   getApplicationsBySession: (sessionId: string | null) => Application[];
   addTeamMember: (member: Omit<TeamMember, 'id' | 'order'> & { order?: number }) => Promise<void>;
   removeTeamMember: (id: string) => Promise<void>;
@@ -664,6 +665,25 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         saveToLocalStorage();
       }
     } else {
+      saveToLocalStorage();
+    }
+  };
+
+  const deleteSession = async (sessionId: string) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
+        if (error) throw error;
+        setSessions(prev => prev.filter(session => session.id !== sessionId));
+        saveToLocalStorage();
+      } catch (error) {
+        console.error('Error deleting session from Supabase:', error);
+        // Supprimer quand même localement en cas d'erreur
+        setSessions(prev => prev.filter(session => session.id !== sessionId));
+        saveToLocalStorage();
+      }
+    } else {
+      setSessions(prev => prev.filter(session => session.id !== sessionId));
       saveToLocalStorage();
     }
   };
@@ -1472,6 +1492,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         hasActiveApplication,
         createSession,
         closeSession,
+        deleteSession,
         getApplicationsBySession,
         addTeamMember,
         removeTeamMember,

@@ -805,35 +805,41 @@ const Panel: React.FC = () => {
 
           {/* Modal de confirmation de suppression */}
           <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
-                    <AlertTriangle className="w-5 h-5 text-destructive" />
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader className="text-center sm:text-left">
+                <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-8 h-8 text-destructive" />
                   </div>
-                  <DialogTitle>Supprimer l'utilisateur</DialogTitle>
+                  <div className="flex-1 text-center sm:text-left">
+                    <DialogTitle className="text-xl font-bold mb-2">
+                      Supprimer l'utilisateur
+                    </DialogTitle>
+                    <DialogDescription className="text-base">
+                      Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
+                      <span className="font-semibold text-foreground">
+                        {userToDelete?.prenom && userToDelete?.nom
+                          ? `${userToDelete.prenom} ${userToDelete.nom}`
+                          : userToDelete?.prenom || userToDelete?.nom || userToDelete?.idPersonnel}
+                      </span>
+                      ?
+                    </DialogDescription>
+                  </div>
                 </div>
-                <DialogDescription>
-                  Êtes-vous sûr de vouloir supprimer l'utilisateur{' '}
-                  <strong>
-                    {userToDelete?.prenom && userToDelete?.nom
-                      ? `${userToDelete.prenom} ${userToDelete.nom}`
-                      : userToDelete?.prenom || userToDelete?.nom || userToDelete?.idPersonnel}
-                  </strong>
-                  ?
-                  <br />
-                  <span className="text-xs text-muted-foreground mt-2 block">
-                    Cette action est irréversible.
-                  </span>
-                </DialogDescription>
+                <div className="mt-4 p-4 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <p className="text-sm text-destructive font-medium flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    Cette action est irréversible et supprimera définitivement toutes les données de l'utilisateur.
+                  </p>
+                </div>
               </DialogHeader>
-              <DialogFooter>
+              <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-6">
                 <button
                   onClick={() => {
                     setShowDeleteDialog(false);
                     setUserToDelete(null);
                   }}
-                  className="btn-ghost"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
                 >
                   Annuler
                 </button>
@@ -845,9 +851,9 @@ const Panel: React.FC = () => {
                       setUserToDelete(null);
                     }
                   }}
-                  className="btn-primary bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors shadow-sm"
                 >
-                  Supprimer
+                  Supprimer définitivement
                 </button>
               </DialogFooter>
             </DialogContent>

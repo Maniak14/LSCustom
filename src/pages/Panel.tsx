@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment, TeamMember, User, Application } from '@/contexts/RecruitmentContext';
 import { useTheme } from '@/hooks/use-theme';
-import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Lock, LogOut, Check, X, Clock, Users, Circle, Plus, Filter, UserPlus, Trash2, Edit, User as UserIcon, AlertTriangle, Eye, ChevronLeft, ChevronRight, Search, ChevronUp, ChevronDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,7 @@ const Panel: React.FC = () => {
     addTeamMember,
     removeTeamMember,
     updateTeamMember,
+    updateTeamMemberOrder,
     isUserLoggedIn,
     currentUser,
     logoutUser,
@@ -675,6 +676,7 @@ const Panel: React.FC = () => {
                         // En mode ajout, on doit avoir sélectionné un utilisateur
                         if (teamFormData.userId && teamFormData.prenom && teamFormData.nom && teamFormData.role && teamFormData.photo) {
                           await addTeamMember({
+                            userId: teamFormData.userId,
                             prenom: teamFormData.prenom,
                             nom: teamFormData.nom,
                             role: teamFormData.role,
@@ -712,7 +714,11 @@ const Panel: React.FC = () => {
               </p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {teamMembers.map((member) => (
+                {teamMembers.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((member, index) => {
+                  const sortedMembers = [...teamMembers].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                  const isFirst = index === 0;
+                  const isLast = index === sortedMembers.length - 1;
+                  return (
                   <div
                     key={member.id}
                     className="p-4 rounded-lg bg-muted/30 border border-border"
@@ -735,8 +741,28 @@ const Panel: React.FC = () => {
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
                           {member.role}
+                          {isFirst && <span className="ml-2 text-xs text-primary font-medium">(Premier)</span>}
                         </p>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          {/* Boutons ordre */}
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => updateTeamMemberOrder(member.id, 'up')}
+                              disabled={isFirst}
+                              className="flex items-center justify-center p-1.5 rounded-lg text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Monter"
+                            >
+                              <ChevronUp className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => updateTeamMemberOrder(member.id, 'down')}
+                              disabled={isLast}
+                              className="flex items-center justify-center p-1.5 rounded-lg text-xs font-medium bg-muted/50 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Descendre"
+                            >
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
+                          </div>
                           <button
                             onClick={() => {
                               setEditingMember(member);
@@ -768,7 +794,8 @@ const Panel: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

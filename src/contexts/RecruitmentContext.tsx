@@ -23,10 +23,12 @@ interface RecruitmentSession {
 
 export interface TeamMember {
   id: string;
+  userId?: string;
   prenom: string;
   nom: string;
   role: string;
   photo?: string;
+  order: number; // Ordre d'affichage (plus petit = affiché en premier)
 }
 
 export interface User {
@@ -55,9 +57,10 @@ interface RecruitmentContextType {
   createSession: (name: string) => Promise<void>;
   closeSession: (sessionId: string) => Promise<void>;
   getApplicationsBySession: (sessionId: string | null) => Application[];
-  addTeamMember: (member: Omit<TeamMember, 'id'>) => Promise<void>;
+  addTeamMember: (member: Omit<TeamMember, 'id' | 'order'> & { order?: number }) => Promise<void>;
   removeTeamMember: (id: string) => Promise<void>;
   updateTeamMember: (id: string, member: Partial<Omit<TeamMember, 'id'>>) => Promise<void>;
+  updateTeamMemberOrder: (id: string, direction: 'up' | 'down') => Promise<void>;
   isEmployeeLoggedIn: boolean;
   loginEmployee: (password: string) => boolean;
   logoutEmployee: () => void;
@@ -129,19 +132,23 @@ const sessionToRow = (session: Omit<RecruitmentSession, 'id' | 'startDate' | 'en
 // Helper pour convertir TeamMemberRow en TeamMember
 const rowToTeamMember = (row: TeamMemberRow): TeamMember => ({
   id: row.id,
+  userId: row.user_id || undefined,
   prenom: row.prenom,
   nom: row.nom,
   role: row.role,
   photo: row.photo || undefined,
+  order: row.order ?? 0,
 });
 
 // Helper pour convertir TeamMember en TeamMemberRow
 const teamMemberToRow = (member: Omit<TeamMember, 'id'> & { id?: string }): Omit<TeamMemberRow, 'id'> & { id?: string } => ({
   id: member.id,
+  user_id: member.userId || null,
   prenom: member.prenom,
   nom: member.nom,
   role: member.role,
   photo: member.photo || null,
+  order: member.order ?? 0,
 });
 
 // LocalStorage helpers (fallback)
@@ -227,7 +234,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       const { data: teamData, error: teamError } = await supabase
         .from('team_members')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('order', { ascending: true });
 
       if (teamError) {
         console.warn('Error loading team members from Supabase:', teamError);
@@ -302,7 +309,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     const storedTeam = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS);
     if (storedTeam) {
-      setTeamMembers(JSON.parse(storedTeam));
+      const parsed = JSON.parse(storedTeam);
+      setTeamMembers(parsed.map((member: any) => ({
+        ...member,
+        order: member.order ?? 0,
+      })).sort((a: TeamMember, b: TeamMember) => (a.order ?? 0) - (b.order ?? 0)));
     }
 
     const storedRecruitment = localStorage.getItem(STORAGE_KEYS.RECRUITMENT_OPEN);
@@ -735,12 +746,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   }, []);
 
-  const addTeamMember = async (member: Omit<TeamMember, 'id'>) => {
+  const addTeamMember = async (member: Omit<TeamMember, 'id' | 'order'> & { order?: number }) => {
+    // Si l'ordre n'est pas spécifié, mettre le membre à la fin
+    const maxOrder = teamMembers.length > 0 ? Math.max(...teamMembers.map(m => m.order ?? 0)) : -1;
     const newMember: TeamMember = {
       ...member,
       id: crypto.randomUUID(),
+      order: member.order ?? (maxOrder + 1),
     };
-    setTeamMembers(prev => [...prev, newMember]);
+    setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
 
     if (isSupabaseConfigured()) {
       try {
@@ -771,7 +785,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const updateTeamMember = async (id: string, member: Partial<Omit<TeamMember, 'id'>>) => {
     setTeamMembers(prev =>
-      prev.map(m => (m.id === id ? { ...m, ...member } : m))
+      prev.map(m => (m.id === id ? { ...m, ...member } : m)).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     );
 
     if (isSupabaseConfigured()) {
@@ -780,7 +794,9 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         if (member.prenom !== undefined) updateData.prenom = member.prenom;
         if (member.nom !== undefined) updateData.nom = member.nom;
         if (member.role !== undefined) updateData.role = member.role;
+        if (member.order !== undefined) updateData.order = member.order;
         if (member.photo !== undefined) updateData.photo = member.photo || null;
+        if (member.userId !== undefined) updateData.user_id = member.userId || null;
 
         await supabase
           .from('team_members')
@@ -788,6 +804,49 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
           .eq('id', id);
       } catch (error) {
         console.error('Error updating team member in Supabase:', error);
+        saveToLocalStorage();
+      }
+    } else {
+      saveToLocalStorage();
+    }
+  };
+
+  const updateTeamMemberOrder = async (id: string, direction: 'up' | 'down') => {
+    const sortedMembers = [...teamMembers].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const currentIndex = sortedMembers.findIndex(m => m.id === id);
+    
+    if (currentIndex === -1) return;
+    
+    if (direction === 'up' && currentIndex > 0) {
+      const member = sortedMembers[currentIndex];
+      const previousMember = sortedMembers[currentIndex - 1];
+      const tempOrder = member.order;
+      member.order = previousMember.order;
+      previousMember.order = tempOrder;
+    } else if (direction === 'down' && currentIndex < sortedMembers.length - 1) {
+      const member = sortedMembers[currentIndex];
+      const nextMember = sortedMembers[currentIndex + 1];
+      const tempOrder = member.order;
+      member.order = nextMember.order;
+      nextMember.order = tempOrder;
+    } else {
+      return; // Déjà en première ou dernière position
+    }
+
+    const updatedMembers = sortedMembers.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    setTeamMembers(updatedMembers);
+
+    if (isSupabaseConfigured()) {
+      try {
+        // Mettre à jour les deux membres
+        const currentMember = updatedMembers[currentIndex];
+        const otherIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+        const otherMember = updatedMembers[otherIndex];
+        
+        await supabase.from('team_members').update({ order: currentMember.order }).eq('id', currentMember.id);
+        await supabase.from('team_members').update({ order: otherMember.order }).eq('id', otherMember.id);
+      } catch (error) {
+        console.error('Error updating team member order in Supabase:', error);
         saveToLocalStorage();
       }
     } else {
@@ -815,6 +874,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         addTeamMember,
         removeTeamMember,
         updateTeamMember,
+        updateTeamMemberOrder,
         isEmployeeLoggedIn,
         loginEmployee,
         logoutEmployee,

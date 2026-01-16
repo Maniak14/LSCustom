@@ -34,10 +34,12 @@ export interface SessionRow {
 
 export interface TeamMemberRow {
   id: string;
+  user_id?: string | null;
   prenom: string;
   nom: string;
   role: string;
   photo?: string | null;
+  order: number;
 }
 
 export interface SettingsRow {

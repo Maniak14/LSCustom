@@ -26,10 +26,12 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- Table des membres de l'équipe
 CREATE TABLE IF NOT EXISTS team_members (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   prenom TEXT NOT NULL,
   nom TEXT NOT NULL,
   role TEXT NOT NULL,
   photo TEXT,
+  order INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

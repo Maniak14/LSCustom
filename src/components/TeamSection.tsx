@@ -27,7 +27,7 @@ const TeamSection: React.FC = () => {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {teamMembers.map((member) => (
+          {teamMembers.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((member) => (
             <div
               key={member.id}
               className="service-card text-center group"

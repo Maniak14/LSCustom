@@ -54,6 +54,7 @@ const Panel: React.FC = () => {
     hasPendingAppointment,
     partenaires,
     addPartenaire,
+    updatePartenaire,
     deletePartenaire,
   } = useRecruitment();
 
@@ -131,6 +132,7 @@ const Panel: React.FC = () => {
   });
   const [showDeletePartenaireDialog, setShowDeletePartenaireDialog] = useState(false);
   const [partenaireToDelete, setPartenaireToDelete] = useState<Partenaire | null>(null);
+  const [editingPartenaire, setEditingPartenaire] = useState<Partenaire | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -1417,6 +1419,7 @@ const Panel: React.FC = () => {
               </div>
               <button
                 onClick={() => {
+                  setEditingPartenaire(null);
                   setShowPartenaireForm(true);
                   setPartenaireFormData({ nom: '', logoUrl: '' });
                 }}
@@ -1427,10 +1430,10 @@ const Panel: React.FC = () => {
               </button>
             </div>
 
-            {/* Formulaire ajout partenaire */}
+            {/* Formulaire ajout/édition partenaire */}
             {showPartenaireForm && (
               <div className="mb-4 p-4 rounded-lg bg-muted/50 border border-border">
-                <h3 className="font-semibold mb-4">Nouveau partenaire</h3>
+                <h3 className="font-semibold mb-4">{editingPartenaire ? 'Modifier le partenaire' : 'Nouveau partenaire'}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Nom de l'entreprise *</label>
@@ -1519,16 +1522,32 @@ const Panel: React.FC = () => {
                       <Building2 className="w-12 h-12 text-muted-foreground mb-3" />
                     )}
                     <p className="text-sm font-medium text-center mb-3">{partenaire.nom}</p>
-                    <button
-                      onClick={() => {
-                        setPartenaireToDelete(partenaire);
-                        setShowDeletePartenaireDialog(true);
-                      }}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      Supprimer
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingPartenaire(partenaire);
+                          setPartenaireFormData({
+                            nom: partenaire.nom,
+                            logoUrl: partenaire.logoUrl,
+                          });
+                          setShowPartenaireForm(true);
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        <Edit className="w-3 h-3" />
+                        Modifier
+                      </button>
+                      <button
+                        onClick={() => {
+                          setPartenaireToDelete(partenaire);
+                          setShowDeletePartenaireDialog(true);
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Supprimer
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

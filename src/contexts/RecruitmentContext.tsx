@@ -129,6 +129,7 @@ interface RecruitmentContextType {
   // Partners
   partenaires: Partenaire[];
   addPartenaire: (partenaire: Omit<Partenaire, 'id' | 'createdAt'>) => Promise<void>;
+  updatePartenaire: (id: string, partenaire: { nom?: string; logoUrl?: string }) => Promise<void>;
   deletePartenaire: (id: string) => Promise<void>;
 }
 
@@ -1405,6 +1406,40 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
+  const updatePartenaire = async (id: string, updates: { nom?: string; logoUrl?: string }) => {
+    // Mettre à jour le state et sauvegarder immédiatement dans localStorage
+    setPartenaires(prev => {
+      const updatedPartenaires = prev.map(partenaire =>
+        partenaire.id === id
+          ? { ...partenaire, ...updates }
+          : partenaire
+      );
+      // Sauvegarder immédiatement dans localStorage
+      localStorage.setItem(STORAGE_KEYS.PARTENAIRES, JSON.stringify(updatedPartenaires));
+      return updatedPartenaires;
+    });
+
+    // Sauvegarder dans Supabase si configuré
+    if (isSupabaseConfigured()) {
+      try {
+        const updateData: any = {};
+        if (updates.nom !== undefined) updateData.nom = updates.nom;
+        if (updates.logoUrl !== undefined) updateData.logo_url = updates.logoUrl;
+
+        const { error } = await supabase
+          .from('partenaires')
+          .update(updateData)
+          .eq('id', id);
+        
+        if (error) {
+          console.error('Error updating partenaire in Supabase:', error);
+        }
+      } catch (error) {
+        console.error('Error updating partenaire in Supabase:', error);
+      }
+    }
+  };
+
   const deletePartenaire = async (id: string) => {
     if (isSupabaseConfigured()) {
       try {
@@ -1467,6 +1502,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         hasPendingAppointment,
         partenaires,
         addPartenaire,
+        updatePartenaire,
         deletePartenaire,
       }}
     >

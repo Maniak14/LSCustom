@@ -11,7 +11,7 @@ const HeroSection: React.FC = () => {
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto w-full">
         {/* Main Title */}
-        <div className="relative">
+        <div className="relative text-center md:text-left">
           <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-foreground leading-none">
             LS Custom's
           </h1>

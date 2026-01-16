@@ -27,8 +27,8 @@ const Navbar: React.FC = () => {
       <div className="absolute inset-0 bg-background/80 backdrop-blur-md border-b border-border/50" />
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo Los Santos Customs - Centré sur mobile */}
-          <Link to="/" className="flex items-center absolute left-1/2 lg:left-0 transform -translate-x-1/2 lg:translate-x-0 lg:relative">
+          {/* Logo Los Santos Customs */}
+          <Link to="/" className="flex items-center">
             <img 
               src={logoImage} 
               alt="LS Custom's Logo" 

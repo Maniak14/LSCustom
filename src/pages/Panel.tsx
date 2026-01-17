@@ -107,7 +107,7 @@ const Panel: React.FC = () => {
     prenom: '',
     nom: '',
     telephone: '',
-    grade: 'client' as 'direction' | 'client',
+    grade: 'client' as 'direction' | 'client' | 'dev',
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -240,8 +240,8 @@ const Panel: React.FC = () => {
     setPassword('');
   };
 
-  // Vérifier si l'utilisateur connecté a le grade "direction"
-  const hasDirectionAccess = isUserLoggedIn && currentUser?.grade === 'direction';
+  // Vérifier si l'utilisateur connecté a le grade "direction" ou "dev"
+  const hasDirectionAccess = isUserLoggedIn && (currentUser?.grade === 'direction' || currentUser?.grade === 'dev');
   const canAccessPanel = isEmployeeLoggedIn || hasDirectionAccess;
 
   if (!canAccessPanel) {
@@ -1024,7 +1024,7 @@ const Panel: React.FC = () => {
                     <label className="block text-sm font-medium mb-2">Grade *</label>
                     <Select
                       value={userFormData.grade}
-                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' }))}
+                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' | 'dev' }))}
                       required
                     >
                       <SelectTrigger className="input-modern h-auto py-3.5">
@@ -1033,6 +1033,7 @@ const Panel: React.FC = () => {
                       <SelectContent className="scrollbar-hide">
                         <SelectItem value="client">Client</SelectItem>
                         <SelectItem value="direction">Direction</SelectItem>
+                        <SelectItem value="dev">Dev</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1089,11 +1090,11 @@ const Panel: React.FC = () => {
                               : user.prenom || user.nom || user.idPersonnel}
                           </p>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            user.grade === 'direction'
+                            user.grade === 'direction' || user.grade === 'dev'
                               ? 'bg-primary/20 text-primary'
                               : 'bg-muted text-muted-foreground'
                           }`}>
-                            {user.grade === 'direction' ? 'Direction' : 'Client'}
+                            {user.grade === 'direction' ? 'Direction' : user.grade === 'dev' ? 'Dev' : 'Client'}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground mb-1">ID: {user.idPersonnel}</p>

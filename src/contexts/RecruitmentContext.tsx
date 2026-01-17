@@ -38,7 +38,7 @@ export interface User {
   telephone: string;
   prenom?: string;
   nom?: string;
-  grade: 'direction' | 'client';
+  grade: 'direction' | 'client' | 'dev';
   photoUrl?: string;
   createdAt: Date;
 }
@@ -107,13 +107,13 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client' | 'dev', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
   users: User[];
-  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' }>;
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' }>;
   updateUserPhoto: (userId: string, photoUrl: string) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   // Client reviews
@@ -861,7 +861,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' | 'dev' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
     // Vérifier si l'ID personnel existe déjà
     const existingUserById = users.find(u => u.idPersonnel === idPersonnel);
     if (existingUserById) {
@@ -1018,7 +1018,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management for admins
-  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client'; photoUrl?: string }): Promise<boolean | { error: 'telephone' }> => {
+  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev'; photoUrl?: string }): Promise<boolean | { error: 'telephone' }> => {
     const userToUpdate = users.find(u => u.id === userId);
     if (!userToUpdate) {
       return false;

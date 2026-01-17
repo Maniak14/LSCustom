@@ -92,8 +92,8 @@ const ReviewsSection: React.FC = () => {
               key={review.id}
               className="glass-card p-6 animate-fade-up relative group"
             >
-              {/* Bouton de suppression pour les utilisateurs direction */}
-              {currentUser?.grade === 'direction' && (
+              {/* Bouton de suppression pour les utilisateurs direction et dev */}
+              {(currentUser?.grade === 'direction' || currentUser?.grade === 'dev') && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

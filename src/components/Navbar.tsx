@@ -68,8 +68,8 @@ const Navbar: React.FC = () => {
               )}
             </button>
 
-            {/* Bouton Dashboard pour les membres de la direction */}
-            {isUserLoggedIn && currentUser?.grade === 'direction' && (
+            {/* Bouton Dashboard pour les membres de la direction et dev */}
+            {isUserLoggedIn && (currentUser?.grade === 'direction' || currentUser?.grade === 'dev') && (
               <Link
                 to="/panel"
                 className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-black dark:text-foreground transition-colors"
@@ -155,7 +155,7 @@ const Navbar: React.FC = () => {
                     <Moon className="w-5 h-5 text-foreground" />
                   )}
                 </button>
-                {isUserLoggedIn && currentUser?.grade === 'direction' && (
+                {isUserLoggedIn && (currentUser?.grade === 'direction' || currentUser?.grade === 'dev') && (
                   <Link
                     to="/panel"
                     onClick={() => setIsOpen(false)}

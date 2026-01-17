@@ -16,7 +16,7 @@ const HeroSection: React.FC = () => {
           {isRecruitmentOpen ? (
             <Link
               to="/candidature"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm dark:bg-[#4CAF50] dark:hover:bg-[#45a049] dark:text-white bg-[#90EE90] hover:bg-[#7ED87E] text-foreground"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium transition-colors shadow-sm bg-[#4CAF50] hover:bg-[#45a049] text-white"
             >
               <Circle className="w-2 h-2 fill-current" />
               Recrutement ouvert

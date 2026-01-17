@@ -1382,7 +1382,10 @@ const Panel: React.FC = () => {
                             <p className="text-xs text-muted-foreground mb-1">ID: {appointment.idPersonnel}</p>
                             {directionUser && (
                               <p className="text-xs text-muted-foreground mb-1">
-                                {directionUser.grade === 'rh' ? 'RH' : 'Direction'}: {directionUser.prenom} {directionUser.nom}
+                                {directionUser.grade === 'rh' 
+                                  ? `${directionUser.prenom || ''} ${directionUser.nom || ''}`.trim() + ' - RH'
+                                  : `Direction: ${directionUser.prenom} ${directionUser.nom}`
+                                }
                               </p>
                             )}
                             <p className="text-xs text-muted-foreground mb-1">

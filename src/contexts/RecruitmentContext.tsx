@@ -872,8 +872,10 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     const isHashed = hashedPassword.startsWith('$2a$') || hashedPassword.startsWith('$2b$') || hashedPassword.startsWith('$2y$');
     
     if (isHashed) {
-      // Comparer avec le hash
-      return bcrypt.compare(plainPassword, hashedPassword);
+      // Comparer avec le hash (bcrypt.compareSync est synchrone mais on retourne une Promise pour l'interface async)
+      return new Promise((resolve) => {
+        resolve(bcrypt.compareSync(plainPassword, hashedPassword));
+      });
     } else {
       // Migration automatique : si le mot de passe en DB est en clair, comparer en clair
       // mais retourner true uniquement si les mots de passe correspondent

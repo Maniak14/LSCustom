@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
       {/* Conteneur avec fond transparent */}
-      <div className="absolute inset-0 bg-background/10 backdrop-blur-[1px] border-b border-border/20" />
+      <div className="absolute inset-0 bg-background/30 backdrop-blur-sm border-b border-border/30" />
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo Los Santos Customs */}

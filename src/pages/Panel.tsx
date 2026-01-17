@@ -200,9 +200,15 @@ const Panel: React.FC = () => {
     setCurrentUserPage(1);
   }, [userSearchQuery]);
 
-  // Filtrer les rendez-vous selon la recherche
+  // Filtrer les rendez-vous selon la recherche et le rôle
+  // Si l'utilisateur est RH, il ne voit que ses propres rendez-vous
+  let baseAppointments = appointments;
+  if (currentUser?.grade === 'rh') {
+    baseAppointments = appointments.filter(appointment => appointment.directionUserId === currentUser.id);
+  }
+
   const filteredAppointments = appointmentSearchQuery.trim()
-    ? appointments.filter(appointment => {
+    ? baseAppointments.filter(appointment => {
         const query = appointmentSearchQuery.toLowerCase().trim();
         const fullName = appointment.prenom && appointment.nom 
           ? `${appointment.prenom} ${appointment.nom}`.toLowerCase()
@@ -216,7 +222,7 @@ const Panel: React.FC = () => {
           (appointment.nom && appointment.nom.toLowerCase().includes(query))
         );
       })
-    : appointments;
+    : baseAppointments;
 
   // Pagination pour les rendez-vous
   const totalAppointmentPages = Math.ceil(filteredAppointments.length / appointmentsPerPage);
@@ -1303,8 +1309,8 @@ const Panel: React.FC = () => {
           </div>
           )}
 
-          {/* Gestion des rendez-vous - Masqué pour RH */}
-          {!isRH && (
+          {/* Gestion des rendez-vous - Visible pour direction/dev/rh */}
+          {(currentUser?.grade === 'direction' || currentUser?.grade === 'dev' || currentUser?.grade === 'rh') && (
           <div className="glass-card mb-8 !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -1376,7 +1382,7 @@ const Panel: React.FC = () => {
                             <p className="text-xs text-muted-foreground mb-1">ID: {appointment.idPersonnel}</p>
                             {directionUser && (
                               <p className="text-xs text-muted-foreground mb-1">
-                                Direction: {directionUser.prenom} {directionUser.nom}
+                                {directionUser.grade === 'rh' ? 'RH' : 'Direction'}: {directionUser.prenom} {directionUser.nom}
                               </p>
                             )}
                             <p className="text-xs text-muted-foreground mb-1">

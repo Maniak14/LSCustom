@@ -92,8 +92,8 @@ const RendezVous: React.FC = () => {
     );
   }
 
-  // Obtenir les membres de la direction
-  const directionUsers = users.filter(user => user.grade === 'direction');
+  // Obtenir les membres de la direction et les RH pour prendre rendez-vous
+  const directionUsers = users.filter(user => user.grade === 'direction' || user.grade === 'rh');
 
   // Obtenir les rendez-vous de l'utilisateur connecté
   const userAppointments = appointments
@@ -217,7 +217,7 @@ const RendezVous: React.FC = () => {
               Prendre rendez-vous
             </h1>
             <p className="mt-4 text-muted-foreground animate-fade-up-2">
-              Réservez un créneau avec un membre de la direction
+              Réservez un créneau avec un membre de la direction ou un RH
             </p>
           </div>
 
@@ -250,25 +250,25 @@ const RendezVous: React.FC = () => {
             <form onSubmit={handleSubmit} className="glass-card mb-8 animate-fade-up-3">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Membre de la direction *
-                  </label>
-                  <Select
-                    value={formData.directionUserId || undefined}
-                    onValueChange={(value) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        directionUserId: value,
-                      }));
-                      setErrorMessage('');
-                    }}
-                    required
-                    disabled={status === 'submitting'}
-                  >
-                    <SelectTrigger className="input-modern h-auto py-3.5">
-                      <SelectValue placeholder="Sélectionner un membre de la direction" />
-                    </SelectTrigger>
+                    <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Membre de la direction / RH *
+                    </label>
+                    <Select
+                      value={formData.directionUserId || undefined}
+                      onValueChange={(value) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          directionUserId: value,
+                        }));
+                        setErrorMessage('');
+                      }}
+                      required
+                      disabled={status === 'submitting'}
+                    >
+                      <SelectTrigger className="input-modern h-auto py-3.5">
+                        <SelectValue placeholder="Sélectionner un membre de la direction ou un RH" />
+                      </SelectTrigger>
                     <SelectContent className="scrollbar-hide">
                       {directionUsers.map(user => {
                         // Trouver le membre correspondant dans teamMembers par userId ou par nom/prénom

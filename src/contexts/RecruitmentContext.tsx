@@ -107,13 +107,13 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client' | 'dev', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client' | 'dev' | 'rh', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
   users: User[];
-  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' }>;
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' }>;
   updateUserPhoto: (userId: string, photoUrl: string) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   // Client reviews

@@ -103,11 +103,16 @@ const Panel: React.FC = () => {
   // User management
   const [showUserForm, setShowUserForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [userFormData, setUserFormData] = useState({
+  const [userFormData, setUserFormData] = useState<{
+    prenom: string;
+    nom: string;
+    telephone: string;
+    grade: 'direction' | 'client' | 'dev' | 'rh';
+  }>({
     prenom: '',
     nom: '',
     telephone: '',
-    grade: 'client' as 'direction' | 'client' | 'dev',
+    grade: 'client',
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);

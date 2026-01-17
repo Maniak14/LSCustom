@@ -8,10 +8,12 @@ const pricingCategories = [
     icon: Wrench,
     title: 'Réparations',
     services: [
-      { name: 'Réparation légère', price: '500$' },
-      { name: 'Réparation moyenne', price: '1 500$' },
-      { name: 'Réparation majeure', price: '3 000$' },
-      { name: 'Carrosserie complète', price: '5 000$' },
+      { name: 'Réparation complète (Garage)', price: '600$' },
+      { name: 'Réparation moteur (Garage)', price: '350$' },
+      { name: 'Pneus (Garage)', price: '150$ par pneu' },
+      { name: 'Réparation complète (Déplacement)', price: '700$' },
+      { name: 'Réparation moteur (Déplacement)', price: '450$' },
+      { name: 'Pneus (Déplacement)', price: '250$ par pneu' },
     ],
   },
   {

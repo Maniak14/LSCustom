@@ -30,7 +30,7 @@ const TeamSection: React.FC = () => {
           {teamMembers.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((member) => (
             <div
               key={member.id}
-              className="service-card text-center group"
+              className="service-card text-center group flex flex-col items-center"
             >
               {/* Photo */}
               {(() => {
@@ -58,12 +58,12 @@ const TeamSection: React.FC = () => {
               })()}
 
               {/* Nom et prénom */}
-              <h3 className="text-lg font-semibold mb-1">
+              <h3 className="text-lg font-semibold mb-1 text-center">
                 {member.prenom} {member.nom}
               </h3>
 
               {/* Rôle */}
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-center">
                 {member.role}
               </p>
             </div>

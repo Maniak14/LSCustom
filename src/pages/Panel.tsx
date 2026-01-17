@@ -1003,6 +1003,8 @@ const Panel: React.FC = () => {
                   if (result && typeof result === 'object' && 'error' in result) {
                     if (result.error === 'telephone') {
                       setUserFormError('Ce numéro de téléphone est déjà utilisé par un autre utilisateur.');
+                    } else if (result.error === 'protected') {
+                      setUserFormError('Vous n\'avez pas les permissions pour modifier cet utilisateur ou ce grade.');
                     }
                   } else if (result === true) {
                     setShowUserForm(false);
@@ -1069,7 +1071,10 @@ const Panel: React.FC = () => {
                       <SelectContent className="scrollbar-hide">
                         <SelectItem value="client">Client</SelectItem>
                         <SelectItem value="direction">Direction</SelectItem>
-                        <SelectItem value="dev">Dev</SelectItem>
+                        {/* Protection : Seuls les "dev" peuvent attribuer le grade "dev" */}
+                        {currentUser?.grade === 'dev' && (
+                          <SelectItem value="dev">Dev</SelectItem>
+                        )}
                         <SelectItem value="rh">RH</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1139,33 +1144,39 @@ const Panel: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={() => {
-                          setEditingUser(user);
-                          setUserFormData({
-                            prenom: user.prenom || '',
-                            nom: user.nom || '',
-                            telephone: user.telephone,
-                            grade: user.grade,
-                          });
-                          setShowUserForm(true);
-                        }}
-                        className="p-2 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        title="Modifier"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setUserToDelete(user);
-                          setShowDeleteDialog(true);
-                        }}
-                        className="p-2 rounded-full text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
-                        title="Supprimer"
-                        disabled={currentUser?.id === user.id}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {/* Protection : Les utilisateurs "dev" ne peuvent être modifiés que par un autre "dev" */}
+                      {(currentUser?.grade === 'dev' || user.grade !== 'dev') && (
+                        <button
+                          onClick={() => {
+                            setEditingUser(user);
+                            setUserFormData({
+                              prenom: user.prenom || '',
+                              nom: user.nom || '',
+                              telephone: user.telephone,
+                              grade: user.grade,
+                            });
+                            setShowUserForm(true);
+                          }}
+                          className="p-2 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                          title="Modifier"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      )}
+                      {/* Protection : Les utilisateurs "dev" ne peuvent être supprimés que par un autre "dev" */}
+                      {(currentUser?.grade === 'dev' || user.grade !== 'dev') && (
+                        <button
+                          onClick={() => {
+                            setUserToDelete(user);
+                            setShowDeleteDialog(true);
+                          }}
+                          className="p-2 rounded-full text-destructive/80 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          title="Supprimer"
+                          disabled={currentUser?.id === user.id}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

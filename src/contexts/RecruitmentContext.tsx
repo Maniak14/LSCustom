@@ -113,7 +113,7 @@ interface RecruitmentContextType {
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
   users: User[];
-  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' }>;
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' | 'protected' }>;
   updateUserPhoto: (userId: string, photoUrl: string) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   // Client reviews
@@ -1163,10 +1163,20 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management for admins
-  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }): Promise<boolean | { error: 'telephone' }> => {
+  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }): Promise<boolean | { error: 'telephone' | 'protected' }> => {
     const userToUpdate = users.find(u => u.id === userId);
     if (!userToUpdate) {
       return false;
+    }
+
+    // Protection : Les utilisateurs "dev" ne peuvent être modifiés que par un autre "dev"
+    if (userToUpdate.grade === 'dev' && currentUser?.grade !== 'dev') {
+      return { error: 'protected' };
+    }
+
+    // Protection : Seuls les "dev" peuvent attribuer le grade "dev"
+    if (data.grade === 'dev' && currentUser?.grade !== 'dev') {
+      return { error: 'protected' };
     }
 
     // Vérifier si le nouveau numéro de téléphone est déjà utilisé par un autre utilisateur
@@ -1250,6 +1260,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const deleteUser = async (userId: string): Promise<boolean> => {
     // Ne pas permettre de supprimer l'utilisateur actuellement connecté
     if (currentUser && currentUser.id === userId) {
+      return false;
+    }
+
+    // Protection : Les utilisateurs "dev" ne peuvent être supprimés que par un autre "dev"
+    const userToDelete = users.find(u => u.id === userId);
+    if (userToDelete?.grade === 'dev' && currentUser?.grade !== 'dev') {
       return false;
     }
 

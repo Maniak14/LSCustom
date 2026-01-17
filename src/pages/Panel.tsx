@@ -1132,7 +1132,9 @@ const Panel: React.FC = () => {
                               : user.prenom || user.nom || user.idPersonnel}
                           </p>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            user.grade === 'direction' || user.grade === 'dev' || user.grade === 'rh'
+                            user.grade === 'dev'
+                              ? 'bg-destructive/20 text-destructive'
+                              : user.grade === 'direction' || user.grade === 'rh'
                               ? 'bg-primary/20 text-primary'
                               : 'bg-muted text-muted-foreground'
                           }`}>

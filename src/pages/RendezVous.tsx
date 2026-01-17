@@ -15,6 +15,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const RendezVous: React.FC = () => {
   const navigate = useNavigate();
@@ -79,12 +80,51 @@ const RendezVous: React.FC = () => {
 
   const hasPending = hasPendingAppointment(currentUser.id);
 
+  // Synchroniser la date et l'heure avec formData.dateTime
+  useEffect(() => {
+    if (selectedDate && selectedHour && selectedMinute) {
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const dateTimeString = `${year}-${month}-${day}T${selectedHour}:${selectedMinute}`;
+      setFormData(prev => ({
+        ...prev,
+        dateTime: dateTimeString,
+      }));
+    }
+  }, [selectedDate, selectedHour, selectedMinute]);
+
+  // Initialiser depuis formData.dateTime si existe
+  useEffect(() => {
+    if (formData.dateTime) {
+      const date = new Date(formData.dateTime);
+      if (!isNaN(date.getTime())) {
+        setSelectedDate(date);
+        setSelectedHour(String(date.getHours()).padStart(2, '0'));
+        setSelectedMinute(String(date.getMinutes()).padStart(2, '0'));
+      }
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
     setErrorMessage('');
+  };
+
+  const formatDateTimeDisplay = () => {
+    if (selectedDate && selectedHour && selectedMinute) {
+      return new Date(`${selectedDate.toISOString().split('T')[0]}T${selectedHour}:${selectedMinute}`).toLocaleString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+    return 'Sélectionner une date et une heure';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -242,16 +282,70 @@ const RendezVous: React.FC = () => {
                     <Calendar className="w-4 h-4" />
                     Date et heure *
                   </label>
-                  <input
-                    type="datetime-local"
-                    name="dateTime"
-                    value={formData.dateTime}
-                    onChange={handleChange}
-                    className="input-modern"
-                    required
-                    disabled={status === 'submitting'}
-                    min={new Date().toISOString().slice(0, 16)}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal input-modern h-auto py-3.5",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                        disabled={status === 'submitting'}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {formatDateTimeDisplay()}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-4">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          initialFocus
+                        />
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                          <div>
+                            <label className="block text-xs font-medium mb-2">Heure</label>
+                            <Select
+                              value={selectedHour}
+                              onValueChange={setSelectedHour}
+                            >
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="scrollbar-hide max-h-[200px]">
+                                {Array.from({ length: 24 }, (_, i) => (
+                                  <SelectItem key={i} value={String(i).padStart(2, '0')}>
+                                    {String(i).padStart(2, '0')}h
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium mb-2">Minutes</label>
+                            <Select
+                              value={selectedMinute}
+                              onValueChange={setSelectedMinute}
+                            >
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="scrollbar-hide max-h-[200px]">
+                                {['00', '15', '30', '45'].map((min) => (
+                                  <SelectItem key={min} value={min}>
+                                    {min}min
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div>

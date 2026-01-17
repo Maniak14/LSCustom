@@ -863,8 +863,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // Fonctions utilitaires pour le hachage des mots de passe
   const hashPassword = async (password: string): Promise<string> => {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(password, salt);
   };
 
   const comparePassword = async (plainPassword: string, hashedPassword: string): Promise<boolean> => {

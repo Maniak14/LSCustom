@@ -10,7 +10,7 @@ const pricingCategories = [
     services: [
       { name: 'Réparation complète', price: '600$' },
       { name: 'Réparation moteur', price: '350$' },
-      { name: 'Pneus', price: '150$ par pneu' },
+      { name: 'Pneus', price: '150$ par pneu (Indisponible)' },
     ],
   },
   {
@@ -19,7 +19,7 @@ const pricingCategories = [
     services: [
       { name: 'Réparation complète', price: '700$' },
       { name: 'Réparation moteur', price: '450$' },
-      { name: 'Pneus', price: '250$ par pneu' },
+      { name: 'Pneus', price: '250$ par pneu (Indisponible)' },
     ],
   },
   // {

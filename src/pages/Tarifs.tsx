@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Wrench, Paintbrush, Gauge, Car, Sparkles, Shield } from 'lucide-react';
+import { Wrench, Paintbrush, Gauge, Car, Sparkles } from 'lucide-react';
 
 const pricingCategories = [
   {
@@ -20,54 +20,44 @@ const pricingCategories = [
     icon: Paintbrush,
     title: 'Peinture',
     services: [
-      { name: 'Couleur classique', price: '800$' },
-      { name: 'Métallisée', price: '1 500$' },
-      { name: 'Nacrée', price: '2 500$' },
-      { name: 'Mate', price: '2 000$' },
-      { name: 'Vinyles', price: 'Devis' },
+      { name: 'Couleur classique', price: 'Selon véhicule' },
+      { name: 'Métallisée', price: 'Selon véhicule' },
+      { name: 'Nacrée', price: 'Selon véhicule' },
+      { name: 'Mate', price: 'Selon véhicule' },
+      { name: 'Vinyles', price: 'Selon véhicule' },
     ],
   },
   {
     icon: Gauge,
     title: 'Performance',
     services: [
-      { name: 'Moteur Niv.1', price: '5 000$' },
-      { name: 'Moteur Niv.2', price: '10 000$' },
-      { name: 'Moteur Niv.3', price: '18 000$' },
-      { name: 'Turbo', price: '15 000$' },
-      { name: 'Freins sport', price: '3 500$' },
-      { name: 'Transmission', price: '8 000$' },
+      { name: 'Moteur Niv.1', price: 'Selon véhicule' },
+      { name: 'Moteur Niv.2', price: 'Selon véhicule' },
+      { name: 'Moteur Niv.3', price: 'Selon véhicule' },
+      { name: 'Turbo', price: 'Selon véhicule' },
+      { name: 'Freins sport', price: 'Selon véhicule' },
+      { name: 'Transmission', price: 'Selon véhicule' },
     ],
   },
   {
     icon: Car,
     title: 'Esthétique',
     services: [
-      { name: 'Jantes standard', price: '1 200$' },
-      { name: 'Jantes sport', price: '3 000$' },
-      { name: 'Kit carrosserie', price: '8 000$' },
-      { name: 'Spoiler', price: '2 500$' },
-      { name: 'Vitres teintées', price: '1 000$' },
+      { name: 'Jantes standard', price: 'Selon véhicule' },
+      { name: 'Jantes sport', price: 'Selon véhicule' },
+      { name: 'Kit carrosserie', price: 'Selon véhicule' },
+      { name: 'Spoiler', price: 'Selon véhicule' },
+      { name: 'Vitres teintées', price: 'Selon véhicule' },
     ],
   },
   {
     icon: Sparkles,
     title: 'Options',
     services: [
-      { name: 'Néons', price: '2 000$' },
-      { name: 'Klaxon custom', price: '500$' },
-      { name: 'Plaque perso', price: '1 500$' },
-      { name: 'Intérieur cuir', price: '5 000$' },
-    ],
-  },
-  {
-    icon: Shield,
-    title: 'Forfaits',
-    services: [
-      { name: 'Pack Entretien', price: '2 500$' },
-      { name: 'Pack Sport', price: '25 000$' },
-      { name: 'Pack Luxe', price: '50 000$' },
-      { name: 'Révision', price: '4 000$' },
+      { name: 'Néons', price: 'Selon véhicule' },
+      { name: 'Klaxon custom', price: 'Selon véhicule' },
+      { name: 'Plaque perso', price: 'Selon véhicule' },
+      { name: 'Intérieur cuir', price: 'Selon véhicule' },
     ],
   },
 ];

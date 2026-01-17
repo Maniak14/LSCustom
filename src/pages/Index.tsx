@@ -10,17 +10,31 @@ import Footer from '@/components/Footer';
 
 const Index: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-      <div className="flex-1">
-        <HeroSection />
-        <LocalisationSection />
-        <TeamSection />
-        <ServicesSection />
-        <ReviewsSection />
-        <PartenairesSection />
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Image de fond avec opacité */}
+      <div 
+        className="fixed inset-0 z-0 opacity-20"
+        style={{
+          backgroundImage: 'url(/background.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      
+      {/* Contenu avec z-index pour être au-dessus */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Navbar />
+        <div className="flex-1">
+          <HeroSection />
+          <LocalisationSection />
+          <TeamSection />
+          <ServicesSection />
+          <ReviewsSection />
+          <PartenairesSection />
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 };

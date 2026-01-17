@@ -14,6 +14,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const Panel: React.FC = () => {
   const navigate = useNavigate();
@@ -637,10 +644,10 @@ const Panel: React.FC = () => {
                   {!editingMember && (
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium mb-2">Sélectionner un membre de la direction *</label>
-                      <select
-                        value={teamFormData.userId}
-                        onChange={(e) => {
-                          const selectedUser = users.find(u => u.id === e.target.value);
+                      <Select
+                        value={teamFormData.userId || undefined}
+                        onValueChange={(value) => {
+                          const selectedUser = users.find(u => u.id === value);
                           if (selectedUser) {
                             setTeamFormData({
                               ...teamFormData,
@@ -651,18 +658,21 @@ const Panel: React.FC = () => {
                             });
                           }
                         }}
-                        className="input-modern"
                         required={!editingMember}
                       >
-                        <option value="">-- Sélectionner un utilisateur --</option>
-                        {availableDirectionUsers.map(user => (
-                          <option key={user.id} value={user.id}>
-                            {user.prenom && user.nom
-                              ? `${user.prenom} ${user.nom} (${user.idPersonnel})`
-                              : user.prenom || user.nom || user.idPersonnel}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="input-modern h-auto py-3.5">
+                          <SelectValue placeholder="-- Sélectionner un utilisateur --" />
+                        </SelectTrigger>
+                        <SelectContent className="scrollbar-hide">
+                          {availableDirectionUsers.map(user => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.prenom && user.nom
+                                ? `${user.prenom} ${user.nom} (${user.idPersonnel})`
+                                : user.prenom || user.nom || user.idPersonnel}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {availableDirectionUsers.length === 0 && (
                         <p className="text-xs text-muted-foreground mt-2">
                           Aucun utilisateur avec le grade "direction" disponible. Tous les membres de la direction sont déjà dans l'équipe.
@@ -1011,15 +1021,19 @@ const Panel: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Grade *</label>
-                    <select
+                    <Select
                       value={userFormData.grade}
-                      onChange={(e) => setUserFormData(prev => ({ ...prev, grade: e.target.value as 'direction' | 'client' }))}
-                      className="input-modern"
+                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' }))}
                       required
                     >
-                      <option value="client">Client</option>
-                      <option value="direction">Direction</option>
-                    </select>
+                      <SelectTrigger className="input-modern h-auto py-3.5">
+                        <SelectValue placeholder="Sélectionner un grade" />
+                      </SelectTrigger>
+                      <SelectContent className="scrollbar-hide">
+                        <SelectItem value="client">Client</SelectItem>
+                        <SelectItem value="direction">Direction</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="flex gap-2">

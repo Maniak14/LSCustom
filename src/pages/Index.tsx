@@ -13,13 +13,13 @@ const Index: React.FC = () => {
     <div className="min-h-screen flex flex-col relative">
       {/* Image de fond avec opacité */}
       <div 
-        className="fixed inset-0 z-0"
+        className="fixed inset-0 z-0 opacity-70"
         style={{
           backgroundImage: 'url(/background.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.4,
+          backgroundColor: 'transparent',
         }}
       />
       

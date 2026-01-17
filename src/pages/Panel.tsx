@@ -1549,7 +1549,7 @@ const Panel: React.FC = () => {
                       <Building2 className="w-12 h-12 text-muted-foreground mb-3" />
                     )}
                     <p className="text-sm font-medium text-center mb-3">{partenaire.nom}</p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => {
                           setEditingPartenaire(partenaire);
@@ -1559,9 +1559,9 @@ const Panel: React.FC = () => {
                           });
                           setShowPartenaireForm(true);
                         }}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        className="flex items-center gap-0.5 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                       >
-                        <Edit className="w-3 h-3" />
+                        <Edit className="w-2.5 h-2.5" />
                         Modifier
                       </button>
                       <button
@@ -1569,9 +1569,9 @@ const Panel: React.FC = () => {
                           setPartenaireToDelete(partenaire);
                           setShowDeletePartenaireDialog(true);
                         }}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                        className="flex items-center gap-0.5 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-2.5 h-2.5" />
                         Supprimer
                       </button>
                     </div>

@@ -83,9 +83,9 @@ const Panel: React.FC = () => {
     photo: '',
   });
 
-  // Filtrer les utilisateurs direction qui ne sont pas déjà dans l'équipe
+  // Filtrer les utilisateurs direction et RH qui ne sont pas déjà dans l'équipe
   const availableDirectionUsers = users.filter(user => {
-    if (user.grade !== 'direction') return false;
+    if (user.grade !== 'direction' && user.grade !== 'rh') return false;
     // Si on est en mode édition, on peut garder l'utilisateur actuel
     if (editingMember) {
       // Vérifier si cet utilisateur correspond au membre en cours d'édition
@@ -684,7 +684,7 @@ const Panel: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   {!editingMember && (
                     <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium mb-2">Sélectionner un membre de la direction *</label>
+                      <label className="block text-sm font-medium mb-2">Sélectionner un membre de la direction ou un RH *</label>
                       <Select
                         value={teamFormData.userId || undefined}
                         onValueChange={(value) => {
@@ -716,7 +716,7 @@ const Panel: React.FC = () => {
                       </Select>
                       {availableDirectionUsers.length === 0 && (
                         <p className="text-xs text-muted-foreground mt-2">
-                          Aucun utilisateur avec le grade "direction" disponible. Tous les membres de la direction sont déjà dans l'équipe.
+                          Aucun utilisateur avec le grade "direction" ou "rh" disponible. Tous les membres sont déjà dans l'équipe.
                         </p>
                       )}
                     </div>

@@ -306,7 +306,7 @@ const Panel: React.FC = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold">{isRH ? 'Dashboard RH' : 'Dashboard'}</h1>
+              <h1 className="text-2xl font-bold">Dashboard</h1>
             </div>
             <button
               onClick={() => {
@@ -1311,7 +1311,7 @@ const Panel: React.FC = () => {
 
           {/* Gestion des rendez-vous - Visible pour direction/dev/rh */}
           {(currentUser?.grade === 'direction' || currentUser?.grade === 'dev' || currentUser?.grade === 'rh') && (
-          <div className="glass-card mb-8 !p-0 overflow-hidden">
+          <div className="glass-card mb-8 mt-8 !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <div>

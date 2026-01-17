@@ -10,13 +10,6 @@ const HeroSection: React.FC = () => {
     <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto w-full">
-        {/* Main Title */}
-        <div className="relative text-center md:text-left">
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-foreground leading-none">
-            LS Custom's
-          </h1>
-        </div>
-
         {/* CTA Buttons */}
         <div className="mt-12 flex flex-col sm:flex-row items-center gap-6">
           {/* Badge Recrutement ouvert/fermé */}

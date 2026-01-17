@@ -1584,6 +1584,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const getNotificationCount = (): number => {
+    // Pour les RH, ne compter que leurs propres rendez-vous en attente
+    if (currentUser?.grade === 'rh') {
+      const pendingAppointments = appointments.filter(
+        appointment => appointment.status === 'pending' && appointment.directionUserId === currentUser.id
+      ).length;
+      return pendingAppointments;
+    }
+
+    // Pour les autres grades (direction/dev), compter tout
     // Compter les candidatures en attente
     const pendingApplications = applications.filter(app => app.status === 'pending').length;
     // Compter les avis en attente

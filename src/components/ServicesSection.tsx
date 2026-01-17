@@ -34,14 +34,14 @@ const ServicesSection: React.FC = () => {
     <section className="py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-10 px-4 py-6 rounded-lg bg-white/70 dark:bg-black/30 backdrop-blur-sm">
+        <div className="text-center mb-10">
           <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4">
             Services
           </p>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance text-black dark:text-foreground">
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance">
             Expertise & Qualité
           </h2>
-          <p className="mt-4 text-lg text-black dark:text-muted-foreground max-w-2xl mx-auto font-medium">
+          <p className="mt-4 text-lg text-black dark:text-muted-foreground max-w-2xl mx-auto">
             Des prestations professionnelles pour tous vos besoins automobiles
           </p>
         </div>

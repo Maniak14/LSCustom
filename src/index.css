@@ -115,6 +115,16 @@
     font-variation-settings: 'opsz' 32;
   }
   
+  /* Hide scrollbars globally but keep functionality */
+  * {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+  
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     @apply font-semibold tracking-tight;

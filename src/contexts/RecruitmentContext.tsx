@@ -38,7 +38,7 @@ export interface User {
   telephone: string;
   prenom?: string;
   nom?: string;
-  grade: 'direction' | 'client' | 'dev' | 'rh';
+  grade: 'direction' | 'client' | 'dev' | 'rh' | 'employee';
   photoUrl?: string;
   createdAt: Date;
 }
@@ -107,13 +107,13 @@ interface RecruitmentContextType {
   // User management
   isUserLoggedIn: boolean;
   currentUser: User | null;
-  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client' | 'dev' | 'rh', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
+  registerUser: (idPersonnel: string, password: string, telephone: string, grade?: 'direction' | 'client' | 'dev' | 'rh' | 'employee', prenom?: string, nom?: string) => Promise<User | null | { error: 'id' | 'telephone' }>;
   loginUser: (idPersonnel: string, password: string) => Promise<boolean>;
   logoutUser: () => void;
   updateUser: (oldPassword: string, newPassword?: string, newTelephone?: string) => Promise<boolean>;
   // User management for admins
   users: User[];
-  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' | 'protected' }>;
+  updateUserByAdmin: (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh' | 'employee'; photoUrl?: string }) => Promise<boolean | { error: 'telephone' | 'protected' }>;
   updateUserPhoto: (userId: string, photoUrl: string) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   // Client reviews
@@ -795,9 +795,34 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const updateApplicationStatus = async (id: string, status: 'accepted' | 'rejected') => {
+    const application = applications.find(app => app.id === id);
+    
     setApplications(prev =>
       prev.map(app => (app.id === id ? { ...app, status } : app))
     );
+
+    // Si la candidature est acceptée, changer le grade de l'utilisateur de 'client' à 'employee'
+    if (status === 'accepted' && application) {
+      const userToUpdate = users.find(u => u.idPersonnel === application.idJoueur);
+      if (userToUpdate && userToUpdate.grade === 'client') {
+        // Mettre à jour le grade dans le state
+        setUsers(prev =>
+          prev.map(u => u.id === userToUpdate.id ? { ...u, grade: 'employee' } : u)
+        );
+
+        // Mettre à jour dans Supabase
+        if (isSupabaseConfigured()) {
+          try {
+            await supabase
+              .from('users')
+              .update({ grade: 'employee' })
+              .eq('id', userToUpdate.id);
+          } catch (error) {
+            console.error('Error updating user grade in Supabase:', error);
+          }
+        }
+      }
+    }
 
     if (isSupabaseConfigured()) {
       try {
@@ -964,7 +989,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management functions
-  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' | 'dev' | 'rh' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
+  const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' | 'dev' | 'rh' | 'employee' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
     // Vérifier si l'ID personnel existe déjà
     const existingUserById = users.find(u => u.idPersonnel === idPersonnel);
     if (existingUserById) {
@@ -1163,7 +1188,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // User management for admins
-  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh'; photoUrl?: string }): Promise<boolean | { error: 'telephone' | 'protected' }> => {
+  const updateUserByAdmin = async (userId: string, data: { prenom?: string; nom?: string; telephone?: string; grade?: 'direction' | 'client' | 'dev' | 'rh' | 'employee'; photoUrl?: string }): Promise<boolean | { error: 'telephone' | 'protected' }> => {
     const userToUpdate = users.find(u => u.id === userId);
     if (!userToUpdate) {
       return false;

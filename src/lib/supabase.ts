@@ -85,7 +85,7 @@ export interface UserRow {
   telephone: string;
   prenom?: string | null;
   nom?: string | null;
-  grade: 'direction' | 'client' | 'dev' | 'rh';
+  grade: 'direction' | 'client' | 'dev' | 'rh' | 'employee';
   photo_url?: string | null;
   created_at: string;
 }

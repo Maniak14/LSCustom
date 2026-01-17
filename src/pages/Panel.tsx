@@ -107,7 +107,7 @@ const Panel: React.FC = () => {
     prenom: string;
     nom: string;
     telephone: string;
-    grade: 'direction' | 'client' | 'dev' | 'rh';
+    grade: 'direction' | 'client' | 'dev' | 'rh' | 'employee';
   }>({
     prenom: '',
     nom: '',
@@ -1068,7 +1068,7 @@ const Panel: React.FC = () => {
                     <label className="block text-sm font-medium mb-2">Grade *</label>
                     <Select
                       value={userFormData.grade}
-                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' | 'dev' | 'rh' }))}
+                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' | 'dev' | 'rh' | 'employee' }))}
                       required
                     >
                       <SelectTrigger className="input-modern h-auto py-3.5">
@@ -1076,6 +1076,7 @@ const Panel: React.FC = () => {
                       </SelectTrigger>
                       <SelectContent className="scrollbar-hide">
                         <SelectItem value="client">Client</SelectItem>
+                        <SelectItem value="employee">Employé</SelectItem>
                         <SelectItem value="direction">Direction</SelectItem>
                         {/* Protection : Seuls les "dev" peuvent attribuer le grade "dev" */}
                         {currentUser?.grade === 'dev' && (
@@ -1144,7 +1145,7 @@ const Panel: React.FC = () => {
                               ? 'bg-primary/20 text-primary'
                               : 'bg-muted text-muted-foreground'
                           }`}>
-                            {user.grade === 'direction' ? 'Direction' : user.grade === 'dev' ? 'Dev' : user.grade === 'rh' ? 'RH' : 'Client'}
+                            {user.grade === 'direction' ? 'Direction' : user.grade === 'dev' ? 'Dev' : user.grade === 'rh' ? 'RH' : user.grade === 'employee' ? 'Employé' : 'Client'}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground mb-1">ID: {user.idPersonnel}</p>

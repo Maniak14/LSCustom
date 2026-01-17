@@ -28,6 +28,9 @@ jobs:
       - name: Build
         env:
           GITHUB_PAGES: 'true'
+          # Si vous utilisez un custom domain, définissez VITE_USE_CUSTOM_DOMAIN='true'
+          # Sinon, utilisez le base path du repository
+          VITE_USE_CUSTOM_DOMAIN: 'true'
           VITE_BASE_PATH: '/${{ github.event.repository.name }}/'
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

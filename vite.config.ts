@@ -23,9 +23,13 @@ const copy404Plugin = () => {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: process.env.GITHUB_PAGES === 'true' 
-    ? (process.env.VITE_BASE_PATH || '/LSCustom/')
-    : '/',
+  // Si VITE_USE_CUSTOM_DOMAIN est défini, utiliser '/' (pour custom domain)
+  // Sinon, utiliser le base path configuré ou '/LSCustom/' pour GitHub Pages
+  base: process.env.VITE_USE_CUSTOM_DOMAIN === 'true'
+    ? '/'
+    : (process.env.GITHUB_PAGES === 'true' 
+      ? (process.env.VITE_BASE_PATH || '/LSCustom/')
+      : '/'),
   server: {
     host: "::",
     port: 8080,

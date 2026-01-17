@@ -20,7 +20,7 @@ const Index: React.FC = () => {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           backgroundColor: 'transparent',
-          opacity: 0.3,
+          opacity: 0.5,
         }}
       />
       

@@ -14,13 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 const Panel: React.FC = () => {
   const navigate = useNavigate();
@@ -644,10 +637,10 @@ const Panel: React.FC = () => {
                   {!editingMember && (
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium mb-2">Sélectionner un membre de la direction *</label>
-                      <Select
+                      <select
                         value={teamFormData.userId}
-                        onValueChange={(value) => {
-                          const selectedUser = users.find(u => u.id === value);
+                        onChange={(e) => {
+                          const selectedUser = users.find(u => u.id === e.target.value);
                           if (selectedUser) {
                             setTeamFormData({
                               ...teamFormData,
@@ -658,21 +651,18 @@ const Panel: React.FC = () => {
                             });
                           }
                         }}
+                        className="input-modern"
                         required={!editingMember}
                       >
-                        <SelectTrigger className="input-modern">
-                          <SelectValue placeholder="-- Sélectionner un utilisateur --" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableDirectionUsers.map(user => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.prenom && user.nom
-                                ? `${user.prenom} ${user.nom} (${user.idPersonnel})`
-                                : user.prenom || user.nom || user.idPersonnel}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <option value="">-- Sélectionner un utilisateur --</option>
+                        {availableDirectionUsers.map(user => (
+                          <option key={user.id} value={user.id}>
+                            {user.prenom && user.nom
+                              ? `${user.prenom} ${user.nom} (${user.idPersonnel})`
+                              : user.prenom || user.nom || user.idPersonnel}
+                          </option>
+                        ))}
+                      </select>
                       {availableDirectionUsers.length === 0 && (
                         <p className="text-xs text-muted-foreground mt-2">
                           Aucun utilisateur avec le grade "direction" disponible. Tous les membres de la direction sont déjà dans l'équipe.
@@ -1021,19 +1011,15 @@ const Panel: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Grade *</label>
-                    <Select
+                    <select
                       value={userFormData.grade}
-                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' }))}
+                      onChange={(e) => setUserFormData(prev => ({ ...prev, grade: e.target.value as 'direction' | 'client' }))}
+                      className="input-modern"
                       required
                     >
-                      <SelectTrigger className="input-modern">
-                        <SelectValue placeholder="Sélectionner un grade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="client">Client</SelectItem>
-                        <SelectItem value="direction">Direction</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="client">Client</option>
+                      <option value="direction">Direction</option>
+                    </select>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -1563,7 +1549,7 @@ const Panel: React.FC = () => {
                       <Building2 className="w-12 h-12 text-muted-foreground mb-3" />
                     )}
                     <p className="text-sm font-medium text-center mb-3">{partenaire.nom}</p>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1 w-full justify-center">
                       <button
                         onClick={() => {
                           setEditingPartenaire(partenaire);
@@ -1573,20 +1559,20 @@ const Panel: React.FC = () => {
                           });
                           setShowPartenaireForm(true);
                         }}
-                        className="flex items-center gap-0.5 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        className="flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors whitespace-nowrap flex-shrink"
                       >
-                        <Edit className="w-2.5 h-2.5" />
-                        Modifier
+                        <Edit className="w-3 h-3 flex-shrink-0" />
+                        <span className="hidden sm:inline">Modifier</span>
                       </button>
                       <button
                         onClick={() => {
                           setPartenaireToDelete(partenaire);
                           setShowDeletePartenaireDialog(true);
                         }}
-                        className="flex items-center gap-0.5 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                        className="flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap flex-shrink"
                       >
-                        <Trash2 className="w-2.5 h-2.5" />
-                        Supprimer
+                        <Trash2 className="w-3 h-3 flex-shrink-0" />
+                        <span className="hidden sm:inline">Supprimer</span>
                       </button>
                     </div>
                   </div>

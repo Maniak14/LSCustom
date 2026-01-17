@@ -28,7 +28,6 @@ const pricingCategories = [
   {
     icon: Gauge,
     title: 'Performance',
-    featured: true,
     services: [
       { name: 'Moteur Niv.1', price: '5 000$' },
       { name: 'Moteur Niv.2', price: '10 000$' },
@@ -62,7 +61,6 @@ const pricingCategories = [
   {
     icon: Shield,
     title: 'Forfaits',
-    featured: true,
     services: [
       { name: 'Pack Entretien', price: '2 500$' },
       { name: 'Pack Sport', price: '25 000$' },
@@ -101,16 +99,8 @@ const Tarifs: React.FC = () => {
             {pricingCategories.map((category, index) => (
               <div
                 key={category.title}
-                className={`pricing-card ${category.featured ? 'ring-2 ring-primary/20' : ''}`}
-                style={{ animationDelay: `${index * 0.05}s` }}
+                className="pricing-card"
               >
-                {category.featured && (
-                  <div className="absolute top-4 right-4">
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                      Populaire
-                    </span>
-                  </div>
-                )}
                 
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6">

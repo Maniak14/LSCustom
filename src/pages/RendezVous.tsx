@@ -26,6 +26,7 @@ const RendezVous: React.FC = () => {
     addAppointment,
     hasPendingAppointment,
     users,
+    teamMembers,
   } = useRecruitment();
 
   const [formData, setFormData] = useState({
@@ -269,14 +270,22 @@ const RendezVous: React.FC = () => {
                       <SelectValue placeholder="Sélectionner un membre de la direction" />
                     </SelectTrigger>
                     <SelectContent className="scrollbar-hide">
-                      {directionUsers.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.prenom && user.nom
-                            ? `${user.prenom} ${user.nom}`
-                            : user.idPersonnel}
-                          {user.telephone && ` - ${user.telephone}`}
-                        </SelectItem>
-                      ))}
+                      {directionUsers.map(user => {
+                        // Trouver le membre correspondant dans teamMembers par userId ou par nom/prénom
+                        const teamMember = teamMembers.find(
+                          member => member.userId === user.id || 
+                          (member.prenom === user.prenom && member.nom === user.nom)
+                        );
+                        const role = teamMember?.role || '';
+                        return (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.prenom && user.nom
+                              ? `${user.prenom} ${user.nom}`
+                              : user.idPersonnel}
+                            {role && ` - ${role}`}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>

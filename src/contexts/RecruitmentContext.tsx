@@ -132,6 +132,8 @@ interface RecruitmentContextType {
   addPartenaire: (partenaire: Omit<Partenaire, 'id' | 'createdAt'>) => Promise<void>;
   updatePartenaire: (id: string, partenaire: { nom?: string; logoUrl?: string }) => Promise<void>;
   deletePartenaire: (id: string) => Promise<void>;
+  // Notifications
+  getNotificationCount: () => number;
 }
 
 const RecruitmentContext = createContext<RecruitmentContextType | undefined>(undefined);
@@ -1410,6 +1412,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     );
   };
 
+  const getNotificationCount = (): number => {
+    // Compter les avis en attente
+    const pendingReviews = clientReviews.filter(review => review.status === 'pending').length;
+    // Compter les rendez-vous en attente
+    const pendingAppointments = appointments.filter(appointment => appointment.status === 'pending').length;
+    // Retourner le total (max 9, puis afficher "+9")
+    return pendingReviews + pendingAppointments;
+  };
+
   const addPartenaire = async (partenaire: Omit<Partenaire, 'id' | 'createdAt'>) => {
     const newPartenaire: Partenaire = {
       ...partenaire,
@@ -1539,6 +1550,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         addPartenaire,
         updatePartenaire,
         deletePartenaire,
+        getNotificationCount,
       }}
     >
       {children}

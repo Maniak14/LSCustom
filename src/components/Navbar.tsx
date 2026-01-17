@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
-  const { isUserLoggedIn, currentUser } = useRecruitment();
+  const { isUserLoggedIn, currentUser, getNotificationCount } = useRecruitment();
 
   const navLinks = [
     { href: '/', label: 'QUI SOMMES-NOUS' },
@@ -72,9 +72,20 @@ const Navbar: React.FC = () => {
             {isUserLoggedIn && currentUser?.grade === 'direction' && (
               <Link
                 to="/panel"
-                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
+                className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
               >
                 DASHBOARD
+                {(() => {
+                  const count = getNotificationCount();
+                  if (count > 0) {
+                    return (
+                      <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full text-xs font-bold bg-primary text-primary-foreground">
+                        {count > 9 ? '9+' : count}
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
               </Link>
             )}
 
@@ -148,9 +159,20 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/panel"
                     onClick={() => setIsOpen(false)}
-                    className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
+                    className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
                   >
                     DASHBOARD
+                    {(() => {
+                      const count = getNotificationCount();
+                      if (count > 0) {
+                        return (
+                          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full text-xs font-bold bg-primary text-primary-foreground">
+                            {count > 9 ? '9+' : count}
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
                   </Link>
                 )}
                 {isUserLoggedIn ? (

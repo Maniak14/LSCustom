@@ -7,11 +7,11 @@ const LocalisationSection: React.FC = () => {
     <section className="pt-0 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 px-4 py-6 rounded-lg bg-white/70 dark:bg-black/30 backdrop-blur-sm">
           <p className="text-sm font-medium text-primary uppercase tracking-widest mb-4">
             LOCALISATION
           </p>
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance">
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance text-black dark:text-foreground">
             Nous trouver
           </h2>
         </div>

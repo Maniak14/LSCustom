@@ -41,7 +41,7 @@ const ServicesSection: React.FC = () => {
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-balance">
             Expertise & Qualité
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-black dark:text-muted-foreground max-w-2xl mx-auto">
             Des prestations professionnelles pour tous vos besoins automobiles
           </p>
         </div>

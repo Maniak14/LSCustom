@@ -22,49 +22,49 @@ const pricingCategories = [
       { name: 'Pneus', price: '250$ par pneu' },
     ],
   },
-  {
-    icon: Paintbrush,
-    title: 'Peinture',
-    services: [
-      { name: 'Couleur classique', price: 'Selon véhicule' },
-      { name: 'Métallisée', price: 'Selon véhicule' },
-      { name: 'Nacrée', price: 'Selon véhicule' },
-      { name: 'Mate', price: 'Selon véhicule' },
-      { name: 'Vinyles', price: 'Selon véhicule' },
-    ],
-  },
-  {
-    icon: Gauge,
-    title: 'Performance',
-    services: [
-      { name: 'Moteur Niv.1', price: 'Selon véhicule' },
-      { name: 'Moteur Niv.2', price: 'Selon véhicule' },
-      { name: 'Moteur Niv.3', price: 'Selon véhicule' },
-      { name: 'Turbo', price: 'Selon véhicule' },
-      { name: 'Freins sport', price: 'Selon véhicule' },
-      { name: 'Transmission', price: 'Selon véhicule' },
-    ],
-  },
-  {
-    icon: Car,
-    title: 'Esthétique',
-    services: [
-      { name: 'Jantes standard', price: 'Selon véhicule' },
-      { name: 'Jantes sport', price: 'Selon véhicule' },
-      { name: 'Kit carrosserie', price: 'Selon véhicule' },
-      { name: 'Spoiler', price: 'Selon véhicule' },
-      { name: 'Vitres teintées', price: 'Selon véhicule' },
-    ],
-  },
-  {
-    icon: Sparkles,
-    title: 'Options',
-    services: [
-      { name: 'Néons', price: 'Selon véhicule' },
-      { name: 'Klaxon custom', price: 'Selon véhicule' },
-      { name: 'Intérieur cuir', price: 'Selon véhicule' },
-    ],
-  },
+  // {
+  //   icon: Paintbrush,
+  //   title: 'Peinture',
+  //   services: [
+  //     { name: 'Couleur classique', price: 'Selon véhicule' },
+  //     { name: 'Métallisée', price: 'Selon véhicule' },
+  //     { name: 'Nacrée', price: 'Selon véhicule' },
+  //     { name: 'Mate', price: 'Selon véhicule' },
+  //     { name: 'Vinyles', price: 'Selon véhicule' },
+  //   ],
+  // },
+  // {
+  //   icon: Gauge,
+  //   title: 'Performance',
+  //   services: [
+  //     { name: 'Moteur Niv.1', price: 'Selon véhicule' },
+  //     { name: 'Moteur Niv.2', price: 'Selon véhicule' },
+  //     { name: 'Moteur Niv.3', price: 'Selon véhicule' },
+  //     { name: 'Turbo', price: 'Selon véhicule' },
+  //     { name: 'Freins sport', price: 'Selon véhicule' },
+  //     { name: 'Transmission', price: 'Selon véhicule' },
+  //   ],
+  // },
+  // {
+  //   icon: Car,
+  //   title: 'Esthétique',
+  //   services: [
+  //     { name: 'Jantes standard', price: 'Selon véhicule' },
+  //     { name: 'Jantes sport', price: 'Selon véhicule' },
+  //     { name: 'Kit carrosserie', price: 'Selon véhicule' },
+  //     { name: 'Spoiler', price: 'Selon véhicule' },
+  //     { name: 'Vitres teintées', price: 'Selon véhicule' },
+  //   ],
+  // },
+  // {
+  //   icon: Sparkles,
+  //   title: 'Options',
+  //   services: [
+  //     { name: 'Néons', price: 'Selon véhicule' },
+  //     { name: 'Klaxon custom', price: 'Selon véhicule' },
+  //     { name: 'Intérieur cuir', price: 'Selon véhicule' },
+  //   ],
+  // },
 ];
 
 const Tarifs: React.FC = () => {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, ApplicationRow, SessionRow, TeamMemberRow, ClientReviewRow, AppointmentRow, UserRow, PartenaireRow } from '@/lib/supabase';
+import bcrypt from 'bcryptjs';
 
 export interface Application {
   id: string;
@@ -860,6 +861,26 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     setIsEmployeeLoggedIn(false);
   };
 
+  // Fonctions utilitaires pour le hachage des mots de passe
+  const hashPassword = async (password: string): Promise<string> => {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+  };
+
+  const comparePassword = async (plainPassword: string, hashedPassword: string): Promise<boolean> => {
+    // Détecter si le mot de passe est déjà hashé (les hash bcrypt commencent par $2a$, $2b$, $2y$)
+    const isHashed = hashedPassword.startsWith('$2a$') || hashedPassword.startsWith('$2b$') || hashedPassword.startsWith('$2y$');
+    
+    if (isHashed) {
+      // Comparer avec le hash
+      return bcrypt.compare(plainPassword, hashedPassword);
+    } else {
+      // Migration automatique : si le mot de passe en DB est en clair, comparer en clair
+      // mais retourner true uniquement si les mots de passe correspondent
+      return plainPassword === hashedPassword;
+    }
+  };
+
   // User management functions
   const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' | 'dev' | 'rh' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
     // Vérifier si l'ID personnel existe déjà
@@ -874,10 +895,13 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       return { error: 'telephone' }; // Téléphone déjà utilisé
     }
 
+    // Hasher le mot de passe avant de le stocker
+    const hashedPassword = await hashPassword(password);
+
     const newUser: User = {
       id: crypto.randomUUID(),
       idPersonnel,
-      password, // En production, hash le mot de passe
+      password: hashedPassword,
       telephone,
       prenom,
       nom,
@@ -951,14 +975,49 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const loginUser = async (idPersonnel: string, password: string): Promise<boolean> => {
-    const user = users.find(u => u.idPersonnel === idPersonnel && u.password === password);
-    if (user) {
-      setCurrentUser(user);
+    const user = users.find(u => u.idPersonnel === idPersonnel);
+    if (!user) {
+      return false;
+    }
+
+    // Comparer le mot de passe (gère automatiquement les anciens mots de passe en clair)
+    const passwordMatch = await comparePassword(password, user.password);
+    if (!passwordMatch) {
+      return false;
+    }
+
+    // Migration automatique : si le mot de passe était en clair, le hasher et mettre à jour
+    const isHashed = user.password.startsWith('$2a$') || user.password.startsWith('$2b$') || user.password.startsWith('$2y$');
+    if (!isHashed) {
+      const hashedPassword = await hashPassword(password);
+      const updatedUser: User = {
+        ...user,
+        password: hashedPassword,
+      };
+      setUsers(prev => prev.map(u => u.id === user.id ? updatedUser : u));
+      
+      // Mettre à jour dans Supabase si configuré
+      if (isSupabaseConfigured()) {
+        try {
+          await supabase
+            .from('users')
+            .update({ password: hashedPassword })
+            .eq('id', user.id);
+        } catch (error) {
+          console.error('Error updating password hash in Supabase:', error);
+        }
+      }
+
+      setCurrentUser(updatedUser);
       setIsUserLoggedIn(true);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(updatedUser));
       return true;
     }
-    return false;
+
+    setCurrentUser(user);
+    setIsUserLoggedIn(true);
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+    return true;
   };
 
   const logoutUser = () => {
@@ -973,14 +1032,18 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
 
     // Vérifier que l'ancien mot de passe est correct
-    if (currentUser.password !== oldPassword) {
+    const passwordMatch = await comparePassword(oldPassword, currentUser.password);
+    if (!passwordMatch) {
       return false;
     }
+
+    // Hasher le nouveau mot de passe s'il est fourni
+    const passwordToStore = newPassword ? await hashPassword(newPassword) : currentUser.password;
 
     // Mettre à jour l'utilisateur
     const updatedUser: User = {
       ...currentUser,
-      password: newPassword || currentUser.password,
+      password: passwordToStore,
       telephone: newTelephone || currentUser.telephone,
     };
 
@@ -999,7 +1062,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     if (isSupabaseConfigured()) {
       try {
         const updateData: any = {};
-        if (newPassword) updateData.password = newPassword;
+        if (newPassword) updateData.password = passwordToStore;
         if (newTelephone) updateData.telephone = newTelephone;
 
         await supabase

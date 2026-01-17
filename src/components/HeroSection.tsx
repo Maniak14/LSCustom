@@ -31,19 +31,19 @@ const HeroSection: React.FC = () => {
           {/* Bouton TARIFS avec flèche */}
           <Link
             to="/tarifs"
-            className="flex items-center gap-2 text-base font-medium text-white hover:text-white/80 transition-colors group"
+            className="flex items-center gap-2 text-base font-medium text-foreground hover:text-foreground/80 transition-colors group"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <span>TARIFS</span>
-            <div className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center transition-colors">
-              <ArrowUpRight className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-full bg-foreground/5 group-hover:bg-foreground/10 flex items-center justify-center transition-colors">
+              <ArrowUpRight className="w-4 h-4" />
             </div>
           </Link>
         </div>
 
         {/* Description de l'entreprise */}
         <div className="mt-10 max-w-2xl mx-auto text-center">
-            <p className="text-lg sm:text-xl text-white/90 leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
               Le garage de référence à Los Santos. Réparations, customisation et performances depuis 2023.
             </p>
         </div>

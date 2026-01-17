@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
- 
+
 const Panel: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();

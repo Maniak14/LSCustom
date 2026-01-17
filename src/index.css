@@ -237,13 +237,9 @@
   
   /* Pricing card */
   .pricing-card {
-    @apply relative rounded-3xl p-8 transition-all duration-500;
+    @apply relative rounded-3xl p-8;
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-  }
-  
-  .pricing-card:hover {
-    box-shadow: 0 32px 64px -16px hsl(0 0% 0% / 0.1);
   }
 }
 

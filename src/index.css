@@ -225,8 +225,10 @@
   /* Service card */
   .service-card {
     @apply relative rounded-2xl p-8 transition-all duration-500;
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background) / 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid hsl(var(--border) / 0.3);
   }
   
   .service-card:hover {

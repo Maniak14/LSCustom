@@ -1,19 +1,25 @@
 import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Wrench, Paintbrush, Gauge, Car, Sparkles } from 'lucide-react';
+import { Wrench, Paintbrush, Gauge, Car, Sparkles, Building2 } from 'lucide-react';
 
 const pricingCategories = [
   {
-    icon: Wrench,
-    title: 'Réparations',
+    icon: Building2,
+    title: 'Au garage',
     services: [
-      { name: 'Réparation complète (Garage)', price: '600$' },
-      { name: 'Réparation moteur (Garage)', price: '350$' },
-      { name: 'Pneus (Garage)', price: '150$ par pneu' },
-      { name: 'Réparation complète (Déplacement)', price: '700$' },
-      { name: 'Réparation moteur (Déplacement)', price: '450$' },
-      { name: 'Pneus (Déplacement)', price: '250$ par pneu' },
+      { name: 'Réparation complète', price: '600$' },
+      { name: 'Réparation moteur', price: '350$' },
+      { name: 'Pneus', price: '150$ par pneu' },
+    ],
+  },
+  {
+    icon: Wrench,
+    title: 'Dépannege',
+    services: [
+      { name: 'Réparation complète', price: '700$' },
+      { name: 'Réparation moteur', price: '450$' },
+      { name: 'Pneus', price: '250$ par pneu' },
     ],
   },
   {

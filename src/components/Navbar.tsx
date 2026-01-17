@@ -44,8 +44,8 @@ const Navbar: React.FC = () => {
                 to={link.href}
                 className={`text-sm font-medium transition-colors ${
                   isActive(link.href)
-                    ? 'text-foreground'
-                    : 'text-foreground/80 hover:text-foreground'
+                    ? 'text-black dark:text-foreground'
+                    : 'text-black dark:text-foreground/80 hover:text-black dark:hover:text-foreground'
                 }`}
               >
                 {link.label}
@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
             {isUserLoggedIn && currentUser?.grade === 'direction' && (
               <Link
                 to="/panel"
-                className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
+                className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-black dark:text-foreground transition-colors"
               >
                 DASHBOARD
                 {(() => {
@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
             {isUserLoggedIn ? (
               <Link
                 to="/profil"
-                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors flex items-center gap-2"
+                className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 hover:bg-foreground/10 text-black dark:text-foreground transition-colors flex items-center gap-2"
               >
                 <User className="w-4 h-4" />
                 <span className="hidden md:inline">
@@ -136,8 +136,8 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsOpen(false)}
                   className={`px-4 py-3 text-sm font-medium transition-colors ${
                     isActive(link.href)
-                      ? 'text-foreground'
-                      : 'text-foreground/80 hover:text-foreground'
+                      ? 'text-black dark:text-foreground'
+                      : 'text-black dark:text-foreground/80 hover:text-black dark:hover:text-foreground'
                   }`}
                 >
                   {link.label}
@@ -159,7 +159,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/panel"
                     onClick={() => setIsOpen(false)}
-                    className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground"
+                    className="relative px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-black dark:text-foreground"
                   >
                     DASHBOARD
                     {(() => {
@@ -179,7 +179,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/profil"
                     onClick={() => setIsOpen(false)}
-                    className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-foreground flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-lg text-sm font-medium bg-foreground/5 text-black dark:text-foreground flex items-center gap-2"
                   >
                     <User className="w-4 h-4" />
                     {currentUser?.idPersonnel || 'Profil'}

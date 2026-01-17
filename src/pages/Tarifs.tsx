@@ -62,7 +62,6 @@ const pricingCategories = [
     services: [
       { name: 'Néons', price: 'Selon véhicule' },
       { name: 'Klaxon custom', price: 'Selon véhicule' },
-      { name: 'Plaque perso', price: 'Selon véhicule' },
       { name: 'Intérieur cuir', price: 'Selon véhicule' },
     ],
   },

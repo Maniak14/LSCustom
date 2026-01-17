@@ -240,9 +240,12 @@ const Panel: React.FC = () => {
     setPassword('');
   };
 
-  // Vérifier si l'utilisateur connecté a le grade "direction" ou "dev"
-  const hasDirectionAccess = isUserLoggedIn && (currentUser?.grade === 'direction' || currentUser?.grade === 'dev');
+  // Vérifier si l'utilisateur connecté a le grade "direction", "dev" ou "rh"
+  const hasDirectionAccess = isUserLoggedIn && (currentUser?.grade === 'direction' || currentUser?.grade === 'dev' || currentUser?.grade === 'rh');
   const canAccessPanel = isEmployeeLoggedIn || hasDirectionAccess;
+  
+  // Vérifier si l'utilisateur est uniquement RH (accès limité)
+  const isRH = isUserLoggedIn && currentUser?.grade === 'rh';
 
   if (!canAccessPanel) {
     return (
@@ -334,9 +337,39 @@ const Panel: React.FC = () => {
             </div>
           </div>
 
-          {/* Recruitment Toggle */}
-          <div className="glass-card mb-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Recruitment Toggle - Masqué pour RH */}
+          {!isRH && (
+            <div className="glass-card mb-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 className="font-semibold mb-1">État du recrutement</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isRecruitmentOpen ? 'Ouvert aux candidatures' : 'Fermé temporairement'}
+                  </p>
+                  {currentSession && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Session active : {currentSession.name}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={async () => await handleSetRecruitmentOpen(!isRecruitmentOpen)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                    isRecruitmentOpen
+                      ? 'dark:bg-[#4CAF50] dark:hover:bg-[#45a049] dark:text-white bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
+                      : 'dark:bg-[#D32F2F] dark:hover:bg-[#C62828] dark:text-white bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
+                  }`}
+                >
+                  <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : 'fill-current'}`} />
+                  {isRecruitmentOpen ? 'Ouvert' : 'Fermé'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* État du recrutement - Version lecture seule pour RH */}
+          {isRH && (
+            <div className="glass-card mb-8">
               <div>
                 <h2 className="font-semibold mb-1">État du recrutement</h2>
                 <p className="text-sm text-muted-foreground">
@@ -348,19 +381,8 @@ const Panel: React.FC = () => {
                   </p>
                 )}
               </div>
-              <button
-                onClick={async () => await handleSetRecruitmentOpen(!isRecruitmentOpen)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                  isRecruitmentOpen
-                    ? 'dark:bg-[#4CAF50] dark:hover:bg-[#45a049] dark:text-white bg-[#90EE90] hover:bg-[#7ED87E] text-foreground'
-                    : 'dark:bg-[#D32F2F] dark:hover:bg-[#C62828] dark:text-white bg-[#FFB3B3] hover:bg-[#FF9999] text-foreground'
-                }`}
-              >
-                <Circle className={`w-2 h-2 ${isRecruitmentOpen ? 'fill-current' : 'fill-current'}`} />
-                {isRecruitmentOpen ? 'Ouvert' : 'Fermé'}
-              </button>
             </div>
-          </div>
+          )}
 
           {/* Sessions Management */}
           <div className="glass-card mb-8">
@@ -368,16 +390,18 @@ const Panel: React.FC = () => {
               <div>
                 <h2 className="font-semibold mb-1">Sessions de recrutement</h2>
                 <p className="text-sm text-muted-foreground">
-                  Gérez les sessions de recrutement
+                  {isRH ? 'Sessions de recrutement' : 'Gérez les sessions de recrutement'}
                 </p>
               </div>
-              <button
-                onClick={() => setShowNewSessionForm(!showNewSessionForm)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Nouvelle session
-              </button>
+              {!isRH && (
+                <button
+                  onClick={() => setShowNewSessionForm(!showNewSessionForm)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Nouvelle session
+                </button>
+              )}
             </div>
 
             {/* Formulaire nouvelle session */}
@@ -450,17 +474,19 @@ const Panel: React.FC = () => {
                         >
                           {session.name} ({sessionApps.length})
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSessionToDelete(session.id);
-                            setShowDeleteSessionDialog(true);
-                          }}
-                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity text-[10px]"
-                          title="Supprimer la session"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
+                        {!isRH && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSessionToDelete(session.id);
+                              setShowDeleteSessionDialog(true);
+                            }}
+                            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive transition-opacity text-[10px]"
+                            title="Supprimer la session"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -566,16 +592,18 @@ const Panel: React.FC = () => {
                             </button>
                           </>
                         )}
-                        <button
-                          onClick={() => {
-                            setAppToDelete(app);
-                            setShowDeleteAppDialog(true);
-                          }}
-                          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
-                          title="Supprimer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {!isRH && (
+                          <button
+                            onClick={() => {
+                              setAppToDelete(app);
+                              setShowDeleteAppDialog(true);
+                            }}
+                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -613,7 +641,8 @@ const Panel: React.FC = () => {
             )}
           </div>
 
-          {/* Team Management */}
+          {/* Team Management - Masqué pour RH */}
+          {!isRH && (
           <div className="glass-card mb-8 mt-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
               <div>
@@ -926,8 +955,10 @@ const Panel: React.FC = () => {
               </div>
             )}
           </div>
+          )}
 
-          {/* User Management */}
+          {/* User Management - Masqué pour RH */}
+          {!isRH && (
           <div className="glass-card !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -1024,7 +1055,7 @@ const Panel: React.FC = () => {
                     <label className="block text-sm font-medium mb-2">Grade *</label>
                     <Select
                       value={userFormData.grade}
-                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' | 'dev' }))}
+                      onValueChange={(value) => setUserFormData(prev => ({ ...prev, grade: value as 'direction' | 'client' | 'dev' | 'rh' }))}
                       required
                     >
                       <SelectTrigger className="input-modern h-auto py-3.5">
@@ -1034,6 +1065,7 @@ const Panel: React.FC = () => {
                         <SelectItem value="client">Client</SelectItem>
                         <SelectItem value="direction">Direction</SelectItem>
                         <SelectItem value="dev">Dev</SelectItem>
+                        <SelectItem value="rh">RH</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1090,11 +1122,11 @@ const Panel: React.FC = () => {
                               : user.prenom || user.nom || user.idPersonnel}
                           </p>
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            user.grade === 'direction' || user.grade === 'dev'
+                            user.grade === 'direction' || user.grade === 'dev' || user.grade === 'rh'
                               ? 'bg-primary/20 text-primary'
                               : 'bg-muted text-muted-foreground'
                           }`}>
-                            {user.grade === 'direction' ? 'Direction' : user.grade === 'dev' ? 'Dev' : 'Client'}
+                            {user.grade === 'direction' ? 'Direction' : user.grade === 'dev' ? 'Dev' : user.grade === 'rh' ? 'RH' : 'Client'}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground mb-1">ID: {user.idPersonnel}</p>
@@ -1163,8 +1195,10 @@ const Panel: React.FC = () => {
               </>
             )}
           </div>
+          )}
 
-          {/* Gestion des avis clients */}
+          {/* Gestion des avis clients - Masqué pour RH */}
+          {!isRH && (
           <div className="glass-card mb-8 mt-12">
             <div className="flex items-center gap-2 mb-4">
               <Star className="w-5 h-5 text-primary" />
@@ -1249,8 +1283,10 @@ const Panel: React.FC = () => {
               </div>
             )}
           </div>
+          )}
 
-          {/* Gestion des rendez-vous */}
+          {/* Gestion des rendez-vous - Masqué pour RH */}
+          {!isRH && (
           <div className="glass-card mb-8 !p-0 overflow-hidden">
             <div className="p-4 border-b border-border">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -1436,8 +1472,10 @@ const Panel: React.FC = () => {
               </>
             )}
           </div>
+          )}
 
-          {/* Gestion des partenaires */}
+          {/* Gestion des partenaires - Masqué pour RH */}
+          {!isRH && (
           <div className="glass-card mb-8 mt-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
               <div>
@@ -1596,6 +1634,7 @@ const Panel: React.FC = () => {
               </div>
             )}
           </div>
+          )}
 
           {/* Modal de confirmation de suppression de rendez-vous */}
           <Dialog open={showDeleteAppointmentDialog} onOpenChange={setShowDeleteAppointmentDialog}>

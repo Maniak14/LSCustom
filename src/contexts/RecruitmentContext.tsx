@@ -688,17 +688,27 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const deleteSession = async (sessionId: string) => {
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
-        if (error) throw error;
+        const { error } = await supabase
+          .from('sessions')
+          .delete()
+          .eq('id', sessionId);
+        
+        if (error) {
+          console.error('Error deleting session from Supabase:', error);
+          throw error;
+        }
+        
+        // Mettre à jour le state local seulement si la suppression a réussi dans Supabase
         setSessions(prev => prev.filter(session => session.id !== sessionId));
         saveToLocalStorage();
       } catch (error) {
         console.error('Error deleting session from Supabase:', error);
-        // Supprimer quand même localement en cas d'erreur
-        setSessions(prev => prev.filter(session => session.id !== sessionId));
-        saveToLocalStorage();
+        // Ne pas supprimer localement si la suppression dans Supabase a échoué
+        // Cela garantit que la session reste dans l'état jusqu'à ce que la suppression réussisse
+        throw error; // Re-lancer l'erreur pour que l'appelant sache que la suppression a échoué
       }
     } else {
+      // Si Supabase n'est pas configuré, supprimer seulement localement
       setSessions(prev => prev.filter(session => session.id !== sessionId));
       saveToLocalStorage();
     }

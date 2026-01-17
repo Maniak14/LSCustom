@@ -102,7 +102,6 @@ const Tarifs: React.FC = () => {
               <div
                 key={category.title}
                 className={`pricing-card ${category.featured ? 'ring-2 ring-primary/20' : ''}`}
-                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 {category.featured && (
                   <div className="absolute top-4 right-4">

@@ -31,7 +31,7 @@ const HeroSection: React.FC = () => {
           {/* Bouton TARIFS avec flèche */}
           <Link
             to="/tarifs"
-            className="flex items-center gap-2 text-base font-medium text-foreground hover:text-foreground/80 transition-colors group"
+            className="flex items-center gap-2 text-base font-medium text-black dark:text-foreground hover:text-black/80 dark:hover:text-foreground/80 transition-colors group"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             <span>TARIFS</span>

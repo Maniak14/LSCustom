@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 const RendezVous: React.FC = () => {
@@ -117,7 +117,10 @@ const RendezVous: React.FC = () => {
 
   const formatDateTimeDisplay = () => {
     if (selectedDate && selectedHour && selectedMinute) {
-      return new Date(`${selectedDate.toISOString().split('T')[0]}T${selectedHour}:${selectedMinute}`).toLocaleString('fr-FR', {
+      const date = new Date(selectedDate);
+      date.setHours(parseInt(selectedHour, 10));
+      date.setMinutes(parseInt(selectedMinute, 10));
+      return date.toLocaleString('fr-FR', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -125,7 +128,7 @@ const RendezVous: React.FC = () => {
         minute: '2-digit',
       });
     }
-    return 'Sélectionner une date et une heure';
+    return '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -285,17 +288,21 @@ const RendezVous: React.FC = () => {
                   </label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal input-modern h-auto py-3.5",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                        disabled={status === 'submitting'}
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {formatDateTimeDisplay()}
-                      </Button>
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          readOnly
+                          value={formatDateTimeDisplay()}
+                          placeholder="Sélectionner une date et une heure"
+                          className={cn(
+                            "input-modern cursor-pointer pr-10",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                          disabled={status === 'submitting'}
+                          onFocus={(e) => e.target.blur()}
+                        />
+                        <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      </div>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <div className="p-4">

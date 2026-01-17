@@ -143,6 +143,7 @@ const Panel: React.FC = () => {
   const [editingPartenaire, setEditingPartenaire] = useState<Partenaire | null>(null);
   const [showDeleteSessionDialog, setShowDeleteSessionDialog] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [deleteSessionError, setDeleteSessionError] = useState<string | null>(null);
 
   // Filtrer les candidatures selon la session sélectionnée
   const filteredApplications = selectedSessionId === null 
@@ -1680,12 +1681,21 @@ const Panel: React.FC = () => {
                     <span className="break-words">Cette action est irréversible et supprimera définitivement la session. Les candidatures associées ne seront pas supprimées.</span>
                   </p>
                 </div>
+                {deleteSessionError && (
+                  <div className="mt-4 p-3 sm:p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                    <p className="text-xs sm:text-sm text-destructive font-medium flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span className="break-words">{deleteSessionError}</span>
+                    </p>
+                  </div>
+                )}
               </DialogHeader>
               <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4 sm:mt-6">
                 <button
                   onClick={() => {
                     setShowDeleteSessionDialog(false);
                     setSessionToDelete(null);
+                    setDeleteSessionError(null);
                   }}
                   className="w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors order-2 sm:order-1"
                 >
@@ -1694,6 +1704,7 @@ const Panel: React.FC = () => {
                 <button
                   onClick={async () => {
                     if (sessionToDelete) {
+                      setDeleteSessionError(null);
                       try {
                         await deleteSession(sessionToDelete);
                         setShowDeleteSessionDialog(false);
@@ -1702,8 +1713,11 @@ const Panel: React.FC = () => {
                         if (selectedSessionId === sessionToDelete) {
                           setSelectedSessionId(null);
                         }
-                      } catch (error) {
+                      } catch (error: any) {
                         console.error('Erreur lors de la suppression de la session:', error);
+                        setDeleteSessionError(
+                          error?.message || 'Erreur lors de la suppression. Vérifiez que la politique DELETE est configurée dans Supabase.'
+                        );
                       }
                     }
                   }}

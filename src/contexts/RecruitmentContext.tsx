@@ -1423,12 +1423,14 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const getNotificationCount = (): number => {
+    // Compter les candidatures en attente
+    const pendingApplications = applications.filter(app => app.status === 'pending').length;
     // Compter les avis en attente
     const pendingReviews = clientReviews.filter(review => review.status === 'pending').length;
     // Compter les rendez-vous en attente
     const pendingAppointments = appointments.filter(appointment => appointment.status === 'pending').length;
-    // Retourner le total (max 9, puis afficher "+9")
-    return pendingReviews + pendingAppointments;
+    // Retourner le total (l'affichage "+9" est géré dans la Navbar)
+    return pendingApplications + pendingReviews + pendingAppointments;
   };
 
   const addPartenaire = async (partenaire: Omit<Partenaire, 'id' | 'createdAt'>) => {

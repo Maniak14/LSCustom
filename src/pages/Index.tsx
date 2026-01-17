@@ -13,7 +13,7 @@ const Index: React.FC = () => {
     <div className="min-h-screen flex flex-col relative">
       {/* Image de fond - opacité minimale en light mode, opacité en dark mode */}
       <div 
-        className="fixed inset-0 z-0 opacity-[0.95] dark:opacity-50"
+        className="fixed inset-0 z-0 opacity-[0.70] dark:opacity-50"
         style={{
           backgroundImage: 'url(/background.jpg)',
           backgroundSize: 'cover',

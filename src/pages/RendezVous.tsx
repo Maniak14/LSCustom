@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
-import { AlertCircle, CheckCircle, XCircle, ArrowLeft, Clock, Calendar, User, Phone, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertCircle, CheckCircle, XCircle, ArrowLeft, Clock, Calendar as CalendarIcon, User, Phone, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   Select,
@@ -283,7 +283,7 @@ const RendezVous: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                    <CalendarIcon className="w-4 h-4" />
                     Date et heure *
                   </label>
                   <Popover>
@@ -301,7 +301,7 @@ const RendezVous: React.FC = () => {
                           disabled={status === 'submitting'}
                           onFocus={(e) => e.target.blur()}
                         />
-                        <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                        <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                       </div>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -445,7 +445,7 @@ const RendezVous: React.FC = () => {
                             </div>
                           )}
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                            <Calendar className="w-3 h-3" />
+                            <CalendarIcon className="w-3 h-3" />
                             <span>
                               {new Date(appointment.dateTime).toLocaleDateString('fr-FR', {
                                 year: 'numeric',

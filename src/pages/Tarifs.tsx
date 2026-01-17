@@ -15,7 +15,7 @@ const pricingCategories = [
   },
   {
     icon: Wrench,
-    title: 'Dépannege',
+    title: 'Dépannage',
     services: [
       { name: 'Réparation complète', price: '700$' },
       { name: 'Réparation moteur', price: '450$' },

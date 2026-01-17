@@ -276,7 +276,8 @@ const RendezVous: React.FC = () => {
                           member => member.userId === user.id || 
                           (member.prenom === user.prenom && member.nom === user.nom)
                         );
-                        const role = teamMember?.role || '';
+                        // Si l'utilisateur est RH et n'est pas dans teamMembers, afficher automatiquement "RH"
+                        const role = teamMember?.role || (user.grade === 'rh' ? 'RH' : '');
                         return (
                           <SelectItem key={user.id} value={user.id}>
                             {user.prenom && user.nom

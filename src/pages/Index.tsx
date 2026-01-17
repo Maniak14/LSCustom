@@ -11,9 +11,9 @@ import Footer from '@/components/Footer';
 const Index: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Image de fond - pas d'opacité en light mode, opacité en dark mode */}
+      {/* Image de fond - opacité minimale en light mode, opacité en dark mode */}
       <div 
-        className="fixed inset-0 z-0 opacity-100 dark:opacity-50"
+        className="fixed inset-0 z-0 opacity-[0.95] dark:opacity-50"
         style={{
           backgroundImage: 'url(/background.jpg)',
           backgroundSize: 'cover',

@@ -1143,6 +1143,8 @@ const Panel: React.FC = () => {
                               ? 'bg-destructive/20 text-destructive'
                               : user.grade === 'direction' || user.grade === 'rh'
                               ? 'bg-primary/20 text-primary'
+                              : user.grade === 'employee'
+                              ? 'bg-success/20 text-success' // Vert pour l'employé
                               : 'bg-muted text-muted-foreground'
                           }`}>
                             {user.grade === 'direction' ? 'Direction' : user.grade === 'dev' ? 'Dev' : user.grade === 'rh' ? 'RH' : user.grade === 'employee' ? 'Employé' : 'Client'}

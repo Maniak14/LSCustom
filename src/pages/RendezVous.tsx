@@ -5,6 +5,13 @@ import Footer from '@/components/Footer';
 import { useRecruitment } from '@/contexts/RecruitmentContext';
 import { AlertCircle, CheckCircle, XCircle, ArrowLeft, Clock, Calendar, User, Phone, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const RendezVous: React.FC = () => {
   const navigate = useNavigate();
@@ -196,24 +203,32 @@ const RendezVous: React.FC = () => {
                     <User className="w-4 h-4" />
                     Membre de la direction *
                   </label>
-                  <select
-                    name="directionUserId"
-                    value={formData.directionUserId}
-                    onChange={handleChange}
-                    className="input-modern"
+                  <Select
+                    value={formData.directionUserId || undefined}
+                    onValueChange={(value) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        directionUserId: value,
+                      }));
+                      setErrorMessage('');
+                    }}
                     required
                     disabled={status === 'submitting'}
                   >
-                    <option value="">Sélectionner un membre de la direction</option>
-                    {directionUsers.map(user => (
-                      <option key={user.id} value={user.id}>
-                        {user.prenom && user.nom
-                          ? `${user.prenom} ${user.nom}`
-                          : user.idPersonnel}
-                        {user.telephone && ` - ${user.telephone}`}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="input-modern h-auto py-3.5">
+                      <SelectValue placeholder="Sélectionner un membre de la direction" />
+                    </SelectTrigger>
+                    <SelectContent className="scrollbar-hide">
+                      {directionUsers.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.prenom && user.nom
+                            ? `${user.prenom} ${user.nom}`
+                            : user.idPersonnel}
+                          {user.telephone && ` - ${user.telephone}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>

@@ -13,7 +13,7 @@ const Index: React.FC = () => {
     <div className="min-h-screen flex flex-col relative">
       {/* Image de fond avec opacité */}
       <div 
-        className="fixed inset-0 z-0 opacity-50"
+        className="fixed inset-0 z-0 opacity-70"
         style={{
           backgroundImage: 'url(/background.jpg)',
           backgroundSize: 'cover',
@@ -24,7 +24,7 @@ const Index: React.FC = () => {
       />
       
       {/* Contenu avec z-index pour être au-dessus */}
-      <div className="relative z-10 flex flex-col min-h-screen bg-background/80">
+      <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar />
         <div className="flex-1">
           <HeroSection />

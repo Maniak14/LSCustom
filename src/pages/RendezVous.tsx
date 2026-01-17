@@ -41,6 +41,33 @@ const RendezVous: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 10;
 
+  // Synchroniser la date et l'heure avec formData.dateTime
+  useEffect(() => {
+    if (selectedDate && selectedHour && selectedMinute) {
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const dateTimeString = `${year}-${month}-${day}T${selectedHour}:${selectedMinute}`;
+      setFormData(prev => ({
+        ...prev,
+        dateTime: dateTimeString,
+      }));
+    }
+  }, [selectedDate, selectedHour, selectedMinute]);
+
+  // Initialiser depuis formData.dateTime si existe (seulement au montage)
+  useEffect(() => {
+    if (formData.dateTime) {
+      const date = new Date(formData.dateTime);
+      if (!isNaN(date.getTime())) {
+        setSelectedDate(date);
+        setSelectedHour(String(date.getHours()).padStart(2, '0'));
+        setSelectedMinute(String(date.getMinutes()).padStart(2, '0'));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!isUserLoggedIn || !currentUser) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -79,32 +106,6 @@ const RendezVous: React.FC = () => {
   const paginatedAppointments = userAppointments.slice(startIndex, endIndex);
 
   const hasPending = hasPendingAppointment(currentUser.id);
-
-  // Synchroniser la date et l'heure avec formData.dateTime
-  useEffect(() => {
-    if (selectedDate && selectedHour && selectedMinute) {
-      const year = selectedDate.getFullYear();
-      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const day = String(selectedDate.getDate()).padStart(2, '0');
-      const dateTimeString = `${year}-${month}-${day}T${selectedHour}:${selectedMinute}`;
-      setFormData(prev => ({
-        ...prev,
-        dateTime: dateTimeString,
-      }));
-    }
-  }, [selectedDate, selectedHour, selectedMinute]);
-
-  // Initialiser depuis formData.dateTime si existe
-  useEffect(() => {
-    if (formData.dateTime) {
-      const date = new Date(formData.dateTime);
-      if (!isNaN(date.getTime())) {
-        setSelectedDate(date);
-        setSelectedHour(String(date.getHours()).padStart(2, '0'));
-        setSelectedMinute(String(date.getMinutes()).padStart(2, '0'));
-      }
-    }
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({

@@ -7,11 +7,11 @@ const HeroSection: React.FC = () => {
   const { isRecruitmentOpen } = useRecruitment();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 lg:px-8 overflow-hidden pt-20">
+    <section className="relative min-h-screen flex items-end justify-center px-4 lg:px-8 overflow-hidden pt-20 pb-32">
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto w-full">
         {/* CTA Buttons */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
           {/* Badge Recrutement ouvert/fermé */}
           {isRecruitmentOpen ? (
             <Link

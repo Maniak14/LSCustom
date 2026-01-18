@@ -261,7 +261,7 @@ const Candidature: React.FC = () => {
                 );
                 if (interviewWaitingApp) {
                   return (
-                    <div className="glass-card mb-8 animate-fade-up border-l-4 border-blue-500">
+                    <div className="glass-card mb-8 animate-fade-up border-l-2 border-r-2 border-blue-500">
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 pt-0.5">
                           <CheckCircle className="w-6 h-6 text-blue-500" />

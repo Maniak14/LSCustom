@@ -2168,10 +2168,6 @@ const Panel: React.FC = () => {
                     </button>
                   </>
                 ) : (
-                      Fermer
-                    </button>
-                  </>
-                ) : (
                   <button
                     onClick={() => {
                       setShowAppDetailDialog(false);

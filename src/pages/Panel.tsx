@@ -556,11 +556,14 @@ const Panel: React.FC = () => {
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                             app.status === 'pending'
                               ? 'bg-accent/20 text-accent'
+                              : app.status === 'interview_waiting'
+                              ? 'bg-blue-500/20 text-blue-500'
                               : app.status === 'accepted'
                               ? 'bg-success/20 text-success'
                               : 'bg-destructive/20 text-destructive'
                           }`}>
                             {app.status === 'pending' && 'En attente'}
+                            {app.status === 'interview_waiting' && 'En attente d\'entretien'}
                             {app.status === 'accepted' && 'Acceptée'}
                             {app.status === 'rejected' && 'Refusée'}
                           </span>
@@ -588,11 +591,11 @@ const Panel: React.FC = () => {
                       {app.status === 'pending' && (
                           <>
                             <button
-                              onClick={async () => await updateApplicationStatus(app.id, 'accepted')}
-                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
+                              onClick={async () => await updateApplicationStatus(app.id, 'interview_waiting')}
+                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors whitespace-nowrap"
                             >
                               <Check className="w-4 h-4" />
-                              Accepter
+                              Mise en attente
                             </button>
                             <button
                               onClick={async () => await updateApplicationStatus(app.id, 'rejected')}
@@ -1990,11 +1993,14 @@ const Panel: React.FC = () => {
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         appToView.status === 'pending'
                           ? 'bg-accent/20 text-accent'
+                          : appToView.status === 'interview_waiting'
+                          ? 'bg-blue-500/20 text-blue-500'
                           : appToView.status === 'accepted'
                           ? 'bg-success/20 text-success'
                           : 'bg-destructive/20 text-destructive'
                       }`}>
                         {appToView.status === 'pending' && 'En attente'}
+                        {appToView.status === 'interview_waiting' && 'En attente d\'entretien'}
                         {appToView.status === 'accepted' && 'Acceptée'}
                         {appToView.status === 'rejected' && 'Refusée'}
                       </span>
@@ -2072,15 +2078,15 @@ const Panel: React.FC = () => {
                     <button
                       onClick={async () => {
                         if (appToView) {
-                          await updateApplicationStatus(appToView.id, 'accepted');
+                          await updateApplicationStatus(appToView.id, 'interview_waiting');
                           setShowAppDetailDialog(false);
                           setAppToView(null);
                         }
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors"
                     >
                       <Check className="w-4 h-4" />
-                      Accepter
+                      Mise en attente
                     </button>
                     <button
                       onClick={async () => {

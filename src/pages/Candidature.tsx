@@ -254,6 +254,34 @@ const Candidature: React.FC = () => {
             </div>
           ) : isRecruitmentOpen ? (
             <>
+              {/* Message candidature en attente d'entretien */}
+              {isUserLoggedIn && currentUser && (() => {
+                const interviewWaitingApp = applications.find(app => 
+                  app.idJoueur === currentUser.idPersonnel && app.status === 'interview_waiting'
+                );
+                if (interviewWaitingApp) {
+                  return (
+                    <div className="glass-card mb-8 animate-fade-up border-l-4 border-blue-500">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 pt-0.5">
+                          <CheckCircle className="w-6 h-6 text-blue-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="text-lg font-bold mb-2 text-blue-500">En attente d'entretien</h2>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Félicitations! Votre candidature a été présélectionnée.
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Vous êtes maintenant en attente d'entretien. L'équipe de LS Custom's vous contactera très bientôt pour fixer une date. Merci de votre intérêt!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              
               {/* Error */}
               {status === 'error' && (
                 <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 animate-fade-up">
@@ -385,11 +413,14 @@ const Candidature: React.FC = () => {
                                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                                     app.status === 'pending'
                                       ? 'bg-accent/20 text-accent'
+                                      : app.status === 'interview_waiting'
+                                      ? 'bg-blue-500/20 text-blue-500'
                                       : app.status === 'accepted'
                                       ? 'bg-success/20 text-success'
                                       : 'bg-destructive/20 text-destructive'
                                   }`}>
                                     {app.status === 'pending' && 'En attente'}
+                                    {app.status === 'interview_waiting' && 'En attente d\'entretien'}
                                     {app.status === 'accepted' && 'Acceptée'}
                                     {app.status === 'rejected' && 'Refusée'}
                                   </span>
@@ -498,11 +529,14 @@ const Candidature: React.FC = () => {
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     appToView.status === 'pending'
                       ? 'bg-accent/20 text-accent'
+                      : appToView.status === 'interview_waiting'
+                      ? 'bg-blue-500/20 text-blue-500'
                       : appToView.status === 'accepted'
                       ? 'bg-success/20 text-success'
                       : 'bg-destructive/20 text-destructive'
                   }`}>
                     {appToView.status === 'pending' && 'En attente'}
+                    {appToView.status === 'interview_waiting' && 'En attente d\'entretien'}
                     {appToView.status === 'accepted' && 'Acceptée'}
                     {appToView.status === 'rejected' && 'Refusée'}
                   </span>

@@ -8,7 +8,7 @@ export interface Application {
   idJoueur: string;
   motivation: string;
   experience: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'pending' | 'interview_waiting' | 'accepted' | 'rejected';
   createdAt: Date;
   sessionId: string;
 }
@@ -89,7 +89,7 @@ interface RecruitmentContextType {
   currentSession: RecruitmentSession | null;
   teamMembers: TeamMember[];
   addApplication: (app: Omit<Application, 'id' | 'status' | 'createdAt' | 'sessionId'>) => Promise<boolean>;
-  updateApplicationStatus: (id: string, status: 'accepted' | 'rejected') => Promise<void>;
+  updateApplicationStatus: (id: string, status: 'interview_waiting' | 'accepted' | 'rejected') => Promise<void>;
   deleteApplication: (id: string) => Promise<void>;
   hasActiveApplication: (idJoueur: string) => boolean;
   createSession: (name: string) => Promise<void>;
@@ -794,14 +794,14 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     return true;
   };
 
-  const updateApplicationStatus = async (id: string, status: 'accepted' | 'rejected') => {
+  const updateApplicationStatus = async (id: string, status: 'interview_waiting' | 'accepted' | 'rejected') => {
     const application = applications.find(app => app.id === id);
     
     setApplications(prev =>
       prev.map(app => (app.id === id ? { ...app, status } : app))
     );
 
-    // Si la candidature est acceptée, changer le grade de l'utilisateur de 'client' à 'employee'
+    // Si la candidature est acceptée (pas en attente d'entretien), changer le grade de l'utilisateur de 'client' à 'employee'
     if (status === 'accepted' && application) {
       const userToUpdate = users.find(u => u.idPersonnel === application.idJoueur);
       if (userToUpdate && userToUpdate.grade === 'client') {

@@ -606,6 +606,24 @@ const Panel: React.FC = () => {
                             </button>
                           </>
                         )}
+                        {app.status === 'interview_waiting' && (
+                          <>
+                            <button
+                              onClick={async () => await updateApplicationStatus(app.id, 'accepted')}
+                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors whitespace-nowrap"
+                            >
+                              <Check className="w-4 h-4" />
+                              Accepter
+                            </button>
+                            <button
+                              onClick={async () => await updateApplicationStatus(app.id, 'rejected')}
+                              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors whitespace-nowrap"
+                            >
+                              <X className="w-4 h-4" />
+                              Refuser
+                            </button>
+                          </>
+                        )}
                         {!isRH && (
                           <button
                             onClick={() => {
@@ -2108,6 +2126,48 @@ const Panel: React.FC = () => {
                       }}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
                     >
+                      Fermer
+                    </button>
+                  </>
+                ) : appToView?.status === 'interview_waiting' ? (
+                  <>
+                    <button
+                      onClick={async () => {
+                        if (appToView) {
+                          await updateApplicationStatus(appToView.id, 'accepted');
+                          setShowAppDetailDialog(false);
+                          setAppToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-success/10 text-success hover:bg-success/20 transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Accepter
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (appToView) {
+                          await updateApplicationStatus(appToView.id, 'rejected');
+                          setShowAppDetailDialog(false);
+                          setAppToView(null);
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Refuser
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAppDetailDialog(false);
+                        setAppToView(null);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-muted text-muted-foreground hover:bg-secondary transition-colors"
+                    >
+                      Fermer
+                    </button>
+                  </>
+                ) : (
                       Fermer
                     </button>
                   </>

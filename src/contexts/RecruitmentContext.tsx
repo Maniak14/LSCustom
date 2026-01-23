@@ -1600,14 +1600,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase
-          .from('appointments')
-          .update({
-            status,
-            responded_by: respondedBy,
-            responded_at: new Date().toISOString(),
-          })
-          .eq('id', id);
+        await supabase.rpc('update_appointment', {
+          appointment_id: id,
+          new_status: status,
+          new_responded_by: respondedBy,
+          new_responded_at: new Date().toISOString(),
+        });
       } catch (error) {
         console.error('Error updating appointment status in Supabase:', error);
         saveToLocalStorage();

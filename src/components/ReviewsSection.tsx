@@ -80,13 +80,11 @@ const ReviewsSection: React.FC = () => {
 
         {approvedReviews.length > 0 ? (
           <>
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 ${
-              paginatedReviews.length < 3 ? 'justify-items-center' : ''
-            }`}>
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
               {paginatedReviews.map((review) => (
             <div
               key={review.id}
-              className="glass-card p-6 animate-fade-up relative group"
+              className="glass-card p-6 animate-fade-up relative group w-full sm:min-w-[280px] sm:max-w-[320px]"
             >
               {/* Bouton de suppression pour les utilisateurs direction et dev */}
               {(currentUser?.grade === 'direction' || currentUser?.grade === 'dev') && (

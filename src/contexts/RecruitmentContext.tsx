@@ -644,10 +644,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         // Fermer les sessions actives dans Supabase
         const activeSessions = updatedSessions.filter(s => s.isActive);
         for (const session of activeSessions) {
-          await supabase
-            .from('sessions')
-            .update({ is_active: false, end_date: new Date().toISOString() })
-            .eq('id', session.id);
+          await supabase.rpc('update_session', {
+            session_id: session.id,
+            new_is_active: false,
+            new_end_date: new Date().toISOString(),
+            new_name: null,
+          });
         }
 
         // Créer la nouvelle session
@@ -672,10 +674,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase
-          .from('sessions')
-          .update({ is_active: false, end_date: new Date().toISOString() })
-          .eq('id', sessionId);
+        await supabase.rpc('update_session', {
+          session_id: sessionId,
+          new_is_active: false,
+          new_end_date: new Date().toISOString(),
+          new_name: null,
+        });
       } catch (error) {
         console.error('Error closing session in Supabase:', error);
         saveToLocalStorage();
@@ -688,10 +692,9 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const deleteSession = async (sessionId: string) => {
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase
-          .from('sessions')
-          .delete()
-          .eq('id', sessionId);
+        const { error } = await supabase.rpc('delete_session', {
+          session_id: sessionId,
+        });
         
         if (error) {
           console.error('Error deleting session from Supabase:', error);
@@ -1123,10 +1126,15 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       // Mettre à jour dans Supabase si configuré
       if (isSupabaseConfigured()) {
         try {
-          await supabase
-            .from('users')
-            .update({ password: hashedPassword })
-            .eq('id', user.id);
+          await supabase.rpc('update_user', {
+            user_id: user.id,
+            new_password: hashedPassword,
+            new_prenom: null,
+            new_nom: null,
+            new_telephone: null,
+            new_grade: null,
+            new_photo_url: null,
+          });
         } catch (error) {
           console.error('Error updating password hash in Supabase:', error);
         }
@@ -1520,14 +1528,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase
-          .from('client_reviews')
-          .update({
-            status,
-            approved_by: approvedBy,
-            approved_at: new Date().toISOString(),
-          })
-          .eq('id', id);
+        await supabase.rpc('update_client_review', {
+          review_id: id,
+          new_status: status,
+          new_approved_by: approvedBy,
+          new_approved_at: new Date().toISOString(),
+        });
       } catch (error) {
         console.error('Error updating review status in Supabase:', error);
         saveToLocalStorage();
@@ -1699,14 +1705,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Sauvegarder dans Supabase si configuré
     if (isSupabaseConfigured()) {
       try {
-        const updateData: any = {};
-        if (updates.nom !== undefined) updateData.nom = updates.nom;
-        if (updates.logoUrl !== undefined) updateData.logo_url = updates.logoUrl;
-
-        const { error } = await supabase
-          .from('partenaires')
-          .update(updateData)
-          .eq('id', id);
+        const { error } = await supabase.rpc('update_partenaire', {
+          partenaire_id: id,
+          new_nom: updates.nom ?? null,
+          new_logo_url: updates.logoUrl ?? null,
+        });
         
         if (error) {
           console.error('Error updating partenaire in Supabase:', error);

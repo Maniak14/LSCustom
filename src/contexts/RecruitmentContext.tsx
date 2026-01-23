@@ -1358,18 +1358,37 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const addTeamMember = async (member: Omit<TeamMember, 'id' | 'order'> & { order?: number }) => {
     // Si l'ordre n'est pas spécifié, mettre le membre à la fin
     const maxOrder = teamMembers.length > 0 ? Math.max(...teamMembers.map(m => m.order ?? 0)) : -1;
-    const newMember: TeamMember = {
-      ...member,
-      id: crypto.randomUUID(),
-      order: member.order ?? (maxOrder + 1),
-    };
-    setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
-
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('team_members').insert(teamMemberToRow(newMember));
+        const { data: newId } = await supabase.rpc('insert_team_member', {
+          p_user_id: member.userId || null,
+          p_prenom: member.prenom,
+          p_nom: member.nom,
+          p_role: member.role,
+          p_photo: member.photo || null,
+          p_order: member.order ?? (maxOrder + 1)
+        });
+        
+        const newMember: TeamMember = {
+          ...member,
+          id: newId || crypto.randomUUID(),
+          order: member.order ?? (maxOrder + 1),
+        };
+        setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
       } catch (error) {
         console.error('Error adding team member to Supabase:', error);
+                const newMember: TeamMember = {
+                  ...member,
+                  id: crypto.randomUUID(),
+                  order: member.order ?? (maxOrder + 1),
+                };
+                setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+              const newMember: TeamMember = {
+                ...member,
+                id: crypto.randomUUID(),
+                order: member.order ?? (maxOrder + 1),
+              };
+              setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
         saveToLocalStorage();
       }
     } else {
@@ -1382,7 +1401,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('team_members').delete().eq('id', id);
+        await supabase.rpc('delete_team_member', { member_id: id });
       } catch (error) {
         console.error('Error removing team member from Supabase:', error);
         saveToLocalStorage();
@@ -1452,8 +1471,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         const otherIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
         const otherMember = updatedMembers[otherIndex];
         
-        await supabase.from('team_members').update({ order: currentMember.order }).eq('id', currentMember.id);
-        await supabase.from('team_members').update({ order: otherMember.order }).eq('id', otherMember.id);
+        await supabase.rpc('update_team_member', { member_id: currentMember.id, new_order: currentMember.order });
+        await supabase.rpc('update_team_member', { member_id: otherMember.id, new_order: otherMember.order });
       } catch (error) {
         console.error('Error updating team member order in Supabase:', error);
         saveToLocalStorage();
@@ -1524,8 +1543,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const deleteReview = async (id: string) => {
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('client_reviews').delete().eq('id', id);
-        if (error) throw error;
+        await supabase.rpc('delete_client_review', { review_id: id });
         setClientReviews(prev => prev.filter(review => review.id !== id));
       } catch (error) {
         console.error('Error deleting review from Supabase:', error);
@@ -1602,8 +1620,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const deleteAppointment = async (id: string) => {
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('appointments').delete().eq('id', id);
-        if (error) throw error;
+        await supabase.rpc('delete_appointment', { appointment_id: id });
         setAppointments(prev => prev.filter(appointment => appointment.id !== id));
       } catch (error) {
         console.error('Error deleting appointment from Supabase:', error);
@@ -1660,11 +1677,10 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Sauvegarder dans Supabase si configuré
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('partenaires').insert(partenaireToRow(newPartenaire));
-        if (error) {
-          console.error('Error adding partenaire to Supabase:', error);
-          // Les données sont déjà dans localStorage, donc pas besoin de les sauvegarder à nouveau
-        }
+        await supabase.rpc('insert_partenaire', {
+          p_nom: newPartenaire.nom,
+          p_logo_url: newPartenaire.logoUrl
+        });
       } catch (error) {
         console.error('Error adding partenaire to Supabase:', error);
         // Les données sont déjà dans localStorage, donc pas besoin de les sauvegarder à nouveau
@@ -1709,8 +1725,7 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   const deletePartenaire = async (id: string) => {
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('partenaires').delete().eq('id', id);
-        if (error) throw error;
+        await supabase.rpc('delete_partenaire', { partenaire_id: id });
         setPartenaires(prev => prev.filter(partenaire => partenaire.id !== id));
       } catch (error) {
         console.error('Error deleting partenaire from Supabase:', error);

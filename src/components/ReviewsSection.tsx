@@ -66,12 +66,6 @@ const ReviewsSection: React.FC = () => {
     }
   };
 
-  // Afficher la section même s'il n'y a pas d'avis, mais seulement les avis si connecté
-  // Si pas connecté et pas d'avis, ne rien afficher
-  if (!isUserLoggedIn && approvedReviews.length === 0) {
-    return null;
-  }
-
   return (
     <section className="py-12 px-4 bg-background">
       <div className="max-w-7xl mx-auto">

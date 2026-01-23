@@ -988,6 +988,16 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
+  // Fonction pour capitaliser la première lettre de chaque mot
+  const capitalizeName = (name?: string) => {
+    if (!name) return name;
+    return name
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   // User management functions
   const registerUser = async (idPersonnel: string, password: string, telephone: string, grade: 'direction' | 'client' | 'dev' | 'rh' | 'employee' = 'client', prenom?: string, nom?: string): Promise<User | null | { error: 'id' | 'telephone' }> => {
     // Vérifier si l'ID personnel existe déjà
@@ -1005,13 +1015,17 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     // Hasher le mot de passe avant de le stocker
     const hashedPassword = await hashPassword(password);
 
+    // Capitaliser le prénom et le nom si fournis
+    const capitalizedPrenom = capitalizeName(prenom);
+    const capitalizedNom = capitalizeName(nom);
+
     const newUser: User = {
       id: crypto.randomUUID(),
       idPersonnel,
       password: hashedPassword,
       telephone,
-      prenom,
-      nom,
+      prenom: capitalizedPrenom,
+      nom: capitalizedNom,
       grade,
       createdAt: new Date(),
     };

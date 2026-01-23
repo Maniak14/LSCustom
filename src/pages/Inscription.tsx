@@ -30,6 +30,15 @@ const Inscription: React.FC = () => {
     setSuccess('');
   };
 
+  // Fonction pour capitaliser la première lettre de chaque mot
+  const capitalizeName = (name: string) => {
+    return name
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -58,7 +67,11 @@ const Inscription: React.FC = () => {
         return;
       }
 
-      const result = await registerUser(formData.idPersonnel, formData.password, formData.telephone, 'client', formData.prenom, formData.nom);
+      // Capitaliser le prénom et le nom
+      const capitalizedPrenom = capitalizeName(formData.prenom);
+      const capitalizedNom = capitalizeName(formData.nom);
+
+      const result = await registerUser(formData.idPersonnel, formData.password, formData.telephone, 'client', capitalizedPrenom, capitalizedNom);
       if (result && 'error' in result) {
         // Erreur de doublon
         if (result.error === 'id') {

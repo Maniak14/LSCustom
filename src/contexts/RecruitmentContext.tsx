@@ -810,13 +810,18 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
           prev.map(u => u.id === userToUpdate.id ? { ...u, grade: 'employee' } : u)
         );
 
-        // Mettre à jour dans Supabase
+        // Mettre à jour dans Supabase via RPC sécurisée
         if (isSupabaseConfigured()) {
           try {
-            await supabase
-              .from('users')
-              .update({ grade: 'employee' })
-              .eq('id', userToUpdate.id);
+            await supabase.rpc('update_user', {
+              user_id: userToUpdate.id,
+              new_grade: 'employee',
+              new_prenom: null,
+              new_nom: null,
+              new_telephone: null,
+              new_photo_url: null,
+              new_password: null,
+            });
           } catch (error) {
             console.error('Error updating user grade in Supabase:', error);
           }
@@ -826,10 +831,10 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase
-          .from('applications')
-          .update({ status })
-          .eq('id', id);
+        await supabase.rpc('update_application', {
+          application_id: id,
+          new_status: status,
+        });
       } catch (error) {
         console.error('Error updating application status in Supabase:', error);
         saveToLocalStorage();

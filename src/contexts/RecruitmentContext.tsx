@@ -1416,18 +1416,14 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
 
     if (isSupabaseConfigured()) {
       try {
-        const updateData: Partial<TeamMemberRow> = {};
-        if (member.prenom !== undefined) updateData.prenom = member.prenom;
-        if (member.nom !== undefined) updateData.nom = member.nom;
-        if (member.role !== undefined) updateData.role = member.role;
-        if (member.order !== undefined) updateData.order = member.order;
-        if (member.photo !== undefined) updateData.photo = member.photo || null;
-        if (member.userId !== undefined) updateData.user_id = member.userId || null;
-
-        await supabase
-          .from('team_members')
-          .update(updateData)
-          .eq('id', id);
+        await supabase.rpc('update_team_member', {
+          member_id: id,
+          new_prenom: member.prenom ?? null,
+          new_nom: member.nom ?? null,
+          new_role: member.role ?? null,
+          new_photo: member.photo ?? null,
+          new_order: member.order ?? null,
+        });
       } catch (error) {
         console.error('Error updating team member in Supabase:', error);
         saveToLocalStorage();

@@ -829,10 +829,11 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
     }
 
+    // Mettre à jour le statut via RPC sécurisée
     if (isSupabaseConfigured()) {
       try {
         await supabase.rpc('update_application', {
-          application_id: id,
+          app_id: id,
           new_status: status,
         });
       } catch (error) {

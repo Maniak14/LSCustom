@@ -1179,17 +1179,18 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(updatedUser));
     }
 
-    // Sauvegarder dans Supabase
+    // Sauvegarder dans Supabase via RPC sécurisée
     if (isSupabaseConfigured()) {
       try {
-        const updateData: any = {};
-        if (newPassword) updateData.password = passwordToStore;
-        if (newTelephone) updateData.telephone = newTelephone;
-
-        await supabase
-          .from('users')
-          .update(updateData)
-          .eq('id', currentUser.id);
+        await supabase.rpc('update_user', {
+          user_id: currentUser.id,
+          new_telephone: newTelephone ?? null,
+          new_password: newPassword ? passwordToStore : null,
+          new_prenom: null,
+          new_nom: null,
+          new_grade: null,
+          new_photo_url: null,
+        });
       } catch (error) {
         console.error('Error updating user in Supabase:', error);
         saveToLocalStorage();
@@ -1266,20 +1267,18 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(updatedUser));
     }
 
-    // Sauvegarder dans Supabase
+    // Sauvegarder dans Supabase via RPC sécurisée
     if (isSupabaseConfigured()) {
       try {
-        const updateData: any = {};
-        if (data.prenom !== undefined) updateData.prenom = data.prenom || null;
-        if (data.nom !== undefined) updateData.nom = data.nom || null;
-        if (data.telephone !== undefined) updateData.telephone = data.telephone;
-        if (data.grade !== undefined) updateData.grade = data.grade;
-        if (data.photoUrl !== undefined) updateData.photo_url = data.photoUrl || null;
-
-        await supabase
-          .from('users')
-          .update(updateData)
-          .eq('id', userId);
+        await supabase.rpc('update_user', {
+          user_id: userId,
+          new_prenom: data.prenom ?? null,
+          new_nom: data.nom ?? null,
+          new_telephone: data.telephone ?? null,
+          new_grade: data.grade ?? null,
+          new_photo_url: data.photoUrl ?? null,
+          new_password: null,
+        });
       } catch (error) {
         console.error('Error updating user in Supabase:', error);
         saveToLocalStorage();
@@ -1308,13 +1307,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       return false;
     }
 
-    // Supprimer de Supabase d'abord
+    // Supprimer via Supabase (RPC sécurisée)
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase
-          .from('users')
-          .delete()
-          .eq('id', userId);
+        const { error } = await supabase.rpc('delete_user', {
+          user_id: userId,
+        });
 
         if (error) {
           console.error('Error deleting user from Supabase:', error);

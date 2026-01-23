@@ -29,3 +29,4 @@ dist-ssr
 *.sw?
 SECURITE-RLS-GUIDE.md
 supabase-security-update.sql
+ 

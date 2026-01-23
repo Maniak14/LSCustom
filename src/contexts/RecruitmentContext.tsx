@@ -846,28 +846,25 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const deleteApplication = async (id: string) => {
+    // Supprimer de l'état local d'abord
+    setApplications(prev => prev.filter(app => app.id !== id));
+
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase
-          .from('applications')
-          .delete()
-          .eq('id', id);
+        const { error } = await supabase.rpc('delete_application', {
+          app_id: id,
+        });
 
         if (error) {
           console.error('Error deleting application from Supabase:', error);
           throw error;
         }
-
-        // Supprimer de l'état local seulement si la suppression Supabase réussit
-        setApplications(prev => prev.filter(app => app.id !== id));
       } catch (error) {
         console.error('Error deleting application from Supabase:', error);
-        // Ne pas supprimer de l'état local si la suppression Supabase échoue
+        saveToLocalStorage();
         throw error;
       }
     } else {
-      // Supprimer de l'état local pour localStorage
-      setApplications(prev => prev.filter(app => app.id !== id));
       saveToLocalStorage();
     }
   };

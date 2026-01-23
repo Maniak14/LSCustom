@@ -27,3 +27,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+SECURITE-RLS-GUIDE.md
+supabase-security-update.sql

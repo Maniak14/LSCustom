@@ -1377,21 +1377,21 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
         setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
       } catch (error) {
         console.error('Error adding team member to Supabase:', error);
-                const newMember: TeamMember = {
-                  ...member,
-                  id: crypto.randomUUID(),
-                  order: member.order ?? (maxOrder + 1),
-                };
-                setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
-              const newMember: TeamMember = {
-                ...member,
-                id: crypto.randomUUID(),
-                order: member.order ?? (maxOrder + 1),
-              };
-              setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+        const newMember: TeamMember = {
+          ...member,
+          id: crypto.randomUUID(),
+          order: member.order ?? (maxOrder + 1),
+        };
+        setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
         saveToLocalStorage();
       }
     } else {
+      const newMember: TeamMember = {
+        ...member,
+        id: crypto.randomUUID(),
+        order: member.order ?? (maxOrder + 1),
+      };
+      setTeamMembers(prev => [...prev, newMember].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
       saveToLocalStorage();
     }
   };

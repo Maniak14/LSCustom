@@ -722,9 +722,10 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     
     if (isSupabaseConfigured()) {
       try {
-        await supabase
-          .from('settings')
-          .upsert({ key: 'recruitment_open', value: String(open) }, { onConflict: 'key' });
+        await supabase.rpc('update_setting', {
+          setting_key: 'recruitment_open',
+          new_value: String(open),
+        });
       } catch (error) {
         console.error('Error updating recruitment status in Supabase:', error);
         saveToLocalStorage();

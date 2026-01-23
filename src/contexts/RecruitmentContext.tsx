@@ -1360,6 +1360,8 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
     const maxOrder = teamMembers.length > 0 ? Math.max(...teamMembers.map(m => m.order ?? 0)) : -1;
     const newMember: TeamMember = {
       ...member,
+      prenom: capitalizeName(member.prenom),
+      nom: capitalizeName(member.nom),
       id: crypto.randomUUID(),
       order: member.order ?? (maxOrder + 1),
     };
@@ -1393,19 +1395,24 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const updateTeamMember = async (id: string, member: Partial<Omit<TeamMember, 'id'>>) => {
+    // Capitaliser le prénom et le nom si fournis
+    const updatedMember = { ...member };
+    if (member.prenom) updatedMember.prenom = capitalizeName(member.prenom);
+    if (member.nom) updatedMember.nom = capitalizeName(member.nom);
+
     setTeamMembers(prev =>
-      prev.map(m => (m.id === id ? { ...m, ...member } : m)).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      prev.map(m => (m.id === id ? { ...m, ...updatedMember } : m)).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     );
 
     if (isSupabaseConfigured()) {
       try {
         const updateData: Partial<TeamMemberRow> = {};
-        if (member.prenom !== undefined) updateData.prenom = member.prenom;
-        if (member.nom !== undefined) updateData.nom = member.nom;
-        if (member.role !== undefined) updateData.role = member.role;
-        if (member.order !== undefined) updateData.order = member.order;
-        if (member.photo !== undefined) updateData.photo = member.photo || null;
-        if (member.userId !== undefined) updateData.user_id = member.userId || null;
+        if (updatedMember.prenom !== undefined) updateData.prenom = updatedMember.prenom;
+        if (updatedMember.nom !== undefined) updateData.nom = updatedMember.nom;
+        if (updatedMember.role !== undefined) updateData.role = updatedMember.role;
+        if (updatedMember.order !== undefined) updateData.order = updatedMember.order;
+        if (updatedMember.photo !== undefined) updateData.photo = updatedMember.photo || null;
+        if (updatedMember.userId !== undefined) updateData.user_id = updatedMember.userId || null;
 
         await supabase
           .from('team_members')

@@ -7,12 +7,24 @@ CREATE TABLE IF NOT EXISTS applications (
   nom_rp TEXT NOT NULL,
   prenom_rp TEXT NOT NULL,
   id_joueur TEXT NOT NULL,
+  telephone TEXT NOT NULL,
   motivation TEXT NOT NULL,
   experience TEXT,
   status TEXT NOT NULL CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
   session_id UUID NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Migration: add telephone column if table exists without it
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name='applications' AND table_schema='public' AND column_name='telephone'
+  ) THEN
+    ALTER TABLE public.applications ADD COLUMN telephone TEXT NOT NULL DEFAULT '';
+  END IF;
+END $$;
 
 -- Table des sessions de recrutement
 CREATE TABLE IF NOT EXISTS sessions (

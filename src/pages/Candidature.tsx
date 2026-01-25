@@ -136,6 +136,7 @@ const Candidature: React.FC = () => {
       const success = await addApplication({
         ...formData,
         age: parsedAge,
+        telephone: (currentUser?.telephone || '').trim(),
       });
       
       if (success) {
@@ -680,7 +681,7 @@ const Candidature: React.FC = () => {
                     <label className="block text-sm font-medium text-muted-foreground mb-1">
                       Téléphone
                     </label>
-                    <p className="text-base font-medium">{currentUser?.telephone ?? 'Non renseigné'}</p>
+                    <p className="text-base font-medium">{appToView.telephone ?? currentUser?.telephone ?? 'Non renseigné'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">

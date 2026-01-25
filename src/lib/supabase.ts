@@ -17,6 +17,7 @@ export interface ApplicationRow {
   nom_rp: string;
   prenom_rp: string;
   id_joueur: string;
+  telephone: string;
   motivation: string;
   experience: string;
   age: number;

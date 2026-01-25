@@ -569,6 +569,9 @@ const Panel: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground mb-1">ID: {app.idJoueur}</p>
+                        {app.telephone && (
+                          <p className="text-xs text-muted-foreground mb-1">Téléphone: {app.telephone}</p>
+                        )}
                         {session && (
                           <p className="text-xs text-muted-foreground mb-1">
                             Session: {session.name}
@@ -2054,6 +2057,12 @@ const Panel: React.FC = () => {
                           Âge
                         </label>
                         <p className="text-base font-medium">{appToView.age ?? 'Non renseigné'}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Téléphone
+                        </label>
+                        <p className="text-base font-medium">{appToView.telephone ?? 'Non renseigné'}</p>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">

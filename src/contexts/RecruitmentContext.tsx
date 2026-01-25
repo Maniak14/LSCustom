@@ -6,6 +6,7 @@ export interface Application {
   nomRP: string;
   prenomRP: string;
   idJoueur: string;
+  telephone: string;
   motivation: string;
   experience: string;
   age: number;
@@ -154,6 +155,7 @@ const rowToApplication = (row: ApplicationRow): Application => ({
   nomRP: row.nom_rp,
   prenomRP: row.prenom_rp,
   idJoueur: row.id_joueur,
+  telephone: row.telephone,
   motivation: row.motivation,
   experience: row.experience ?? '',
   age: Number(row.age ?? 0),
@@ -172,6 +174,7 @@ const applicationToRow = (app: Omit<Application, 'id' | 'createdAt'> & { id?: st
   nom_rp: app.nomRP,
   prenom_rp: app.prenomRP,
   id_joueur: app.idJoueur,
+  telephone: app.telephone,
   motivation: app.motivation,
   experience: app.experience,
   age: app.age,

@@ -2050,6 +2050,12 @@ const Panel: React.FC = () => {
                         <p className="text-base font-medium">{appToView.idJoueur}</p>
                       </div>
                       <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Âge
+                        </label>
+                        <p className="text-base font-medium">{appToView.age ?? 'Non renseigné'}</p>
+                      </div>
+                      <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
                           <Clock className="w-3 h-3" />
                           Date de candidature
@@ -2077,16 +2083,51 @@ const Panel: React.FC = () => {
                     </div>
 
                     {/* Expérience */}
-                    {appToView.experience && (
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-2">
+                        Expérience professionnelle
+                      </label>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                        <p className="text-sm whitespace-pre-wrap">{appToView.experience || 'Non renseignée'}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
-                          Expérience
+                          Qualités
                         </label>
                         <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                          <p className="text-sm whitespace-pre-wrap">{appToView.experience}</p>
+                          <p className="text-sm whitespace-pre-wrap">{appToView.qualites || 'Non renseignées'}</p>
                         </div>
                       </div>
-                    )}
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">
+                          Défauts
+                        </label>
+                        <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                          <p className="text-sm whitespace-pre-wrap">{appToView.defauts || 'Non renseignés'}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-2">
+                        Vos disponibilités (uniquement celles où vous serez susceptibles de travailler)
+                      </label>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                        <p className="text-sm whitespace-pre-wrap">{appToView.disponibilites || 'Non renseignées'}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-2">
+                        Pourquoi le LS plutôt qu’un autre ?
+                      </label>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                        <p className="text-sm whitespace-pre-wrap">{appToView.whyLS || 'Non renseigné'}</p>
+                      </div>
+                    </div>
                   </div>
                 );
               })()}

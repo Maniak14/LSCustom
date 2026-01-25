@@ -19,6 +19,11 @@ export interface ApplicationRow {
   id_joueur: string;
   motivation: string;
   experience: string;
+  age: number;
+  qualites: string;
+  defauts: string;
+  disponibilites: string;
+  why_ls: string;
   status: 'pending' | 'interview_waiting' | 'accepted' | 'rejected';
   created_at: string;
   session_id: string;

@@ -8,6 +8,11 @@ export interface Application {
   idJoueur: string;
   motivation: string;
   experience: string;
+  age: number;
+  qualites: string;
+  defauts: string;
+  disponibilites: string;
+  whyLS: string;
   status: 'pending' | 'interview_waiting' | 'accepted' | 'rejected';
   createdAt: Date;
   sessionId: string;
@@ -150,7 +155,12 @@ const rowToApplication = (row: ApplicationRow): Application => ({
   prenomRP: row.prenom_rp,
   idJoueur: row.id_joueur,
   motivation: row.motivation,
-  experience: row.experience,
+  experience: row.experience ?? '',
+  age: Number(row.age ?? 0),
+  qualites: row.qualites ?? '',
+  defauts: row.defauts ?? '',
+  disponibilites: row.disponibilites ?? '',
+  whyLS: row.why_ls ?? '',
   status: row.status,
   createdAt: new Date(row.created_at),
   sessionId: row.session_id,
@@ -164,6 +174,11 @@ const applicationToRow = (app: Omit<Application, 'id' | 'createdAt'> & { id?: st
   id_joueur: app.idJoueur,
   motivation: app.motivation,
   experience: app.experience,
+  age: app.age,
+  qualites: app.qualites,
+  defauts: app.defauts,
+  disponibilites: app.disponibilites,
+  why_ls: app.whyLS,
   status: app.status,
   session_id: app.sessionId,
   created_at: app.createdAt?.toISOString(),
@@ -542,6 +557,12 @@ export const RecruitmentProvider: React.FC<{ children: ReactNode }> = ({ childre
       const parsed = JSON.parse(storedApps);
       setApplications(parsed.map((app: any) => ({
         ...app,
+        age: typeof app.age === 'number' ? app.age : Number(app.age ?? 0),
+        qualites: app.qualites ?? '',
+        defauts: app.defauts ?? '',
+        disponibilites: app.disponibilites ?? '',
+        whyLS: app.whyLS ?? app.why_ls ?? '',
+        experience: app.experience ?? '',
         createdAt: new Date(app.createdAt),
       })));
     }

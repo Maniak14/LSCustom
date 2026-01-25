@@ -24,6 +24,11 @@ const Candidature: React.FC = () => {
     idJoueur: '',
     motivation: '',
     experience: '',
+    age: '',
+    qualites: '',
+    defauts: '',
+    disponibilites: '',
+    whyLS: '',
   });
   
   const [status, setStatus] = useState<'idle' | 'checking' | 'error' | 'success' | 'existing'>('idle');
@@ -96,9 +101,28 @@ const Candidature: React.FC = () => {
     // Utiliser l'ID de l'utilisateur connecté si disponible
     const userIdToCheck = isUserLoggedIn && currentUser ? currentUser.idPersonnel : formData.idJoueur;
 
-    if (!formData.nomRP || !formData.prenomRP || !formData.idJoueur || !formData.motivation) {
+    const parsedAge = Number(formData.age);
+
+    if (
+      !formData.nomRP ||
+      !formData.prenomRP ||
+      !formData.idJoueur ||
+      !formData.motivation ||
+      !formData.experience ||
+      !formData.qualites ||
+      !formData.defauts ||
+      !formData.disponibilites ||
+      !formData.whyLS ||
+      !formData.age
+    ) {
       setStatus('error');
       setErrorMessage('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    if (!Number.isFinite(parsedAge) || parsedAge <= 0) {
+      setStatus('error');
+      setErrorMessage('Veuillez indiquer un âge valide.');
       return;
     }
 
@@ -109,7 +133,10 @@ const Candidature: React.FC = () => {
     }
 
     try {
-      const success = await addApplication(formData);
+      const success = await addApplication({
+        ...formData,
+        age: parsedAge,
+      });
       
       if (success) {
         // Sauvegarder l'identifiant dans localStorage (pour compatibilité avec ancien système)
@@ -321,40 +348,104 @@ const Candidature: React.FC = () => {
               </div>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Identifiant *</label>
-              <input
-                type="text"
-                name="idJoueur"
-                value={formData.idJoueur}
-                onChange={handleChange}
-                className="input-modern disabled:opacity-60 disabled:cursor-not-allowed"
-                placeholder="Votre identifiant"
-                disabled={isUserLoggedIn && !!currentUser}
-                required
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Identifiant *</label>
+                <input
+                  type="text"
+                  name="idJoueur"
+                  value={formData.idJoueur}
+                  onChange={handleChange}
+                  className="input-modern disabled:opacity-60 disabled:cursor-not-allowed"
+                  placeholder="Votre identifiant"
+                  disabled={isUserLoggedIn && !!currentUser}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Âge *</label>
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  className="input-modern"
+                  placeholder="18"
+                  min={1}
+                  required
+                />
+              </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Motivation *</label>
+              <label className="block text-sm font-medium mb-2">Motivations *</label>
               <textarea
                 name="motivation"
                 value={formData.motivation}
                 onChange={handleChange}
                 className="input-modern min-h-[120px] resize-none"
-                placeholder="Pourquoi souhaitez-vous rejoindre LS Custom's ?"
+                placeholder="Parlez-nous de vos motivations pour rejoindre LS Custom's"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Expérience professionnelle *</label>
+              <textarea
+                name="experience"
+                value={formData.experience}
+                onChange={handleChange}
+                className="input-modern min-h-[100px] resize-none"
+                placeholder="Détaillez vos expériences précédentes"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Qualités *</label>
+              <textarea
+                name="qualites"
+                value={formData.qualites}
+                onChange={handleChange}
+                className="input-modern min-h-[80px] resize-none"
+                placeholder="Vos atouts pour le poste"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Défauts *</label>
+              <textarea
+                name="defauts"
+                value={formData.defauts}
+                onChange={handleChange}
+                className="input-modern min-h-[80px] resize-none"
+                placeholder="Points d'amélioration identifiés"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Vos disponibilités (uniquement celles où vous serez susceptibles de travailler) *</label>
+              <textarea
+                name="disponibilites"
+                value={formData.disponibilites}
+                onChange={handleChange}
+                className="input-modern min-h-[80px] resize-none"
+                placeholder="Ex: Lundi au vendredi, 18h - 23h"
                 required
               />
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Expérience</label>
+              <label className="block text-sm font-medium mb-2">Pourquoi le LS plutôt qu’un autre ? *</label>
               <textarea
-                name="experience"
-                value={formData.experience}
+                name="whyLS"
+                value={formData.whyLS}
                 onChange={handleChange}
                 className="input-modern min-h-[80px] resize-none"
-                placeholder="Expérience en mécanique (optionnel)"
+                placeholder="Expliquez ce qui vous attire spécifiquement chez LS Custom's"
+                required
               />
             </div>
 
@@ -568,6 +659,12 @@ const Candidature: React.FC = () => {
                     <p className="text-base font-medium">{appToView.idJoueur}</p>
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
+                      Âge
+                    </label>
+                    <p className="text-base font-medium">{appToView.age ?? 'Non renseigné'}</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
                       <Clock className="w-3 h-3" />
                       Date de candidature
@@ -595,16 +692,51 @@ const Candidature: React.FC = () => {
                 </div>
 
                 {/* Expérience */}
-                {appToView.experience && (
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    Expérience professionnelle
+                  </label>
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                    <p className="text-sm whitespace-pre-wrap">{appToView.experience || 'Non renseignée'}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Expérience
+                      Qualités
                     </label>
                     <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                      <p className="text-sm whitespace-pre-wrap">{appToView.experience}</p>
+                      <p className="text-sm whitespace-pre-wrap">{appToView.qualites || 'Non renseignées'}</p>
                     </div>
                   </div>
-                )}
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                      Défauts
+                    </label>
+                    <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                      <p className="text-sm whitespace-pre-wrap">{appToView.defauts || 'Non renseignés'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    Vos disponibilités (uniquement celles où vous serez susceptibles de travailler)
+                  </label>
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                    <p className="text-sm whitespace-pre-wrap">{appToView.disponibilites || 'Non renseignées'}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    Pourquoi le LS plutôt qu’un autre ?
+                  </label>
+                  <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                    <p className="text-sm whitespace-pre-wrap">{appToView.whyLS || 'Non renseigné'}</p>
+                  </div>
+                </div>
               </div>
             );
           })()}

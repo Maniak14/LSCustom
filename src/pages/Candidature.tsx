@@ -321,7 +321,7 @@ const Candidature: React.FC = () => {
               <form onSubmit={handleSubmit} className="glass-card mb-8 animate-fade-up-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Prénom *</label>
+                <label className="block text-sm font-medium mb-2">Prénom</label>
                 <input
                   type="text"
                   name="prenomRP"
@@ -334,7 +334,7 @@ const Candidature: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Nom *</label>
+                <label className="block text-sm font-medium mb-2">Nom</label>
                 <input
                   type="text"
                   name="nomRP"

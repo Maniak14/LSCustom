@@ -2330,7 +2330,7 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Raison du rendez-vous
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
                         <p className="text-sm whitespace-pre-wrap">{appointmentToView.reason}</p>
                       </div>
                     </div>

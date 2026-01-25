@@ -350,7 +350,7 @@ const Candidature: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Identifiant *</label>
+                <label className="block text-sm font-medium mb-2">Identifiant</label>
                 <input
                   type="text"
                   name="idJoueur"
@@ -363,7 +363,7 @@ const Candidature: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Âge *</label>
+                <label className="block text-sm font-medium mb-2">Âge</label>
                 <input
                   type="number"
                   name="age"
@@ -375,10 +375,22 @@ const Candidature: React.FC = () => {
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Numéro de téléphone</label>
+                <input
+                  type="tel"
+                  name="telephone"
+                  value={currentUser?.telephone || ''}
+                  onChange={() => {}}
+                  className="input-modern disabled:opacity-60 disabled:cursor-not-allowed"
+                  placeholder="Votre numéro de téléphone"
+                  disabled
+                />
+              </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Motivations *</label>
+              <label className="block text-sm font-medium mb-2">Motivations</label>
               <textarea
                 name="motivation"
                 value={formData.motivation}
@@ -390,7 +402,7 @@ const Candidature: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Expérience professionnelle *</label>
+              <label className="block text-sm font-medium mb-2">Expérience professionnelle</label>
               <textarea
                 name="experience"
                 value={formData.experience}
@@ -402,7 +414,7 @@ const Candidature: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Qualités *</label>
+              <label className="block text-sm font-medium mb-2">Qualités</label>
               <textarea
                 name="qualites"
                 value={formData.qualites}
@@ -414,7 +426,7 @@ const Candidature: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Défauts *</label>
+              <label className="block text-sm font-medium mb-2">Défauts</label>
               <textarea
                 name="defauts"
                 value={formData.defauts}
@@ -426,7 +438,7 @@ const Candidature: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Vos disponibilités (uniquement celles où vous serez susceptibles de travailler) *</label>
+              <label className="block text-sm font-medium mb-2">Vos disponibilités (uniquement celles où vous serez susceptibles de travailler)</label>
               <textarea
                 name="disponibilites"
                 value={formData.disponibilites}
@@ -438,7 +450,7 @@ const Candidature: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Pourquoi le LS plutôt qu’un autre ? *</label>
+              <label className="block text-sm font-medium mb-2">Pourquoi le LS plutôt qu’un autre ?</label>
               <textarea
                 name="whyLS"
                 value={formData.whyLS}
@@ -458,7 +470,7 @@ const Candidature: React.FC = () => {
             </button>
 
             <p className="text-xs text-center text-muted-foreground mt-4">
-              * Champs obligatoires · Une candidature par personne
+              Champs obligatoires · Une candidature par personne
             </p>
           </form>
             </>
@@ -663,6 +675,12 @@ const Candidature: React.FC = () => {
                       Âge
                     </label>
                     <p className="text-base font-medium">{appToView.age ?? 'Non renseigné'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
+                      Téléphone
+                    </label>
+                    <p className="text-base font-medium">{currentUser?.telephone ?? 'Non renseigné'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">

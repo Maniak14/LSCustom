@@ -2077,8 +2077,8 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Motivation
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
-                        <p className="text-sm whitespace-pre-wrap">{appToView.motivation}</p>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                        <p className="text-sm whitespace-pre-wrap break-all">{appToView.motivation}</p>
                       </div>
                     </div>
 
@@ -2087,8 +2087,8 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Expérience professionnelle
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
-                        <p className="text-sm whitespace-pre-wrap">{appToView.experience || 'Non renseignée'}</p>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                        <p className="text-sm whitespace-pre-wrap break-all">{appToView.experience || 'Non renseignée'}</p>
                       </div>
                     </div>
 
@@ -2097,16 +2097,16 @@ const Panel: React.FC = () => {
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
                           Qualités
                         </label>
-                        <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
-                          <p className="text-sm whitespace-pre-wrap">{appToView.qualites || 'Non renseignées'}</p>
+                        <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                          <p className="text-sm whitespace-pre-wrap break-all">{appToView.qualites || 'Non renseignées'}</p>
                         </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-muted-foreground mb-2">
                           Défauts
                         </label>
-                        <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
-                          <p className="text-sm whitespace-pre-wrap">{appToView.defauts || 'Non renseignés'}</p>
+                        <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                          <p className="text-sm whitespace-pre-wrap break-all">{appToView.defauts || 'Non renseignés'}</p>
                         </div>
                       </div>
                     </div>
@@ -2115,8 +2115,8 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Vos disponibilités (uniquement celles où vous serez susceptibles de travailler)
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
-                        <p className="text-sm whitespace-pre-wrap">{appToView.disponibilites || 'Non renseignées'}</p>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                        <p className="text-sm whitespace-pre-wrap break-all">{appToView.disponibilites || 'Non renseignées'}</p>
                       </div>
                     </div>
 
@@ -2124,8 +2124,8 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Pourquoi le LS plutôt qu’un autre ?
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
-                        <p className="text-sm whitespace-pre-wrap">{appToView.whyLS || 'Non renseigné'}</p>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                        <p className="text-sm whitespace-pre-wrap break-all">{appToView.whyLS || 'Non renseigné'}</p>
                       </div>
                     </div>
                   </div>
@@ -2330,7 +2330,7 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Raison du rendez-vous
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
                         <p className="text-sm whitespace-pre-wrap">{appointmentToView.reason}</p>
                       </div>
                     </div>
@@ -2563,7 +2563,7 @@ const Panel: React.FC = () => {
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
                       Commentaire
                     </label>
-                    <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words">
+                    <div className="p-4 rounded-lg bg-muted/30 border border-border">
                       <p className="text-sm whitespace-pre-wrap">{reviewToView.comment}</p>
                     </div>
                   </div>

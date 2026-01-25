@@ -2330,8 +2330,8 @@ const Panel: React.FC = () => {
                       <label className="block text-sm font-medium text-muted-foreground mb-2">
                         Raison du rendez-vous
                       </label>
-                      <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                        <p className="text-sm whitespace-pre-wrap">{appointmentToView.reason}</p>
+                      <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                        <p className="text-sm whitespace-pre-wrap break-all">{appointmentToView.reason}</p>
                       </div>
                     </div>
                   </div>
@@ -2563,8 +2563,8 @@ const Panel: React.FC = () => {
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
                       Commentaire
                     </label>
-                    <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                      <p className="text-sm whitespace-pre-wrap">{reviewToView.comment}</p>
+                    <div className="p-4 rounded-lg bg-muted/30 border border-border max-h-48 overflow-y-auto break-words break-all">
+                      <p className="text-sm whitespace-pre-wrap break-all">{reviewToView.comment}</p>
                     </div>
                   </div>
                 </div>

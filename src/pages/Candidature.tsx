@@ -24,10 +24,10 @@ const Candidature: React.FC = () => {
     idJoueur: '',
     motivation: '',
     experience: '',
-    age: '',
-    qualites: '',
-    defauts: '',
-    disponibilites: '',
+                      <div className="flex items-center justify-between p-4 border-t border-border">
+                        <p className="text-sm text-muted-foreground">
+                          Page 1 sur 5 (42 utilisateurs)
+                        </p>
     whyLS: '',
   });
   

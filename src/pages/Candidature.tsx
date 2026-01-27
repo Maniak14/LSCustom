@@ -24,6 +24,10 @@ const Candidature: React.FC = () => {
     idJoueur: '',
     motivation: '',
     experience: '',
+    age: '',
+    qualites: '',
+    defauts: '',
+    disponibilites: '',
     whyLS: '',
   });
   
@@ -577,7 +581,7 @@ const Candidature: React.FC = () => {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-between p-4 border-t border-border">
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                         <p className="text-sm text-muted-foreground">
                           Page {currentPage} sur {totalPages} ({userApplications.length} candidature{userApplications.length > 1 ? 's' : ''})
                         </p>

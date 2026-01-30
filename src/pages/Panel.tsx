@@ -338,7 +338,7 @@ const Panel: React.FC = () => {
             <button
               onClick={() => setStatusFilter('all')}
               className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
-                statusFilter === 'all' ? 'ring-2 ring-primary' : ''
+                statusFilter === 'all' ? 'ring-2 ring-primary hover:ring-2 hover:ring-primary' : ''
               }`}
             >
               <Users className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
@@ -348,7 +348,7 @@ const Panel: React.FC = () => {
             <button
               onClick={() => setStatusFilter('pending')}
               className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
-                statusFilter === 'pending' ? 'ring-2 ring-accent' : ''
+                statusFilter === 'pending' ? 'ring-2 ring-accent hover:ring-2 hover:ring-accent' : ''
               }`}
             >
               <Clock className="w-5 h-5 text-accent mx-auto mb-2" />
@@ -358,7 +358,7 @@ const Panel: React.FC = () => {
             <button
               onClick={() => setStatusFilter('accepted')}
               className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
-                statusFilter === 'accepted' ? 'ring-2 ring-success' : ''
+                statusFilter === 'accepted' ? 'ring-2 ring-success hover:ring-2 hover:ring-success' : ''
               }`}
             >
               <Check className="w-5 h-5 text-success mx-auto mb-2" />
@@ -368,7 +368,7 @@ const Panel: React.FC = () => {
             <button
               onClick={() => setStatusFilter('rejected')}
               className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
-                statusFilter === 'rejected' ? 'ring-2 ring-destructive' : ''
+                statusFilter === 'rejected' ? 'ring-2 ring-destructive hover:ring-2 hover:ring-destructive' : ''
               }`}
             >
               <X className="w-5 h-5 text-destructive mx-auto mb-2" />

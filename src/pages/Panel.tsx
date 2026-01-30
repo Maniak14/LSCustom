@@ -340,6 +340,7 @@ const Panel: React.FC = () => {
               className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'all' ? 'ring-2 ring-primary hover:ring-2 hover:ring-primary' : ''
               }`}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <Users className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
               <p className="text-2xl font-bold">{applications.length}</p>
@@ -350,6 +351,7 @@ const Panel: React.FC = () => {
               className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'pending' ? 'ring-2 ring-accent hover:ring-2 hover:ring-accent' : ''
               }`}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <Clock className="w-5 h-5 text-accent mx-auto mb-2" />
               <p className="text-2xl font-bold text-accent">{pendingCount}</p>
@@ -360,6 +362,7 @@ const Panel: React.FC = () => {
               className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'accepted' ? 'ring-2 ring-success hover:ring-2 hover:ring-success' : ''
               }`}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <Check className="w-5 h-5 text-success mx-auto mb-2" />
               <p className="text-2xl font-bold text-success">{acceptedCount}</p>
@@ -370,6 +373,7 @@ const Panel: React.FC = () => {
               className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'rejected' ? 'ring-2 ring-destructive hover:ring-2 hover:ring-destructive' : ''
               }`}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <X className="w-5 h-5 text-destructive mx-auto mb-2" />
               <p className="text-2xl font-bold text-destructive">{rejectedCount}</p>

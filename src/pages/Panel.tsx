@@ -149,11 +149,17 @@ const Panel: React.FC = () => {
   const [showDeleteSessionDialog, setShowDeleteSessionDialog] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [deleteSessionError, setDeleteSessionError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
 
-  // Filtrer les candidatures selon la session sélectionnée
-  const filteredApplications = selectedSessionId === null 
+  // Filtrer les candidatures selon la session sélectionnée et le statut
+  let filteredApplications = selectedSessionId === null 
     ? applications 
     : getApplicationsBySession(selectedSessionId);
+  
+  // Appliquer le filtre de statut
+  if (statusFilter !== 'all') {
+    filteredApplications = filteredApplications.filter(app => app.status === statusFilter);
+  }
 
   // Pagination
   const totalPages = Math.ceil(filteredApplications.length / applicationsPerPage);
@@ -168,10 +174,10 @@ const Panel: React.FC = () => {
     }
   }, [currentPage, totalPages]);
 
-  // Réinitialiser la page quand on change de session ou de recherche
+  // Réinitialiser la page quand on change de session, de recherche ou de statut
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedSessionId, appSearchQuery]);
+  }, [selectedSessionId, appSearchQuery, statusFilter]);
 
   // Filtrer les utilisateurs selon la recherche
   const filteredUsers = userSearchQuery.trim()
@@ -326,26 +332,46 @@ const Panel: React.FC = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="glass-card text-center !p-4">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+                statusFilter === 'all' ? 'ring-2 ring-primary' : ''
+              }`}
+            >
               <Users className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
               <p className="text-2xl font-bold">{applications.length}</p>
               <p className="text-xs text-muted-foreground">Total</p>
-            </div>
-            <div className="glass-card text-center !p-4">
+            </button>
+            <button
+              onClick={() => setStatusFilter('pending')}
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+                statusFilter === 'pending' ? 'ring-2 ring-accent' : ''
+              }`}
+            >
               <Clock className="w-5 h-5 text-accent mx-auto mb-2" />
               <p className="text-2xl font-bold text-accent">{pendingCount}</p>
               <p className="text-xs text-muted-foreground">En attente</p>
-            </div>
-            <div className="glass-card text-center !p-4">
+            </button>
+            <button
+              onClick={() => setStatusFilter('accepted')}
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+                statusFilter === 'accepted' ? 'ring-2 ring-success' : ''
+              }`}
+            >
               <Check className="w-5 h-5 text-success mx-auto mb-2" />
               <p className="text-2xl font-bold text-success">{acceptedCount}</p>
               <p className="text-xs text-muted-foreground">Acceptées</p>
-            </div>
-            <div className="glass-card text-center !p-4">
+            </button>
+            <button
+              onClick={() => setStatusFilter('rejected')}
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+                statusFilter === 'rejected' ? 'ring-2 ring-destructive' : ''
+              }`}
+            >
               <X className="w-5 h-5 text-destructive mx-auto mb-2" />
               <p className="text-2xl font-bold text-destructive">{rejectedCount}</p>
               <p className="text-xs text-muted-foreground">Refusées</p>
-            </div>
+            </button>
           </div>
 
           {/* Recruitment Toggle - Masqué pour RH */}

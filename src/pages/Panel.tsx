@@ -337,7 +337,7 @@ const Panel: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <button
               onClick={() => setStatusFilter('all')}
-              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'all' ? 'ring-2 ring-primary hover:ring-2 hover:ring-primary' : ''
               }`}
             >
@@ -347,7 +347,7 @@ const Panel: React.FC = () => {
             </button>
             <button
               onClick={() => setStatusFilter('pending')}
-              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'pending' ? 'ring-2 ring-accent hover:ring-2 hover:ring-accent' : ''
               }`}
             >
@@ -357,7 +357,7 @@ const Panel: React.FC = () => {
             </button>
             <button
               onClick={() => setStatusFilter('accepted')}
-              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'accepted' ? 'ring-2 ring-success hover:ring-2 hover:ring-success' : ''
               }`}
             >
@@ -367,7 +367,7 @@ const Panel: React.FC = () => {
             </button>
             <button
               onClick={() => setStatusFilter('rejected')}
-              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 focus:outline-none active:scale-105 ${
                 statusFilter === 'rejected' ? 'ring-2 ring-destructive hover:ring-2 hover:ring-destructive' : ''
               }`}
             >

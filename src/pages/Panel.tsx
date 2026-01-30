@@ -331,7 +331,7 @@ const Panel: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <button
               onClick={() => setStatusFilter('all')}
-              className={`glass-card text-center !p-4 transition-all hover:brightness-110 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
                 statusFilter === 'all' ? 'ring-2 ring-primary' : ''
               }`}
             >
@@ -341,7 +341,7 @@ const Panel: React.FC = () => {
             </button>
             <button
               onClick={() => setStatusFilter('pending')}
-              className={`glass-card text-center !p-4 transition-all hover:brightness-110 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
                 statusFilter === 'pending' ? 'ring-2 ring-accent' : ''
               }`}
             >
@@ -351,7 +351,7 @@ const Panel: React.FC = () => {
             </button>
             <button
               onClick={() => setStatusFilter('accepted')}
-              className={`glass-card text-center !p-4 transition-all hover:brightness-110 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
                 statusFilter === 'accepted' ? 'ring-2 ring-success' : ''
               }`}
             >
@@ -361,7 +361,7 @@ const Panel: React.FC = () => {
             </button>
             <button
               onClick={() => setStatusFilter('rejected')}
-              className={`glass-card text-center !p-4 transition-all hover:brightness-110 ${
+              className={`glass-card text-center !p-4 transition-all hover:scale-105 ${
                 statusFilter === 'rejected' ? 'ring-2 ring-destructive' : ''
               }`}
             >

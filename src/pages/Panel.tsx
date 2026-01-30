@@ -151,12 +151,18 @@ const Panel: React.FC = () => {
   const [deleteSessionError, setDeleteSessionError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
 
-  // Filtrer les candidatures selon la session sélectionnée et le statut
-  let filteredApplications = selectedSessionId === null 
+  // Filtrer les candidatures selon la session sélectionnée (pour les stats)
+  const sessionFilteredApplications = selectedSessionId === null 
     ? applications 
     : getApplicationsBySession(selectedSessionId);
   
-  // Appliquer le filtre de statut
+  // Calculer les statistiques sur les candidatures filtrées par session uniquement
+  const pendingCount = sessionFilteredApplications.filter(a => a.status === 'pending').length;
+  const acceptedCount = sessionFilteredApplications.filter(a => a.status === 'accepted').length;
+  const rejectedCount = sessionFilteredApplications.filter(a => a.status === 'rejected').length;
+
+  // Appliquer le filtre de statut pour l'affichage
+  let filteredApplications = sessionFilteredApplications;
   if (statusFilter !== 'all') {
     filteredApplications = filteredApplications.filter(app => app.status === statusFilter);
   }
@@ -237,15 +243,6 @@ const Panel: React.FC = () => {
   const paginatedAppointments = filteredAppointments
     .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
     .slice(appointmentStartIndex, appointmentEndIndex);
-
-  // Réinitialiser la page rendez-vous quand on change de recherche
-  useEffect(() => {
-    setCurrentAppointmentPage(1);
-  }, [appointmentSearchQuery]);
-
-  const pendingCount = filteredApplications.filter(a => a.status === 'pending').length;
-  const acceptedCount = filteredApplications.filter(a => a.status === 'accepted').length;
-  const rejectedCount = filteredApplications.filter(a => a.status === 'rejected').length;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

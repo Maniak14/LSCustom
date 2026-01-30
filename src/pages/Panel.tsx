@@ -157,14 +157,20 @@ const Panel: React.FC = () => {
     : getApplicationsBySession(selectedSessionId);
   
   // Calculer les statistiques sur les candidatures filtrées par session uniquement
-  const pendingCount = sessionFilteredApplications.filter(a => a.status === 'pending').length;
+  // "En attente" inclut 'pending' et 'interview_waiting'
+  const pendingCount = sessionFilteredApplications.filter(a => a.status === 'pending' || a.status === 'interview_waiting').length;
   const acceptedCount = sessionFilteredApplications.filter(a => a.status === 'accepted').length;
   const rejectedCount = sessionFilteredApplications.filter(a => a.status === 'rejected').length;
 
   // Appliquer le filtre de statut pour l'affichage
   let filteredApplications = sessionFilteredApplications;
   if (statusFilter !== 'all') {
-    filteredApplications = filteredApplications.filter(app => app.status === statusFilter);
+    if (statusFilter === 'pending') {
+      // Le filtre "En attente" inclut 'pending' et 'interview_waiting'
+      filteredApplications = filteredApplications.filter(app => app.status === 'pending' || app.status === 'interview_waiting');
+    } else {
+      filteredApplications = filteredApplications.filter(app => app.status === statusFilter);
+    }
   }
 
   // Pagination
